@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 
 from flask import Flask
 from flask_restx import Api
-<<<<<<< HEAD
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)

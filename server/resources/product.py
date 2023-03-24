@@ -22,10 +22,7 @@ class MakeProduct(Resource):
         product_obj = json.loads(json.dumps(body))
         product_obj['created_date'] = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
         product_obj['status'] = False
-       
-       # TODO : Add Query and Save to DB 
-       
-       return jsonify(result)
+        pass 
         
         
         
