@@ -2,3 +2,7 @@ Flask==2.1.2
 firebase_admin==6.1.0
 python-dotenv==1.0.0
 flask_restx==1.1.0
+flask_sqlalchemy==3.0.3
+flask_migrate==4.0.4
+flask_mongoengine==1.0.0
+python-dotenv
