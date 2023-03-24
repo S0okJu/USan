@@ -1,4 +1,5 @@
 from app import rdb
+import datetime
 
 class User(rdb.Model):
     __tablename__= 'User'
@@ -13,6 +14,6 @@ class Product(rdb.Model):
     address = rdb.Column(rdb.String(30), nullable=False)
     content = rdb.Column(rdb.String(1000), nullable=False)
     created_date = rdb.Column(rdb.DateTime(), nullable=False)
-    modified_date = rdb.Column(rdb.DateTime(),nullable=False)
+    modified_date = rdb.Column(rdb.DateTime(),nullable=datetime.datetime.utcnow)
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.id'))
      
