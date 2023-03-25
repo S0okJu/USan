@@ -1,6 +1,4 @@
 from db.init_db import rdb
-import utils.color as msg
-import datetime
 
 class UserModel(rdb.Model):
     __tablename__= 'User'
