@@ -6,7 +6,7 @@ from flask import request,Response, jsonify
 from flask_restx import Resource
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from models import ProductModel
+from models import ProductModel, UserModel
 from db.init_db import rdb
 
 class Product(Resource):
@@ -28,10 +28,11 @@ class MakeProduct(Resource):
     def post(self):
         body = request.get_json() 
         obj = json.loads(json.dumps(body))
-        p = ProductModel(title=obj['title'], author=obj['author'],
+        author_data = UserModel.query.filter(UserModel.username == obj['author']).first()
+        p = ProductModel(title=obj['title'], author=author_data,
             price=obj['price'],address=obj['address'], content=obj['content'],
             created_date= datetime.datetime.now(), modified_date=datetime.datetime.now(),
-            status=False, user_id=obj['user_id'])
+            status=False)
         
         rdb.session.add(p)
         rdb.session.commit()

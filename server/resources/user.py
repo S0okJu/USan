@@ -11,7 +11,7 @@ class RegisterUser(Resource):
     def post(self):
         # body = request.get_json() 
         # obj = json.loads(json.dumps(body))
-        user = UserModel(email="sample@chosun.kr",password="12345",address="임시 주소",
+        user = UserModel(username="sample",email="sample@chosun.kr",password="12345",address="임시 주소",
             created_date = datetime.datetime.now(), modified_date=datetime.datetime.now())
         rdb.session.add(user)
         rdb.session.commit()
