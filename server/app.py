@@ -1,22 +1,26 @@
 import os
-from dotenv import load_dotenv
 
-from flask import Flask
+from flask import Flask 
 from flask_restx import Api
-from flask_sqlalchemy import SQLAlchemy
+
+from db.init_db import init_db
+from resources import product
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
-# init DB 
-rdb = SQLAlchemy()
+# DB Setup 
 load_dotenv()
 app.config['SECRET_KEY'] =  os.environ.get('SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.environ.get('SQLALCHEMY_TRACK_MODIFICATIONS')
-rdb.init_app(app)
+    
+init_db(app)
 
-# Add resource 
+# Add Resource 
 api = Api(app)
+api.add_resource(product.Product, '/product/<int:product_id>')
 
-if __name__ =="__main__":
-    app.run(debug=True, host='0.0.0.0')
+if __name__ == '__main__':
+    app.run()
+    
