@@ -9,7 +9,7 @@ from resources import product, user
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-migrate = Migrate()
+
 
 # DB Setup 
 load_dotenv()
