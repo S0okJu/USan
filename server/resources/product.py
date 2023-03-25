@@ -14,7 +14,10 @@ class Product(Resource):
     # 상품 정보 조회 
     def get(self, product_id):
         question = ProductModel.query.get(product_id)
-        return question
+        q_dict = {}
+        for col in question.__table__.columns:
+            q_dict[col.name] = str(getattr(question, col.name))
+        return jsonify(q_dict)
         
     def patch(self,product_id):
         pass
