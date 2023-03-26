@@ -1,13 +1,17 @@
 import os, sys
 import json 
 import datetime
+import uuid
 
 from flask import request,Response, jsonify, Blueprint
-
+from werkzeug import secure_filename
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import ProductModel, UserModel
 from db.init_db import rdb
+
+# This is sample 
+IMAGE_DIRECTORY = '../../imgs'
 
 bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -68,6 +72,13 @@ def delete(product_id):
     return {"status_code" : 200, "message":"Delete product completely!"}
 
 
+@bp.route('/images',methods=["GET"])
+def upload_imgs():
+    if request.method == 'POST':
+        files = request.files
+        
+        for f in files.to_dict(flat=False)
+        
 
         
         

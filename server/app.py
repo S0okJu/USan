@@ -15,7 +15,12 @@ app = Flask(__name__)
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+# File upload setup
+app.config['UPLOAD_FOLDER'] = '../../imgs' # Sample
+app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 init_db(app)
+
 
 # Register the blueprint 
 app.register_blueprint(product.bp)

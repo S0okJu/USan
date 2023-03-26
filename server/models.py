@@ -1,5 +1,6 @@
 from db.init_db import rdb
 
+# user
 class UserModel(rdb.Model):
     __tablename__= 'User'
     user_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
@@ -9,7 +10,6 @@ class UserModel(rdb.Model):
     address = rdb.Column(rdb.String(40),nullable=False)
     created_date = rdb.Column(rdb.DateTime(), nullable=False)
     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
-
 
 class ProductModel(rdb.Model):
     __tablename__ = 'Product'
@@ -24,3 +24,9 @@ class ProductModel(rdb.Model):
     status = rdb.Column(rdb.Boolean, nullable=False)
     author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'))
     
+class ProductImageModel(rdb.Model):
+    __tablename__ = 'ProductImage'
+    img_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+    url = rdb.Column(rdb.String(20), nullable=False)
+    product = rdb.relationship('ProductModel', backref=rdb.backref('img_set'))
+    product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'))
