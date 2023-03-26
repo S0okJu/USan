@@ -10,9 +10,6 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import ProductModel, UserModel
 from db.init_db import rdb
 
-# This is sample 
-IMAGE_DIRECTORY = '../../imgs'
-
 bp = Blueprint('product', __name__, url_prefix='/product')
 
 # 상품 정보 조회 
@@ -75,9 +72,9 @@ def delete(product_id):
 @bp.route('/images',methods=["GET"])
 def upload_imgs():
     if request.method == 'POST':
-        files = request.files
+        upload_imgs = request.files
         
-        for f in files.to_dict(flat=False)
+
         
 
         
