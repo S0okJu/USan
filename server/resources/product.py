@@ -6,11 +6,10 @@ import uuid
 # * lib
 from flask import request,Response, jsonify, Blueprint
 import sqlalchemy.exc 
-from werkzeug import secure_filename
 
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from models import ProductModel, UserModel
+from models import ProductModel, UserModel, ProductImageModel
 from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg, model2json
@@ -118,15 +117,7 @@ def delete(product_id):
 
     return {"status_code" : 200, "message":"Delete product completely!"}
 
-
-@bp.route('/imgs',methods=["GET", "POST"])
-def upload_imgs():
-    if request.method == 'POST':
-        upload_imgs = request.files
-        
-
-        
-
+# 파일 업로드 
         
         
         
