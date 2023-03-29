@@ -18,7 +18,7 @@ from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg, model2json
 
-PROJECT_HOME = os.path.dirname(os.path.realpath(__file__))
+PROJECT_HOME = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
 IMG_FORMATS = {'JPEG':'.jpg', 'PNG':'.png'}
 
@@ -78,6 +78,7 @@ def post_product():
             status=False)
         rdb.session.add(product_session)
         rdb.session.commit()
+        
         # 이미지 저장 및 DB 저장 
         img = obj['imgs']
         if img:
