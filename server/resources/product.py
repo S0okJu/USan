@@ -4,23 +4,36 @@ import datetime
 import uuid
 
 from flask import request,Response, jsonify, Blueprint
-from werkzeug import secure_filename
+import sqlalchemy.exc 
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import ProductModel, UserModel
 from db.init_db import rdb
 
+import utils.color as msg
+from utils.changer import res_msg, model2json
+ 
 bp = Blueprint('product', __name__, url_prefix='/product')
 
 # 상품 정보 조회 
 @bp.route('/<int:product_id>', methods=["GET"])
 def get_product(product_id):
-    question = ProductModel.query.get(product_id)
-    # Model Date -> Json 
-    q_dict = {}
-    for col in question.__table__.columns:
-        q_dict[col.name] = str(getattr(question, col.name))
-    return jsonify(q_dict)
+    try:
+        question = ProductModel.query.get(product_id)
+        if not question:
+            msg.error("Data is not found!")
+            return res_msg(204,"No data in DB")
+                
+        q_dict = {}
+        for col in question.__table__.columns:
+            q_dict[col.name] = str(getattr(question, col.name))
+        return jsonify(q_dict)
+
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        msg.error(e)
+        rdb.session.rollback()
+        return res_msg(503, "Database Error")
+        
 
 @bp.route('/post',methods=["POST"])
 def post_product():
