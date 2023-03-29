@@ -81,7 +81,7 @@ def post_product():
         rdb.session.commit()
         
         # 이미지 저장 및 DB 저장 
-        img = request.files['file']
+        img = request.files['imgs']
         if img:
             filename = secure_filename(img.filename)
             url = UPLOAD_FOLDER + filename
