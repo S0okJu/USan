@@ -86,7 +86,7 @@ def post_product():
         filename = str(uuid.uuid4())
         total_path = UPLOAD_FOLDER+filename+".png"
         
-        with open(total_path,'wb') as im:
+        with open(total_path,'rb+') as im:
             im.write(img_bytes)
         
         return {"status_code" : 200, "message":"Post product completely!"}
