@@ -42,7 +42,7 @@ def get_product(product_id):
 @bp.route('/display', methods=["GET"])
 def display_product():
     # 상품명, 제작자 
-
+    pass
   
 
 @bp.route('/post',methods=["POST"])

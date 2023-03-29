@@ -12,7 +12,7 @@ class Color:
 
 # TODO 에러 잡기
 def create_msg(text):
-    print(Color.UNDERLINE + text + Color.UNDERLINE)
+    print(Color.YELLOW + text + Color.UNDERLINE)
 
 def error(text):
     print(Color.RED + text + Color.UNDERLINE)
