@@ -85,7 +85,7 @@ def post_product():
             img = BytesIO(img)
             img = Image.open(img)
             
-            img_filename = hashlib.md5(img.tobytes())
+            img_filename = str(hashlib.md5(img.tobytes()).hexdigest())
             img_extension = IMG_FORMATS[img.format]
             url = UPLOAD_FOLDER+img_filename+img_extension
             
