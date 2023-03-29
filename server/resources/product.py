@@ -19,7 +19,7 @@ from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg, model2json
 
-PROJECT_HOME = '/workspace/firstContainer/USan/'
+PROJECT_HOME = '/workspace/firstContainer/USan'
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
 IMG_FORMATS = {'JPEG':'.jpg', 'PNG':'.png'}
 
@@ -84,7 +84,7 @@ def post_product():
         img = request.files['imgs']
         if img:
             filename = secure_filename(img.filename)
-            url = UPLOAD_FOLDER + "\" + filename
+            url = UPLOAD_FOLDER  + filename
             img.save(UPLOAD_FOLDER,filename)
             
             img_session = ProductImageModel(url=url, product=obj['title'])
