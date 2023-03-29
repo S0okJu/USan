@@ -1,11 +1,10 @@
+import io
 import os, sys
 import json 
 import datetime
 import uuid
-from PIL import Image
-from io import BytesIO
 import base64
-import hashlib
+from PIL import Image
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
@@ -82,8 +81,12 @@ def post_product():
         
         # 이미지 저장 및 DB 저장 
         img = obj['imgs']
-        img_data =base64.b64decode(img)
-        print(img_data)
+        img_bytes =base64.b64decode(img)
+        img = Image.open(io.BytesIO(img_bytes))
+        filename = uuid.uuid4()
+        total_path = UPLOAD_FOLDER+filename+".png"
+        
+        img.save(total_path,"PNG")
         
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
