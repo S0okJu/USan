@@ -84,12 +84,12 @@ def post_product():
         if img:
             img = base64.b64decode(img)        
             img = BytesIO(img)
-            img = Image.open(img)
-            
-            img_filename = str(hashlib.md5(img.tobytes()).hexdigest())
+
+            img_filename = str(hashlib.md5(img.getbuffer()).hexdigest())
             img_extension = IMG_FORMATS[img.format]
             url = UPLOAD_FOLDER+img_filename+img_extension
             
+            img.open(url)
             img.save(url,format=img.format)
             
             img_session = ProductImageModel(url=url, product=obj['title'])
