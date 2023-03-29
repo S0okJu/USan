@@ -31,7 +31,9 @@ def get_product(product_id):
         author = UserModel.query.get(q_dict['author_id'])
         del(q_dict['author_id'])
         q_dict['author'] = author
+        print(q_dict)
         return jsonify(q_dict)
+    
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
         return res_msg(503, "Database Error")
