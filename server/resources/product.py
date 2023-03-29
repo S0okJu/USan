@@ -84,9 +84,10 @@ def post_product():
         img_bytes =base64.b64decode(img)
         img = Image.open(io.BytesIO(img_bytes))
         filename = str(uuid.uuid4())
-        total_path = UPLOAD_FOLDER+filename+".png"
         
-        img.save(total_path,"PNG")
+        total_path = UPLOAD_FOLDER+filename+".png"
+        img_open = img.open()
+        img_open.save(total_path,"PNG")
         
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
