@@ -87,7 +87,9 @@ def post_product():
         total_path = UPLOAD_FOLDER+filename+".png"
         
         with open(total_path,'rb+') as im:
+            im.read()
             im.write(img_bytes)
+            im.close()
         
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
