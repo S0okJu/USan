@@ -83,7 +83,7 @@ def post_product():
         img = obj['imgs']
         img_bytes =base64.b64decode(img)
         img = Image.open(io.BytesIO(img_bytes))
-        filename = uuid.uuid4()
+        filename = str(uuid.uuid4().strin)
         total_path = UPLOAD_FOLDER+filename+".png"
         
         img.save(total_path,"PNG")
