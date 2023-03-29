@@ -62,7 +62,7 @@ def post_product():
     try:
         # TODO User check using JWT Token 
         body = request.get_json() 
-        if not obj:
+        if not body:
             return res_msg(400, "Must provide message.")
         
         obj = json.loads(json.dumps(body))
