@@ -10,6 +10,7 @@ class Color:
     UNDERLINE = '\033[4m'
     RESET = '\033[0m'
 
+# TODO 에러 잡기 
 
 def create_msg(text):
     print(Color.YELLOW + text + Color.RESET)
