@@ -52,7 +52,6 @@ def post_product():
     try:
         # TODO User check using JWT Token 
         
-        
         body = request.get_json() 
         if not body:
             return res_msg(400, "Must provide message.")
@@ -63,6 +62,10 @@ def post_product():
         if not obj:
             msg.error("Data is not found!")
             return res_msg(404,"No data in DB")
+        
+        # Image download
+        obj_img = request.files['imgs']
+        print(type(obj_img))
         
         p = ProductModel(title=obj['title'], author=author_data,
             price=obj['price'],address=obj['address'], content=obj['content'],
@@ -117,7 +120,7 @@ def delete(product_id):
 
     return {"status_code" : 200, "message":"Delete product completely!"}
 
-# 파일 업로드 
+
         
         
         
