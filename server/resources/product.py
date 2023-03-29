@@ -81,15 +81,10 @@ def post_product():
         rdb.session.commit()
         
         # 이미지 저장 및 DB 저장 
-        if 'files[]' not in request.files:
-            msg.error('No File Part')
+        img = obj['imgs']
+        img_data =base64.b64decode(img)
+        print(img_data)
         
-        files = request.files.getlist('files[]')
-        for file in files:
-            if file:
-                file.save(os.path.join(UPLOAD_FOLDER),secure_filename(file))
-                
-    
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
