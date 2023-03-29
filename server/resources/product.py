@@ -2,6 +2,10 @@ import os, sys
 import json 
 import datetime
 import uuid
+from PIL import Image
+from io import BytesIO
+import base64
+import hashlib
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
@@ -13,7 +17,11 @@ from models import ProductModel, UserModel, ProductImageModel
 from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg, model2json
- 
+
+PROJECT_HOME = os.path.dirname(os.path.realpath(__file__))
+UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
+IMG_FORMATS = {'JPEG':'.jpg', 'PNG':'.png'}
+
 bp = Blueprint('product', __name__, url_prefix='/product')
 
 
@@ -46,9 +54,6 @@ def display_product():
     # 상품명, 제작자, 생성일 만 표시 
     pass
   
-# 빈 curly brackets 를 반환하는 function
-def on_json_loading_failed_return_dict(e):
-	return {}
 
 
 @bp.route('/post',methods=["POST"])
@@ -56,9 +61,8 @@ def post_product():
     
     try:
         # TODO User check using JWT Token 
-        
         body = request.get_json() 
-        if not body:
+        if not obj:
             return res_msg(400, "Must provide message.")
         
         obj = json.loads(json.dumps(body))
@@ -68,17 +72,29 @@ def post_product():
             msg.error("Data is not found!")
             return res_msg(404,"No data in DB")
         
-        # Image download
-        obj_img = request.files['file']
-        
-        
-        p = ProductModel(title=obj['title'], author=author_data,
+        product_session = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
             created_date= datetime.datetime.now(), modified_date=datetime.datetime.now(),
             status=False)
-        
-        rdb.session.add(p)
+        rdb.session.add(product_session)
         rdb.session.commit()
+        # 이미지 저장 및 DB 저장 
+        img = obj['imgs']
+        if img:
+            img = base64.b64decode(img)        
+            img = BytesIO(img)
+            img = Image.open(img)
+            
+            img_filename = hashlib.md5(img.tobytes())
+            img_extension = IMG_FORMATS[img.format]
+            url = UPLOAD_FOLDER+img_filename+img_extension
+            
+            img.save(url,format=img.format)
+            
+            img_session = ProductImageModel(url=url, product=obj['title'])
+            rdb.session.add(img_session)
+            rdb.session.commit()
+        
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
