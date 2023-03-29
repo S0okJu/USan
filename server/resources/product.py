@@ -18,7 +18,7 @@ from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg, model2json
 
-PROJECT_HOME = os.path.dirname(os.path.abspath(__file__))
+PROJECT_HOME = '/workspace/firstContainer/USan'
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
 IMG_FORMATS = {'JPEG':'.jpg', 'PNG':'.png'}
 
