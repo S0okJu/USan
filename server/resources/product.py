@@ -16,6 +16,7 @@ from utils.changer import res_msg, model2json
  
 bp = Blueprint('product', __name__, url_prefix='/product')
 
+
 # 상품 정보 조회
 # 개인 상품을 메인으로 볼때 사용된다.  
 @bp.route('/<int:product_id>', methods=["GET"])
@@ -45,10 +46,14 @@ def display_product():
     # 상품명, 제작자, 생성일 만 표시 
     pass
   
+# 빈 curly brackets 를 반환하는 function
+def on_json_loading_failed_return_dict(e):
+	return {}
+
 
 @bp.route('/post',methods=["POST"])
 def post_product():
-    
+    request.on_json_loading_failed = on_json_loading_failed_return_dict
     try:
         # TODO User check using JWT Token 
         
@@ -86,7 +91,7 @@ def modify_product(product_id):
     # TODO User check using JWT Token 
     
     # Modify the data
-    body = request.get_json() 
+    body = request.get_json('file') 
     if not body:
         msg.error("Data is not found!")
         return res_msg(404,"No data in DB")
