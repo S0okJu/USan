@@ -65,10 +65,11 @@ def post_product():
         
         # Image download
         obj_img = request.files['imgs']
+        
         print(type(obj_img))
         
         p = ProductModel(title=obj['title'], author=author_data,
-            price=obj['price'],address=obj['address'], content=obj['content'],
+            price=int(obj['price']),address=obj['address'], content=obj['content'],
             created_date= datetime.datetime.now(), modified_date=datetime.datetime.now(),
             status=False)
         
