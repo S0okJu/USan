@@ -84,7 +84,7 @@ def post_product():
         img = request.files['imgs']
         if img:
             filename = secure_filename(img.filename)
-            url = UPLOAD_FOLDER + filename
+            url = UPLOAD_FOLDER + "\" + filename
             img.save(UPLOAD_FOLDER,filename)
             
             img_session = ProductImageModel(url=url, product=obj['title'])
