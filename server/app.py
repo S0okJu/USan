@@ -17,7 +17,9 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # File upload setup
-app.config['UPLOAD_FOLDER'] = '../../imgs' # Sample
+PROJECT_HOME = os.path.dirname(os.path.realpath(__file__))
+UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 init_db(app)
 

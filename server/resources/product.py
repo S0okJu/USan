@@ -3,13 +3,15 @@ import json
 import datetime
 import uuid
 
+# * lib
 from flask import request,Response, jsonify, Blueprint
 import sqlalchemy.exc 
+from werkzeug import secure_filename
 
+# * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import ProductModel, UserModel
 from db.init_db import rdb
-
 import utils.color as msg
 from utils.changer import res_msg, model2json
  
@@ -38,6 +40,7 @@ def get_product(product_id):
         return res_msg(503, "Database Error")
 
 # 상품 조회 (개수별)
+# 이건 고민을 좀 더 해봐야할 것 같다.. 
 @bp.route('/display', methods=["GET"])
 def display_product():
     # 상품명, 제작자, 생성일 만 표시 
@@ -46,7 +49,11 @@ def display_product():
 
 @bp.route('/post',methods=["POST"])
 def post_product():
+    
     try:
+        # TODO User check using JWT Token 
+        
+        
         body = request.get_json() 
         if not body:
             return res_msg(400, "Must provide message.")
@@ -73,10 +80,14 @@ def post_product():
 
 @bp.route('/modify/<int:product_id>',methods=["POST"])
 def modify_product(product_id):
-    # TODO User check
+    # TODO User check using JWT Token 
     
     # Modify the data
     body = request.get_json() 
+    if not body:
+        msg.error("Data is not found!")
+        return res_msg(404,"No data in DB")
+
     obj = json.loads(json.dumps(body))
     p = ProductModel.query.get(product_id)
     
@@ -96,14 +107,19 @@ def modify_product(product_id):
 
 @bp.route('/delete/<int:product_id>',methods=["GET"])
 def delete(product_id):
+    # TODO User check using JWT Token 
+    
     p = ProductModel.query.get(product_id)
+    if not p:
+        msg.error("Data is not found!")
+        return res_msg(404,"No data in DB")
     rdb.session.delete(p)
     rdb.session.commit()
 
     return {"status_code" : 200, "message":"Delete product completely!"}
 
 
-@bp.route('/images',methods=["GET"])
+@bp.route('/imgs',methods=["GET", "POST"])
 def upload_imgs():
     if request.method == 'POST':
         upload_imgs = request.files
