@@ -5,26 +5,22 @@ import json
 import datetime
 import uuid
 import base64
-from PIL import Image
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
 import sqlalchemy.exc 
-from werkzeug.utils import secure_filename
 
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import ProductModel, UserModel, ProductImageModel
 from db.init_db import rdb
 import utils.color as msg
-from utils.changer import res_msg, model2json
+from utils.changer import res_msg
 
 PROJECT_HOME = '/workspace/firstContainer/USan'
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
 
-
 bp = Blueprint('product', __name__, url_prefix='/product')
-
 
 # 상품 정보 조회
 # 개인 상품을 메인으로 볼때 사용된다.  
@@ -80,16 +76,7 @@ def post_product():
         rdb.session.add(product_session)
         rdb.session.commit()
         
-        # 이미지 저장 및 DB 저장 
-        img = obj['imgs']
-        img_bytes =base64.b64decode(img)
-        filename = str(uuid.uuid4())
-        total_path = UPLOAD_FOLDER+filename+".png"
-        
-        with open(total_path,'rb+') as im:
-            im.read()
-            im.write(img_bytes)
-            im.close()
+        # TODO Image Download 
         
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
