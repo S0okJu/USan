@@ -53,7 +53,7 @@ def on_json_loading_failed_return_dict(e):
 
 @bp.route('/post',methods=["POST"])
 def post_product():
-    request.on_json_loading_failed = on_json_loading_failed_return_dict
+    
     try:
         # TODO User check using JWT Token 
         
@@ -69,9 +69,8 @@ def post_product():
             return res_msg(404,"No data in DB")
         
         # Image download
-        obj_img = request.files['imgs']
+        obj_img = request.files['file']
         
-        print(type(obj_img))
         
         p = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
@@ -91,7 +90,7 @@ def modify_product(product_id):
     # TODO User check using JWT Token 
     
     # Modify the data
-    body = request.get_json('file') 
+    body = request.get_json() 
     if not body:
         msg.error("Data is not found!")
         return res_msg(404,"No data in DB")
