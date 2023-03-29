@@ -15,14 +15,15 @@ from utils.changer import res_msg, model2json
  
 bp = Blueprint('product', __name__, url_prefix='/product')
 
-# 상품 정보 조회 
+# 상품 정보 조회
+# 개인 상품을 메인으로 볼때 사용된다.  
 @bp.route('/<int:product_id>', methods=["GET"])
 def get_product(product_id):
     try:
         question = ProductModel.query.get(product_id)
         if not question:
             msg.error("Data is not found!")
-            return res_msg(204,"No data in DB")
+            return res_msg(404,"No data in DB")
                 
         q_dict = {}
         for col in question.__table__.columns:
@@ -31,9 +32,12 @@ def get_product(product_id):
 
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
-        rdb.session.rollback()
         return res_msg(503, "Database Error")
-        
+      
+@bp.route('/display', methods=["GET"])
+def display_product():
+    pass
+  
 
 @bp.route('/post',methods=["POST"])
 def post_product():

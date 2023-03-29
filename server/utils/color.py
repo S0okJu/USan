@@ -15,6 +15,6 @@ def create_msg(text):
     print(Color.YELLOW + text + Color.RESET)
 
 def error(text):
-    print(Color.RED + text + Color.RESET)
+    print(str(Color.RED) + text + str(Color.RESET))
     
     
