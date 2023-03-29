@@ -10,6 +10,7 @@ import hashlib
 # * lib
 from flask import request,Response, jsonify, Blueprint
 import sqlalchemy.exc 
+from werkzeug.utils import secure_filename
 
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -80,17 +81,11 @@ def post_product():
         rdb.session.commit()
         
         # 이미지 저장 및 DB 저장 
-        img = obj['imgs']
+        img = request.files['file']
         if img:
-            img = base64.b64decode(img)        
-            img = BytesIO(img)
-            
-            img_filename = str(hashlib.md5(img.getbuffer()).hexdigest())
-            img_extension = IMG_FORMATS[img.format]
-            url = UPLOAD_FOLDER+img_filename+img_extension
-            
-            with img.open(url) as im:   
-                im.save(url,format=img.format)
+            filename = secure_filename(img.filename)
+            url = UPLOAD_FOLDER + filename
+            img.save(UPLOAD_FOLDER,filename)
             
             img_session = ProductImageModel(url=url, product=obj['title'])
             rdb.session.add(img_session)
