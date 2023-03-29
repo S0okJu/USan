@@ -21,7 +21,7 @@ from utils.changer import res_msg, model2json
 
 PROJECT_HOME = '/workspace/firstContainer/USan'
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
-IMG_FORMATS = {'JPEG':'.jpg', 'PNG':'.png'}
+
 
 bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -81,16 +81,15 @@ def post_product():
         rdb.session.commit()
         
         # 이미지 저장 및 DB 저장 
-        img = request.files['imgs']
-        if img:
-            filename = secure_filename(img.filename)
-            url = UPLOAD_FOLDER  + filename
-            img.save(UPLOAD_FOLDER,filename)
-            
-            img_session = ProductImageModel(url=url, product=obj['title'])
-            rdb.session.add(img_session)
-            rdb.session.commit()
+        if 'files[]' not in request.files:
+            msg.error('No File Part')
         
+        files = request.files.getlist('files[]')
+        for file in files:
+            if file:
+                file.save(os.path.join(UPLOAD_FOLDER),secure_filename(file))
+                
+    
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
