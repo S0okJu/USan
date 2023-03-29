@@ -31,7 +31,6 @@ def get_product(product_id):
         author = UserModel.query.get(q_dict['author_id'])
         del(q_dict['author_id'])
         q_dict['author'] = author
-        print(q_dict)
         return jsonify(q_dict)
     
     except sqlalchemy.exc.SQLAlchemyError as e:
@@ -41,7 +40,7 @@ def get_product(product_id):
 # 상품 조회 (개수별)
 @bp.route('/display', methods=["GET"])
 def display_product():
-    # 상품명, 제작자 
+    # 상품명, 제작자, 생성일 만 표시 
     pass
   
 
@@ -51,6 +50,7 @@ def post_product():
         body = request.get_json() 
         if not body:
             return res_msg(400, "Must provide message.")
+        
         obj = json.loads(json.dumps(body))
         
         author_data = UserModel.query.filter(UserModel.username == obj['author']).first()
