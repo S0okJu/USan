@@ -1,3 +1,4 @@
+import binascii
 import io
 import os, sys
 import json 
@@ -82,10 +83,11 @@ def post_product():
         # 이미지 저장 및 DB 저장 
         img = obj['imgs']
         img_bytes =base64.b64decode(img)
+        img_data = binascii.unhexlify(img_bytes)
         filename = str(uuid.uuid4())
         # total_path = UPLOAD_FOLDER+filename+".png"
         
-        img_bytes.save(UPLOAD_FOLDER,filename+".png")
+        img_data.save(UPLOAD_FOLDER,filename+".png")
         
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
