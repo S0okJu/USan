@@ -8,7 +8,7 @@ import base64
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
-import sqlalchemy.exc 
+from werkzeug import secure_filename
 
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -16,6 +16,7 @@ from models import ProductModel, UserModel, ProductImageModel
 from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg
+from app import app
 
 PROJECT_HOME = '/workspace/firstContainer/USan'
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
@@ -30,7 +31,11 @@ def get_product(product_id):
         question = ProductModel.query.get(product_id)
         if not question:
             msg.error("Data is not found!")
-            return res_msg(404,"No data in DB")
+            return Response(
+                json.dumps({"message":"No data in DB"}),
+                status=404,
+                mimetype="application/json"
+            )
                 
         q_dict = {}
         for col in question.__table__.columns:
@@ -42,15 +47,47 @@ def get_product(product_id):
     
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
-        return res_msg(503, "Database Error")
+        return Response(
+            json.dumps({"message":"Database Error"}),
+            status=503,
+            mimetype="application/json"
+        )
 
 # 상품 조회 (개수별)
 # 이건 고민을 좀 더 해봐야할 것 같다.. 
+# get num, page 
 @bp.route('/display', methods=["GET"])
 def display_product():
     # 상품명, 제작자, 생성일 만 표시 
-    pass
-  
+    req_json = request.get_json()
+    if not req_json:
+        return app.response_class(
+            json.dumps({"message":"Empty parameters."}),
+            status=400,
+            mimetype="application/json"
+        )
+
+    obj = json.loads(json.dumps(req_json))
+    if not obj['page_per'] or not obj['page']:
+        return app.response_class(
+            json.dumps({"message":"Must provide number parameters."}),
+            status=400,
+            mimetype="application/json"
+        )
+    try:
+        # products = ProductModel.query.order_by(ProductModel.created_date.desc()).paginate(page= obj['page'], page_per = obj['page_per'])
+        # for page_num:
+        #     for product in products.items():
+
+        pass
+    except sqlalchemy.exc.SQLAlchemyError as e:
+        msg.error(e)
+        return Response(
+            json.dumps({"message":"Database Error"}),
+            status=503,
+            mimetype="application/json"
+        )
+    
 
 
 @bp.route('/post',methods=["POST"])
@@ -60,7 +97,7 @@ def post_product():
         # TODO User check using JWT Token 
         body = request.get_json() 
         if not body:
-            return res_msg(400, "Must provide message.")
+            return res_msg(400, "Must provide products options.")
         
         obj = json.loads(json.dumps(body))
         
@@ -82,6 +119,7 @@ def post_product():
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
         return res_msg(503, "Database Error")
+
 
 
 @bp.route('/modify/<int:product_id>',methods=["POST"])
@@ -125,7 +163,13 @@ def delete(product_id):
     return {"status_code" : 200, "message":"Delete product completely!"}
 
 
+
+
+
+# 이건 클라이언트측과 상의해야할 것 가탇. 
+@bp.route('/images',methods=["GET"])
+def upload_imgs():
+    if request.method == 'POST':
+        upload_imgs = request.files
         
-        
-        
-        
+    pass 
