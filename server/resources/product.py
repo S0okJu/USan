@@ -16,7 +16,6 @@ from models import ProductModel, UserModel, ProductImageModel
 from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg
-from app import app
 
 PROJECT_HOME = '/workspace/firstContainer/USan'
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
