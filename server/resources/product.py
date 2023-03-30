@@ -76,8 +76,10 @@ def display_product():
         )
     try:
         # products = ProductModel.query.order_by(ProductModel.created_date.desc()).paginate(page= obj['page'], page_per = obj['page_per'])
-        # for page_num:
-        #     for product in products.items():
+        
+        # for product in products.items():
+
+            
 
         pass
     except sqlalchemy.exc.SQLAlchemyError as e:
@@ -100,7 +102,7 @@ def post_product():
             return res_msg(400, "Must provide products options.")
         
         obj = json.loads(json.dumps(body))
-        
+        print(obj)
         author_data = UserModel.query.filter(UserModel.username == obj['author']).first()
         if not obj:
             msg.error("Data is not found!")
