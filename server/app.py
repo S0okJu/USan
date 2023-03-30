@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 
 # Blueprint
 from resources import product, user
-from resources import product, user
 app = Flask(__name__)
 
 # DB Setup 
