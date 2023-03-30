@@ -2,7 +2,6 @@ import sys, os
 from flask import Flask
 
 from db.init_db import init_db
-from resources import product, user
 from dotenv import load_dotenv
 
 # Blueprint
@@ -20,7 +19,6 @@ UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 init_db(app)
-
 
 # Register the blueprint 
 app.register_blueprint(product.bp)
