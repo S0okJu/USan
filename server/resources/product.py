@@ -75,7 +75,8 @@ def display_product():
             product_json['title'] = product.title
             product_json['author'] = product.author
             product_json['modified_date'] = product.modified_date
-            result_json.update(product_json)
+            
+            result_json.update(jsonify(product_json))
 
         return Response(
             response = jsonify(result_json),
