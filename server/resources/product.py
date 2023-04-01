@@ -57,8 +57,8 @@ def get_product(product_id):
 @bp.route('/display', methods=["GET"])
 def display_product():
     # 상품명, 제작자, 생성일 만 표시 
-    page_per = request.args.get('page_per')
-    page = request.args.get('page')
+    page_per = int(request.args.get('page_per'))
+    page = int(request.args.get('page'))
     
     if not page_per or not page:
         return Response(
@@ -68,7 +68,7 @@ def display_product():
         )
 
     try:
-        products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= obj['page'], page_per = obj['page_per'])
+        products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, page_per = page_per)
         result_json = dict()
         for product in products.items():
             product_json = dict()
