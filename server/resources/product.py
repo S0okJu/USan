@@ -78,7 +78,7 @@ def display_product():
             result_json.update(product_json)
 
         return Response(
-            response = json.dumps(result_json),
+            response = jsonify(result_json),
             status=200,
             mimetype="application/json"
         )
