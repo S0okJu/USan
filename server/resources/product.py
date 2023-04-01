@@ -57,21 +57,16 @@ def get_product(product_id):
 @bp.route('/display', methods=["GET"])
 def display_product():
     # 상품명, 제작자, 생성일 만 표시 
-    req_json = request.get_json()
-    if not req_json:
+    page_per = request.args.get('page_per')
+    page = request.args.get('page')
+    
+    if not page_per or not page:
         return Response(
             response = json.dumps({"message":"Empty parameters."}),
             status=400,
             mimetype="application/json"
         )
 
-    obj = json.loads(json.dumps(req_json))
-    if not obj['page_per'] or not obj['page']:
-        return Response(
-            response = json.dumps({"message":"Must provide number parameters."}),
-            status=400,
-            mimetype="application/json"
-        )
     try:
         products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= obj['page'], page_per = obj['page_per'])
         result_json = dict()
