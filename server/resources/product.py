@@ -8,7 +8,7 @@ import base64
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
-# from werkzeug import secure_filename
+import sqlalchemy.exc
 
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
