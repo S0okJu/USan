@@ -73,6 +73,7 @@ def display_product():
         for product in products.items:
             product_json = dict()
             product_json['title'] = product.title
+            # author는 query 대신 역참조 데이터 사용해보기 
             product_json['author'] = UserModel.query.get(product.author_id).username
             product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%dT%H:%M:%S")
             
