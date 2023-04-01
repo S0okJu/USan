@@ -68,7 +68,7 @@ def display_product():
         )
 
     try:
-        products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, page_per = page_per)
+        products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
         result_json = dict()
         for product in products.items():
             product_json = dict()
