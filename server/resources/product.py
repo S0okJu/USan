@@ -80,7 +80,7 @@ def display_product():
             print(result_json)
             
         return Response(
-            response = json.dumps(result_json, ensure_ascii=False),
+            response = json.dumps(result_json, ensure_ascii=False, indent=3).encode('utf-8'),
             status=200,
             mimetype="application/json"
         )
