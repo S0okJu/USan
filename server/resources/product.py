@@ -77,7 +77,7 @@ def display_product():
             product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%dT%H:%M:%S")
             
             result_json[product.product_id] = json.dumps(product_json)
-            msg.create_msg(result_json)
+            print(result_json)
             
         return Response(
             response = json.dumps(result_json),
