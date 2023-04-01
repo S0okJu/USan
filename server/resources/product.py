@@ -70,7 +70,7 @@ def display_product():
     try:
         products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
         result_json = dict()
-        for product in products.items():
+        for product in products.items:
             product_json = dict()
             product_json['title'] = product.title
             product_json['author'] = product.author
