@@ -73,7 +73,7 @@ def display_product():
         for product in products.items:
             product_json = dict()
             product_json['title'] = product.title
-            product_json['author'] = UserModel.query.get(product.author_id)
+            product_json['author'] = UserModel.query.get(product.author_id).username
             product_json['modified_date'] = product.modified_date
             
             result_json[product.product_id] = json.dumps(product_json)
