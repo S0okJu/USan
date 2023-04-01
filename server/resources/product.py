@@ -31,7 +31,7 @@ def get_product(product_id):
         if not question:
             msg.error("Data is not found!")
             return Response(
-                json.dumps({"message":"No data in DB"}),
+                response = json.dumps({"message":"No data in DB"}),
                 status=404,
                 mimetype="application/json"
             )
@@ -47,40 +47,46 @@ def get_product(product_id):
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
         return Response(
-            json.dumps({"message":"Database Error"}),
+            response = json.dumps({"message":"Database Error"}),
             status=503,
             mimetype="application/json"
         )
 
 # 상품 조회 (개수별)
-# 이건 고민을 좀 더 해봐야할 것 같다.. 
 # get num, page 
 @bp.route('/display', methods=["GET"])
 def display_product():
     # 상품명, 제작자, 생성일 만 표시 
     req_json = request.get_json()
     if not req_json:
-        return app.response_class(
-            json.dumps({"message":"Empty parameters."}),
+        return Response(
+            response = json.dumps({"message":"Empty parameters."}),
             status=400,
             mimetype="application/json"
         )
 
     obj = json.loads(json.dumps(req_json))
     if not obj['page_per'] or not obj['page']:
-        return app.response_class(
-            json.dumps({"message":"Must provide number parameters."}),
+        return Response(
+            response = json.dumps({"message":"Must provide number parameters."}),
             status=400,
             mimetype="application/json"
         )
     try:
-        # products = ProductModel.query.order_by(ProductModel.created_date.desc()).paginate(page= obj['page'], page_per = obj['page_per'])
-        
-        # for product in products.items():
+        products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= obj['page'], page_per = obj['page_per'])
+        result_json = dict()
+        for product in products.items():
+            product_json = dict()
+            product_json['title'] = product.title
+            product_json['author'] = product.author
+            product_json['modified_date'] = product.modified_date
+            result_json.update(product_json)
 
-            
-
-        pass
+        return Response(
+            response = json.dumps(result_json),
+            status=200,
+            mimetype="application/json"
+        )
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
         return Response(
@@ -89,8 +95,6 @@ def display_product():
             mimetype="application/json"
         )
     
-
-
 @bp.route('/post',methods=["POST"])
 def post_product():
     
@@ -162,9 +166,6 @@ def delete(product_id):
     rdb.session.commit()
 
     return {"status_code" : 200, "message":"Delete product completely!"}
-
-
-
 
 
 # 이건 클라이언트측과 상의해야할 것 가탇. 
