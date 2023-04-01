@@ -75,9 +75,10 @@ def display_product():
             product_json['title'] = product.title
             product_json['author'] = UserModel.query.get(product.author_id)
             product_json['modified_date'] = product.modified_date
-            print(product_json)
-            result_json.update(json.dumps(product_json))
-
+            
+            result_json[product.product_id] = json.dumps(product_json)
+            msg.create_msg(result_json)
+            
         return Response(
             response = json.dumps(result_json),
             status=200,
