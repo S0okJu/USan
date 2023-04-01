@@ -23,7 +23,7 @@ UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
 bp = Blueprint('product', __name__, url_prefix='/product')
 
 # 상품 정보 조회
-# 개인 상품을 메인으로 볼때 사용된다.  
+# 특정 상품을 메인으로 볼때 사용된다.  
 @bp.route('/<int:product_id>', methods=["GET"])
 def get_product(product_id):
     try:
@@ -37,12 +37,17 @@ def get_product(product_id):
             )
                 
         q_dict = {}
+        # Model to Json 
         for col in question.__table__.columns:
             q_dict[col.name] = str(getattr(question, col.name))
         author = UserModel.query.get(q_dict['author_id'])
         del(q_dict['author_id'])
         q_dict['author'] = author
-        return jsonify(q_dict)
+        return Response(
+            response = json.dumps(q_dict, ensure_ascii=False),
+            status=200,
+            mimetype="application/json" 
+        )
     
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
@@ -56,7 +61,8 @@ def get_product(product_id):
 # get num, page 
 @bp.route('/display', methods=["GET"])
 def display_product():
-    # 상품명, 제작자, 생성일 만 표시 
+    # 상품명, 제작자, 생성일 만 표시
+    # TODO 맨 첫 번째 사진 가져오기 
     page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
     
@@ -73,12 +79,11 @@ def display_product():
         for product in products.items:
             product_json = dict()
             product_json['title'] = product.title
-            # author는 query 대신 역참조 데이터 사용해보기 
+            # TODO author는 query 대신 역참조 데이터 사용해보기 
             product_json['author'] = UserModel.query.get(product.author_id).username
-            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%dT%H:%M:%S")
+            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%dT%H:%M:%S") # ! 임시
             
             result_json[product.product_id] = json.dumps(product_json)
-            print(result_json)
             
         return Response(
             response = json.dumps(result_json, ensure_ascii=False, indent=3).encode('utf-8'),
@@ -111,19 +116,15 @@ def post_product():
         
         product_session = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
-            created_date= datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+            created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             status=False)
         rdb.session.add(product_session)
         rdb.session.commit()
-        
-        # TODO Image Download 
-        
+                
         return {"status_code" : 200, "message":"Post product completely!"}
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
         return res_msg(503, "Database Error")
-
-
 
 @bp.route('/modify/<int:product_id>',methods=["POST"])
 def modify_product(product_id):
@@ -152,7 +153,7 @@ def modify_product(product_id):
     rdb.session.commit()
     return {"status_code" : 200, "message":"Modify product completely!"}
 
-@bp.route('/delete/<int:product_id>',methods=["GET"])
+@bp.route('/delete/<int:product_id>',methods=["POST"])
 def delete(product_id):
     # TODO User check using JWT Token 
     
@@ -166,7 +167,7 @@ def delete(product_id):
     return {"status_code" : 200, "message":"Delete product completely!"}
 
 
-# 이건 클라이언트측과 상의해야할 것 가탇. 
+# TODO Upload 
 @bp.route('/images',methods=["GET"])
 def upload_imgs():
     if request.method == 'POST':
