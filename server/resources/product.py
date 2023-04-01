@@ -76,10 +76,10 @@ def display_product():
             product_json['author'] = product.author
             product_json['modified_date'] = product.modified_date
             
-            result_json.update(jsonify(product_json))
+            result_json.update(json.dumps(product_json))
 
         return Response(
-            response = jsonify(result_json),
+            response = json.dumps(result_json),
             status=200,
             mimetype="application/json"
         )
