@@ -74,7 +74,7 @@ def display_product():
             product_json = dict()
             product_json['title'] = product.title
             product_json['author'] = UserModel.query.get(product.author_id).username
-            product_json['modified_date'] = product.modified_date
+            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%dT%H:%M:%S")
             
             result_json[product.product_id] = json.dumps(product_json)
             msg.create_msg(result_json)
@@ -110,7 +110,7 @@ def post_product():
         
         product_session = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
-            created_date= datetime.datetime.now(), modified_date=datetime.datetime.now(),
+            created_date= datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
             status=False)
         rdb.session.add(product_session)
         rdb.session.commit()
