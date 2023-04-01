@@ -80,7 +80,7 @@ def display_product():
             print(result_json)
             
         return Response(
-            response = result_json,
+            response = jsonify(result_json),
             status=200,
             mimetype="application/json"
         )
