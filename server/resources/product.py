@@ -5,6 +5,7 @@ import json
 import datetime
 import uuid
 import base64
+import gzip
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
@@ -17,6 +18,7 @@ from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg
 
+ROOT_PATH = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 PROJECT_HOME = '/workspace/firstContainer/USan'
 UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
 
@@ -81,8 +83,9 @@ def display_product():
             product_json['title'] = product.title
             # TODO author는 query 대신 역참조 데이터 사용해보기 
             product_json['author'] = UserModel.query.get(product.author_id).username
-            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%dT%H:%M:%S") # ! 임시
-            
+            # Datetime를 Datetime 객체로 저장했기 때문에 
+            # 임시로 저장할 string을 지정했다. 
+            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
             result_json[product.product_id] = json.dumps(product_json)
             
         return Response(
@@ -113,18 +116,50 @@ def post_product():
         if not obj:
             msg.error("Data is not found!")
             return res_msg(404,"No data in DB")
-        
+                
         product_session = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
             created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             status=False)
         rdb.session.add(product_session)
-        rdb.session.commit()
+        
+        # * IMAGE DOWNLOAD
+        # base64 decode imgs
+        if body['img']:
+            img_id = uuid.uuid4()
+            session_list = list()
+            # TODO 
+            #check accept-encoding 
+            accept_type = request.headers['multipart/form-data']
+            if not accept_type:
+                return Response(
+                    response = json.dumps({"message":"Invalid header. Set Accept-Encoding: .gzip"}),
+                    status=400,
+                    mimetype="application/json"
+                )
+        
+
                 
-        return {"status_code" : 200, "message":"Post product completely!"}
+            for image in body['img']:
+                decoded_img = base64.b64decode(image)
+                file_name = f'{ROOT_PATH}/uploads/{img_id}.jpg'    
+                with open(file_name,"wb") as fh:
+                    fh.write(decoded_img)    
+                session_list.append(ProductImageModel(url=file_name, product=product_session))
+                
+            rdb.session.add_all(session_list)    
+        
+        rdb.session.commit()
+        return Response(
+            response = json.dumps({"message":"Successfully store the data in DB"}),
+            status=200,
+            mimetype="application/json"
+        )
+    
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
         return res_msg(503, "Database Error")
+
 
 @bp.route('/modify/<int:product_id>',methods=["POST"])
 def modify_product(product_id):
@@ -165,12 +200,3 @@ def delete(product_id):
     rdb.session.commit()
 
     return {"status_code" : 200, "message":"Delete product completely!"}
-
-
-# TODO Upload 
-@bp.route('/images',methods=["GET"])
-def upload_imgs():
-    if request.method == 'POST':
-        upload_imgs = request.files
-        
-    pass 

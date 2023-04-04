@@ -22,7 +22,6 @@ class ProductModel(rdb.Model):
     created_date = rdb.Column(rdb.DateTime(), nullable=False)
     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
     status = rdb.Column(rdb.Boolean, nullable=False)
-    # imgs = 
     author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'))
     
 class ProductImageModel(rdb.Model):
