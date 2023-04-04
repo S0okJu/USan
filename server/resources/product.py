@@ -8,7 +8,7 @@ import base64
 import gzip
 
 # * lib
-from flask import request,Response, jsonify, Blueprint
+from flask import request,Response, jsonify, Blueprint, send_from_directory
 import sqlalchemy.exc
 
 # * User defined
@@ -176,8 +176,8 @@ def delete(product_id):
     return {"status_code" : 200, "message":"Delete product completely!"}
 
 # multi.. 처리하는법 .. 
-@bp.route("/upload", methods=["POST"])
-def upload():
+@bp.route("/upload/<int:product_id>", methods=["POST"])
+def upload(product_id):
     if not request.files:
         return Response(
             response = json.dumps({"message":"Empty Images."}),
@@ -196,16 +196,18 @@ def upload():
             status=400,
             mimetype="application/json"
         )
-    
+    product_data =  ProductModel.query.filter_by(product_id=product_id).first()
     images = request.files.getlist('files[]')
     for image in images:
         file_name = f'{ROOT_PATH}/uploads/{img_id}.jpg'    
         with open(file_name,"wb") as fh:
             fh.write(image)
                 
-        session_list.append(ProductImageModel(url=file_name))
+        img_session = rdb.session.add(ProductImageModel(url=file_name, product=product_data))
+        rdb.session.add(img_session)
         
-    rdb.session.add_all(session_list)
     rdb.session.commit()
 
-# 이렇게하면 어떻게 product와 엮을 수 있지?
+@bp.route('/imgs/<string:filename>')
+def send_image(filename):
+    return send_from_directory(os.path.join(ROOT_PATH,'uploads'),filename)
