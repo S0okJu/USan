@@ -123,32 +123,6 @@ def post_product():
             status=False)
         rdb.session.add(product_session)
         
-        # * IMAGE DOWNLOAD
-        # base64 decode imgs
-        if body['img']:
-            img_id = uuid.uuid4()
-            session_list = list()
-            # TODO 
-            #check accept-encoding 
-            accept_type = request.headers['multipart/form-data']
-            if not accept_type:
-                return Response(
-                    response = json.dumps({"message":"Invalid header. Set Accept-Encoding: .gzip"}),
-                    status=400,
-                    mimetype="application/json"
-                )
-        
-
-                
-            for image in body['img']:
-                decoded_img = base64.b64decode(image)
-                file_name = f'{ROOT_PATH}/uploads/{img_id}.jpg'    
-                with open(file_name,"wb") as fh:
-                    fh.write(decoded_img)    
-                session_list.append(ProductImageModel(url=file_name, product=product_session))
-                
-            rdb.session.add_all(session_list)    
-        
         rdb.session.commit()
         return Response(
             response = json.dumps({"message":"Successfully store the data in DB"}),
@@ -200,3 +174,35 @@ def delete(product_id):
     rdb.session.commit()
 
     return {"status_code" : 200, "message":"Delete product completely!"}
+
+# multi.. 처리하는법 .. 
+@bp.route("/upload", methods=["POST"])
+def upload():
+    body = request.get_json()
+    if not body:
+        pass 
+
+    img_id = uuid.uuid4()
+    session_list = list()
+    product_data =  0
+    # TODO 
+    #check accept-encoding 
+    accept_type = request.headers['Content-Type']
+    if not accept_type == 'multipart/form-data':
+        return Response(
+            response = json.dumps({"message":"Invalid header."}),
+            status=400,
+            mimetype="application/json"
+        )
+        
+    for image in body['img']:
+        file_name = f'{ROOT_PATH}/uploads/{img_id}.jpg'    
+        with open(file_name,"wb") as fh:
+            fh.write(image)
+                
+        session_list.append(ProductImageModel(url=file_name))
+        
+    rdb.session.add_all(session_list)
+    rdb.session.commit()
+
+# 이렇게하면 어떻게 product와 엮을 수 있지?
