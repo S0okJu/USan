@@ -178,13 +178,15 @@ def delete(product_id):
 # multi.. 처리하는법 .. 
 @bp.route("/upload", methods=["POST"])
 def upload():
-    body = request.get_json()
-    if not body:
-        pass 
+    if not request.files:
+        return Response(
+            response = json.dumps({"message":"Empty Images."}),
+            status=400,
+            mimetype="application/json"
+        )
 
     img_id = uuid.uuid4()
     session_list = list()
-    product_data =  0
     # TODO 
     #check accept-encoding 
     accept_type = request.headers['Content-Type']
@@ -194,8 +196,9 @@ def upload():
             status=400,
             mimetype="application/json"
         )
-        
-    for image in body['img']:
+    
+    images = request.files.getlist('files[]')
+    for image in images:
         file_name = f'{ROOT_PATH}/uploads/{img_id}.jpg'    
         with open(file_name,"wb") as fh:
             fh.write(image)
