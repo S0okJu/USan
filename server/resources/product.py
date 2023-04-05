@@ -42,9 +42,9 @@ def get_product(product_id):
         # Model to Json 
         for col in question.__table__.columns:
             q_dict[col.name] = str(getattr(question, col.name))
-        author = UserModel.query.get(q_dict['author_id'])
+        author = UserModel.query.get(q_dict['author_id']) # get author name 
         del(q_dict['author_id'])
-        q_dict['author'] = author
+        q_dict['author'] = author 
         return Response(
             response = json.dumps(q_dict, ensure_ascii=False),
             status=200,
@@ -60,10 +60,11 @@ def get_product(product_id):
         )
 
 # 상품 조회 (개수별)
-# get num, page 
+# @param page_per 한 페이지당 개수, page = page 인덱스 
+# @return 상품명, 사용자, 수정일 
 @bp.route('/display', methods=["GET"])
 def display_product():
-    # 상품명, 제작자, 생성일 만 표시
+
     # TODO 맨 첫 번째 사진 가져오기 
     page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
@@ -83,8 +84,8 @@ def display_product():
             product_json['title'] = product.title
             # TODO author는 query 대신 역참조 데이터 사용해보기 
             product_json['author'] = UserModel.query.get(product.author_id).username
-            # Datetime를 Datetime 객체로 저장했기 때문에 
-            # 임시로 저장할 string을 지정했다. 
+            
+            # !Datetime를 Datetime 객체로 저장했기 때문에 임시로 저장할 string을 지정했다. 
             product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
             result_json[product.product_id] = json.dumps(product_json)
             
@@ -185,8 +186,7 @@ def upload(product_id):
             mimetype="application/json"
         )
 
-    img_id = uuid.uuid4()
-    session_list = list()
+    img_id = uuid.uuid4() # 랜덤 파일명을 제공하기 위해서 사용됨. 
     # TODO 
     #check accept-encoding 
     accept_type = request.headers['Content-Type']

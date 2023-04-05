@@ -1,9 +1,13 @@
 import sys, os
-from flask import Flask
+from datetime import timedelta
 
+from flask import Flask
+from dotenv import load_dotenv
+
+# custom 
 from db.init_db import init_db
 from resources import product, user
-from dotenv import load_dotenv
+from jwt.init_jwt import init_jwt
 
 # Blueprint
 app = Flask(__name__)
@@ -12,14 +16,19 @@ app = Flask(__name__)
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-# File upload setup
-PROJECT_HOME = '/workspace/firstContainer/USan'
-UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 init_db(app)
 
+# File upload setup
+app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
+
+# JWT Setup
+app.config['JWT_SECRET_KEY'] = 'usan'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)  
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)  
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+app.config['JWT_BLACKLIST_STORE'] = set() 
+init_jwt(app)
 
 # Register the blueprint 
 app.register_blueprint(product.bp)

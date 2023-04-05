@@ -1,6 +1,9 @@
+db = {
+    'user'     : 'root',
+    'password' : '[mysql 비밀번호]',
+    'host'     : '127.0.0.1',
+    'port'     : '5000',
+    'database' : 'flask_test'
+}
 
-class Config:
-    JWT_SECRET_KEY = 'usanproject##hello' #절대 노출 시키면 안됨
-    JWT_ACCESS_TOKEN_EXPIRES = False #True로 설정하면 3분 유효기간
-    PROPAGATE_EXCEPTIONS = True #JW가 예외처리를 해주는 옵션
-
+DB_URL = f"mysql+mysqlconnector://{db['user']}:{db['password']}@{db['host']}:{db['port']}/{db['database']}?charset=utf8"
