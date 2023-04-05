@@ -1,7 +1,7 @@
-# USan
 
-## Version 
-- JAVA
-- Android Studio
-- Python == 3.9.16
-- Flask == 2.2.3 
+```bash 
+// git 이동 
+git checkout server 
+
+```
+
