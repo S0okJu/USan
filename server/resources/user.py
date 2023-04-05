@@ -87,8 +87,6 @@ def logout():
     jti = get_jwt_identity()['jti']
     blacklist.add(jti)
 
-    resp = json.dumps({'msg': 'Logged out successfully'})
-    unset_jwt_cookies(resp)
     return Response(json.dumps({'msg': 'Logged out successfully'}), status=200, mimetype='application/json')
 
 
