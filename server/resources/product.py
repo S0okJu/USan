@@ -179,7 +179,7 @@ def delete(product_id):
 
 # multi.. 처리하는법 .. 
 @bp.route("/upload", methods=["POST"])
-def upload(product_id):
+def upload():
     resp = request.get_json()
     resp = json.loads(json.dumps(resp))
     product_id = resp['product_id']
@@ -215,8 +215,13 @@ def upload(product_id):
         
     rdb.session.commit()
 
-# Show Only one images 
-@bp.route('/imgs/<string:filename>')
-def send_image(filename):
-    product_dir = os.path.jos
-    return send_from_directory(os.path.join(ROOT_PATH,'uploads'),filename)
+# 오직 첫번째로 display한 사진을 가져온다. 
+@bp.route('/imgs/display')
+def send_image():
+    resp = request.get_json()
+    resp = json.loads(json.dumps(resp))
+    product_id = resp['product_id']
+    
+    product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
+    files = os.listdir(product_dir)
+    return send_from_directory(os.path.join(ROOT_PATH,'uploads'),files[0])
