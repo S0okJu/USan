@@ -20,7 +20,7 @@ from utils.changer import res_msg
 
 ROOT_PATH = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 PROJECT_HOME = '/workspace/firstContainer/USan'
-UPLOAD_FOLDER = '{}/uploads/'.format(PROJECT_HOME)
+UPLOAD_FOLDER = os.path.join(ROOT_PATH,'upload')
 
 bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -88,6 +88,7 @@ def display_product():
             # !Datetime를 Datetime 객체로 저장했기 때문에 임시로 저장할 string을 지정했다. 
             product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
             result_json[product.product_id] = json.dumps(product_json)
+            
             
         return Response(
             response = json.dumps(result_json, ensure_ascii=False, indent=3).encode('utf-8'),
@@ -177,8 +178,11 @@ def delete(product_id):
     return {"status_code" : 200, "message":"Delete product completely!"}
 
 # multi.. 처리하는법 .. 
-@bp.route("/upload/<int:product_id>", methods=["POST"])
+@bp.route("/upload", methods=["POST"])
 def upload(product_id):
+    resp = request.get_json()
+    resp = json.loads(json.dumps(resp))
+    product_id = resp['product_id']
     if not request.files:
         return Response(
             response = json.dumps({"message":"Empty Images."}),
@@ -187,6 +191,7 @@ def upload(product_id):
         )
 
     img_id = uuid.uuid4() # 랜덤 파일명을 제공하기 위해서 사용됨. 
+    file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
     # TODO 
     #check accept-encoding 
     accept_type = request.headers['Content-Type']
@@ -196,8 +201,10 @@ def upload(product_id):
             status=400,
             mimetype="application/json"
         )
+        
+    
     product_data =  ProductModel.query.filter_by(product_id=product_id).first()
-    images = request.files.getlist('files[]')
+    images = request.files.getlist('imgs[]')
     for image in images:
         file_name = f'{ROOT_PATH}/uploads/{img_id}.jpg'    
         with open(file_name,"wb") as fh:
@@ -208,6 +215,8 @@ def upload(product_id):
         
     rdb.session.commit()
 
+# Show Only one images 
 @bp.route('/imgs/<string:filename>')
 def send_image(filename):
+    product_dir = os.path.jos
     return send_from_directory(os.path.join(ROOT_PATH,'uploads'),filename)
