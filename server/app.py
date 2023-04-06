@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # custom 
 from db.init_db import init_db
-from resources import product, user
+from resources import product, user,imgs
 from jwt.init_jwt import init_jwt
 
 # Blueprint
@@ -33,6 +33,7 @@ init_jwt(app)
 # Register the blueprint 
 app.register_blueprint(product.bp)
 app.register_blueprint(user.bp)
+app.register_blueprint(imgs.bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000, debug=True)

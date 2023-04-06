@@ -21,6 +21,8 @@ from utils.changer import res_msg
 ROOT_PATH = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 PROJECT_HOME = '/workspace/firstContainer/USan'
 UPLOAD_FOLDER = os.path.join(ROOT_PATH,'upload')
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 bp = Blueprint('product', __name__, url_prefix='/product')
 
@@ -177,51 +179,3 @@ def delete(product_id):
 
     return {"status_code" : 200, "message":"Delete product completely!"}
 
-# multi.. 처리하는법 .. 
-@bp.route("/upload", methods=["POST"])
-def upload():
-    resp = request.get_json()
-    resp = json.loads(json.dumps(resp))
-    product_id = resp['product_id']
-    if not request.files:
-        return Response(
-            response = json.dumps({"message":"Empty Images."}),
-            status=400,
-            mimetype="application/json"
-        )
-
-    img_id = uuid.uuid4() # 랜덤 파일명을 제공하기 위해서 사용됨. 
-    file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
-    # TODO 
-    #check accept-encoding 
-    accept_type = request.headers['Content-Type']
-    if not accept_type == 'multipart/form-data':
-        return Response(
-            response = json.dumps({"message":"Invalid header."}),
-            status=400,
-            mimetype="application/json"
-        )
-        
-    
-    product_data =  ProductModel.query.filter_by(product_id=product_id).first()
-    images = request.files.getlist('imgs[]')
-    for image in images:
-        file_name = f'{ROOT_PATH}/uploads/{img_id}.jpg'    
-        with open(file_name,"wb") as fh:
-            fh.write(image)
-                
-        img_session = rdb.session.add(ProductImageModel(url=file_name, product=product_data))
-        rdb.session.add(img_session)
-        
-    rdb.session.commit()
-
-# 오직 첫번째로 display한 사진을 가져온다. 
-@bp.route('/imgs/display')
-def send_image():
-    resp = request.get_json()
-    resp = json.loads(json.dumps(resp))
-    product_id = resp['product_id']
-    
-    product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
-    files = os.listdir(product_dir)
-    return send_from_directory(os.path.join(ROOT_PATH,'uploads'),files[0])
