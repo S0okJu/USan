@@ -35,7 +35,7 @@ class ProductModel(rdb.Model):
     favorite = rdb.Column(rdb.Boolean)
     status = rdb.Column(rdb.Boolean, nullable=False)
     author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'))
-    images = rdb.relationship('ProductImageModel', backref=rdb.backref('product'), order_by='ProductImageModel.img_id')
+    product_imgs = rdb.relationship('ProductImageModel', backref=rdb.backref('product'), order_by='ProductImageModel.img_id')
 
     def to_dict(self):
         return {
@@ -49,7 +49,7 @@ class ProductModel(rdb.Model):
             'favorite': self.favorite,
             'status': self.status,
             'author_id': self.author_id,
-            'images': [img.url for img in self.images]
+            'images': [img.url for img in self.product_imgs]
         }
     
     
@@ -61,7 +61,6 @@ class ProductImageModel(rdb.Model):
     __tablename__ = 'ProductImage'
     img_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
     url = rdb.Column(rdb.String(50), nullable=False)
-    product = rdb.relationship('ProductModel', backref=rdb.backref('img_set'))
     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'))
 
     def __str__(self):
