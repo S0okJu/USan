@@ -74,13 +74,9 @@ def display_product():
         result_json = dict()
         for product in products.items:
             product_json = product.to_dict()
-            product_json['title'] = product.title
             # TODO author는 query 대신 역참조 데이터 사용해보기 
-            product_json['author'] = product.author.username
+            product_json['author'] = str(product.author.username)
             
-            # 첫번째 사진만 호출 
-            product_json['img_url'] = product.product_imgs[0].url
-
             # !Datetime를 Datetime 객체로 저장했기 때문에 임시로 저장할 string을 지정했다. 
             if type(product_json['modified_date']) is not "string":
                 product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
