@@ -20,18 +20,17 @@ blacklist = set()
 @bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username', None)
-    password = data.get('password', None)
 
-    if not username or not password:
+
+    if not data['email'] or not data['password']:
         return json.dumps({'message': '인증 실패!'}), 401
 
-    user = authenticate(username, password)
+    user = authenticate(data['email'], data['password'])
 
     if not user:
         return json.dumps({'message': '인증 실패!'}), 401
 
-    access_token = jwt.jwt_encode_callback({'identity': user['email']})
+    access_token = jwt.jwt_encode_callback({'identity': data['email']})
     return json.dumps({'access_token': access_token.decode('utf-8')}), 200
 
 # 로그아웃 API 엔드포인트
