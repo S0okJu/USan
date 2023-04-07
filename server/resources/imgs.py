@@ -85,7 +85,7 @@ def display_image():
     display_type = request.args.get('display')
     
     # Show only first images
-    if int(display_type) == 0:
+    if display_type == "0":
 
         product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
         files = os.listdir(product_dir)
