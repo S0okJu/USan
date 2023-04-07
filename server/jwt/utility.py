@@ -1,4 +1,5 @@
 import sys, os 
+import ast
 import hmac
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -8,8 +9,8 @@ from models import UserModel
 def authenticate(user_email, password):
     
     user = UserModel.query.filter_by(email=user_email).first()
-    user_dict = str(user)
-    if user_dict['password'] and hmac.compare_digest(user_dict['password'].encode('utf-8'), password.encode('utf-8')):
+    user_dict = ast.literal_eval(str(user))
+    if user_dict['password'] and hmac.compare_digest(user_dict['password'], password.encode('utf-8')):
         return user_dict
 
 # JWT 토큰 인증 함수
