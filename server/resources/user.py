@@ -51,16 +51,13 @@ def protected():
 @bp.route('/signup', methods=['POST'])
 def signup():
     # 클라이언트로부터 받은 데이터 가져오기
-    username = request.json.get('username')
-    email = request.json.get('email')
-    password = request.json.get('password')
-    
-    session = UserModel(username=username, email=email, password=password)
+    user = request.get_json()
+    session = UserModel(username=user['username'], email=user['email'], password=user['password'])
     rdb.session.add(session)
     rdb.session.commit()
     
 
-    result = {'status': 'success', 'username': username, 'email': email, 'password': password}
+    result = {'message': 'success Signup!!'}
     return json.dumps(result)
 
 
