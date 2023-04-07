@@ -1,7 +1,6 @@
-from flask_jwt import JWT, jwt_required, current_identity
-from .utility import authenticate, identity
+from flask_jwt import JWT
 
-SECRET_KEY = 'usan'
-jwt = None
+jwt = JWT()
 def init_jwt(app):
-    jwt = JWT(app, authenticate,identity)
+    global jwt 
+    jwt.init_app(app)
