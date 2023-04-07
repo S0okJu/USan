@@ -172,5 +172,5 @@ def user_profile(user_id):
         raise error.DBNotFound("User")
     products = ProductModel.query.filter_by(author_id=user_id).all()
     result = {"user_info": str(user), "products": [str(p) for p in products]}
-    return jsonify(result,ensure_ascii=False, indent=3)
+    return jsonify(result)
     
