@@ -46,6 +46,7 @@ def upload():
     product_data =  ProductModel.query.filter_by(product_id=product_id).first()
     file_path_list = list()
     images = request.files.getlist('imgs')
+    print(f'Imgs : {images}\n')
     
     for image in images:
         file_path = os.path.join(UPLOAD_FOLDER,str(product_id))
