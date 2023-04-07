@@ -75,7 +75,7 @@ def display_product():
         for product in products.items:
             product_json = product.to_dict()
             # TODO author는 query 대신 역참조 데이터 사용해보기 
-            product_json['author'] = str(product.author.username)
+            # product_json['author'] = str(product.author.username)
             
             # !Datetime를 Datetime 객체로 저장했기 때문에 임시로 저장할 string을 지정했다. 
             if type(product_json['modified_date']) is not "string":
