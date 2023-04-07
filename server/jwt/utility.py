@@ -8,10 +8,9 @@ from models import UserModel
 def authenticate(user_email, password):
     
     user = UserModel.query.filter_by(email=user_email).first()
- 
-    
-    if user['password'] and hmac.compare_digest(user['password'].encode('utf-8'), password.encode('utf-8')):
-        return str(user)
+    user_dict = str(user)
+    if user_dict['password'] and hmac.compare_digest(user_dict['password'].encode('utf-8'), password.encode('utf-8')):
+        return user_dict
 
 # JWT 토큰 인증 함수
 def identity(payload):
