@@ -21,7 +21,6 @@ blacklist = set()
 def login():
     data = request.get_json()
 
-
     if not data['email'] or not data['password']:
         return json.dumps({'message': '인증 실패!'}), 401
 
@@ -30,7 +29,7 @@ def login():
     if not user:
         return json.dumps({'message': '인증 실패!'}), 401
 
-    access_token = jwt.jwt_encode_callback({'identity': data['email']})
+    access_token = jwt.jwt_encode_callback({'identity': user['email']})
     return json.dumps({'access_token': access_token.decode('utf-8')}), 200
 
 # 로그아웃 API 엔드포인트
