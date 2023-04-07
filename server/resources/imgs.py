@@ -103,8 +103,7 @@ def display_image():
             return send_from_directory(product_dir,files[0])
 
         return json.dumps({"msg":"Hi"})
-    except sqlalchemy.exc.SQLAlchemyError as e:
-        print(e)
+    except sqlalchemy.exc.OperationalError:
         raise error.DBConnectionError()
 
 @bp.route('/delete', methods=["POST"])

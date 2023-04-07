@@ -92,8 +92,7 @@ def display_product():
             status=200,
             mimetype="application/json"
         )
-    except sqlalchemy.exc.SQLAlchemyError as e:
-        msg.error(e)
+    except sqlalchemy.exc.OperationalError:
         raise error.DBConnectionError()
     
 @bp.route('/post',methods=["POST"])
@@ -168,3 +167,13 @@ def delete(product_id):
 
     return {"status_code" : 200, "message":"Delete product completely!"}
 
+
+# * User profile 
+@bp.route("/user_profile/<int:user_id>", methods=["GET"])
+def user_profile(user_id):
+    user = UserModel.query.get(user_id)
+    if not user:
+        raise error.DBNotFound("User")
+    products = ProductModel.query.filter_by(author_id=user_id).all()
+    result = {"user_info": str(user), "products": [str(p) for p in products]}
+    
