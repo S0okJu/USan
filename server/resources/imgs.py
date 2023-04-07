@@ -82,7 +82,7 @@ def upload(product_id):
 @bp.route('/display', methods=["GET"])
 def display_image():
     product_id = request.args.get('product_id')
-    display_type = request.args.get('display')
+    display_type = request.args.get('type')
     
     # Show only first images
     if display_type == "0":
@@ -91,4 +91,4 @@ def display_image():
         files = os.listdir(product_dir)
         return send_from_directory(product_dir,files[0])
 
-    pass
+    return json.dumps({"msg":"Hi"})
