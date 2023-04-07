@@ -19,5 +19,6 @@ def authenticate(user_email, password):
 # JWT 토큰 인증 함수
 def identity(payload):
     user_id = payload['identity']
+    
     return UserModel.query.get(user_id)
 

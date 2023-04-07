@@ -17,6 +17,8 @@ from models import ProductModel, UserModel, ProductImageModel
 from db.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg
+import utils.error.custom_error as error 
+
 
 ROOT_PATH = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 PROJECT_HOME = '/workspace/firstContainer/USan'
@@ -33,12 +35,7 @@ def get_product(product_id):
     try:
         question = ProductModel.query.get(product_id)
         if not question:
-            msg.error("Data is not found!")
-            return Response(
-                response = json.dumps({"message":"No data in DB"}),
-                status=404,
-                mimetype="application/json"
-            )
+            raise error.DBNotFound('Product')
                 
         q_dict = {}
         # Model to Json 
@@ -55,11 +52,7 @@ def get_product(product_id):
     
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
-        return Response(
-            response = json.dumps({"message":"Database Error"}),
-            status=503,
-            mimetype="application/json"
-        )
+        raise error.DBConnectionError()
 
 # 상품 조회 (개수별)
 # @param page_per 한 페이지당 개수, page = page 인덱스 
@@ -71,12 +64,10 @@ def display_product():
     page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
     
-    if not page_per or not page:
-        return Response(
-            response = json.dumps({"message":"Empty parameters."}),
-            status=400,
-            mimetype="application/json"
-        )
+    if not page_per:
+        raise error.EmptyParams('page_per')
+    if not page:
+        raise error.EmptyParams('page')
 
     try:
         products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
@@ -86,6 +77,7 @@ def display_product():
             product_json['title'] = product.title
             # TODO author는 query 대신 역참조 데이터 사용해보기 
             product_json['author'] = UserModel.query.get(product.author_id).username
+            
             
             # !Datetime를 Datetime 객체로 저장했기 때문에 임시로 저장할 string을 지정했다. 
             if type(product_json['modified_date']) is not "string":
@@ -102,11 +94,7 @@ def display_product():
         )
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
-        return Response(
-            json.dumps({"message":"Database Error"}),
-            status=503,
-            mimetype="application/json"
-        )
+        raise error.DBConnectionError()
     
 @bp.route('/post',methods=["POST"])
 def post_product():
@@ -115,14 +103,12 @@ def post_product():
         # TODO User check using JWT Token 
         body = request.get_json() 
         if not body:
-            return res_msg(400, "Must provide products options.")
+            raise error.Empty('Json')
         
         obj = json.loads(json.dumps(body))
-        print(obj)
         author_data = UserModel.query.filter(UserModel.username == obj['author']).first()
-        if not obj:
-            msg.error("Data is not found!")
-            return res_msg(404,"No data in DB")
+        if not author_data:
+            raise error.DBNotFound('User')
                 
         product_session = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
@@ -139,7 +125,7 @@ def post_product():
     
     except sqlalchemy.exc.SQLAlchemyError as e:
         msg.error(e)
-        return res_msg(503, "Database Error")
+        raise error.DBConnectionError()
 
 
 @bp.route('/modify/<int:product_id>',methods=["POST"])
@@ -149,11 +135,12 @@ def modify_product(product_id):
     # Modify the data
     body = request.get_json() 
     if not body:
-        msg.error("Data is not found!")
-        return res_msg(404,"No data in DB")
+        raise error.Empty('JSON')
 
     obj = json.loads(json.dumps(body))
     p = ProductModel.query.get(product_id)
+    if not p:
+        raise error.DBNotFound('Product')
     
     # fix title, content, address, price
     if obj['title'] != p.title:
@@ -175,8 +162,7 @@ def delete(product_id):
     
     p = ProductModel.query.get(product_id)
     if not p:
-        msg.error("Data is not found!")
-        return res_msg(404,"No data in DB")
+        raise error.DBNotFound('Product')
     rdb.session.delete(p)
     rdb.session.commit()
 

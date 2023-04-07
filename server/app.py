@@ -9,10 +9,18 @@ from dotenv import load_dotenv
 from db.init_db import init_db
 from resources import product, user,imgs
 from jwt.init_jwt import init_jwt
+from utils.error.custom_error import init_custom_error_handler
 
 # Blueprint
+from resources import product, user, imgs
+
+# Init Flask 
 app = Flask(__name__)
 app.app_context().push()
+
+# Error 
+init_custom_error_handler(app=app)
+
 # DB Setup 
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')

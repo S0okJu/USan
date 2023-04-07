@@ -2,3 +2,4 @@ flask
 Flask-JWT
 Werkzeug
 Flask-Migrate
+flask_request_validator

@@ -10,24 +10,24 @@ import sqlalchemy.exc
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import ProductModel, UserModel, ProductImageModel
 from db.init_db import rdb
+from utils.security.check import check_product
+import utils.error.custom_error as error 
 
+## 경로 
 ROOT_PATH = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 UPLOAD_FOLDER = os.path.join(ROOT_PATH,'upload')
 # upload 파일이 있는지 확인 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+## Blueprint
 bp = Blueprint('imgs', __name__, url_prefix='/imgs')
 
 @bp.route("/upload/<int:product_id>", methods=["POST"])
 def upload(product_id):
 
     if not request.files:
-        return Response(
-            response = json.dumps({"message":"Empty Images."}),
-            status=400,
-            mimetype="application/json"
-        )
+        pass
 
     img_id = uuid.uuid4() # 랜덤 파일명을 제공하기 위해서 사용됨. 
     
@@ -43,9 +43,13 @@ def upload(product_id):
         )
         
     product_data =  ProductModel.query.filter_by(product_id=product_id).first()
+    if product_data:
+        raise error.DBNotFound("Product")
+    
     file_path_list = list()
     images = request.files.getlist('imgs')
-    print(f'Imgs : {images}\n')
+    if not images:
+        raise error.EmptyError("Image")
     
     for image in images:
         file_path = os.path.join(UPLOAD_FOLDER,str(product_id))
@@ -63,7 +67,6 @@ def upload(product_id):
             "file_name":file_name,
             "file_path":file_path
         }
-        print(res_info)
         file_path_list.append(res_info)
         
         # DB 저장 
@@ -82,7 +85,15 @@ def upload(product_id):
 @bp.route('/display', methods=["GET"])
 def display_image():
     product_id = request.args.get('product_id')
+    if not product_id:
+        raise error.MissingParams('product_id')
+    
+    if not check_product(product_id):
+        raise error.DBNotFound('Product')
+    
     display_type = request.args.get('type')
+    if not display_type:
+        raise error.MissingParams('type')
     
     # Show only first images
     if display_type == "0":
@@ -92,3 +103,8 @@ def display_image():
         return send_from_directory(product_dir,files[0])
 
     return json.dumps({"msg":"Hi"})
+
+
+@bp.route('/delete', methods=["POST"])
+def delete_image():
+    pass 
