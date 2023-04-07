@@ -77,13 +77,18 @@ def upload(product_id):
     )
 
 # 오직 첫번째로 display한 사진을 가져온다. 
-@bp.route('/display', methods=["POST"])
-def send_image():
-    resp = request.get_json()
-    resp = json.loads(json.dumps(resp))
-    product_id = resp['product_id']
+# product_id 
+# type 
+@bp.route('/display', methods=["GET"])
+def display_image():
+    product_id = request.args.type('product_id')
+    display_type = request.args.type('display')
     
-    product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
-    files = os.listdir(product_dir)
-    return send_from_directory(product_dir,files[0])
+    # Show only first images
+    if display_type == 0:
+        
+        product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
+        files = os.listdir(product_dir)
+        return send_from_directory(product_dir,files[0])
 
+    pass
