@@ -73,7 +73,7 @@ def display_product():
         products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
         result_json = dict()
         for product in products.items:
-            product_json = dict()
+            product_json = product.to_dict()
             product_json['title'] = product.title
             # TODO author는 query 대신 역참조 데이터 사용해보기 
             product_json['author'] = product.author.username
