@@ -12,6 +12,11 @@ from jwt.init_jwt import init_jwt
 # Blueprint
 app = Flask(__name__)
 
+with app.app_context():
+    # your code that needs the application context
+    pass
+
+
 # DB Setup 
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
