@@ -78,10 +78,9 @@ def display_product():
             # product_json['author'] = str(product.author.username)
             
             # !Datetime를 Datetime 객체로 저장했기 때문에 임시로 저장할 string을 지정했다. 
-            if type(product_json['modified_date']) is not "string":
-                product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
-            else:
-                product_json['modified_date'] = product.modified_date 
+
+            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
+
             result_json[product.product_id] = json.dumps(product_json)
             
             
