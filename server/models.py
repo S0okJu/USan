@@ -61,6 +61,7 @@ class ProductImageModel(rdb.Model):
     __tablename__ = 'ProductImage'
     img_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
     url = rdb.Column(rdb.String(50), nullable=False)
+    product = rdb.relationship('ProductModel', backref=rdb.backref('img_set'))
     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'))
 
     def __str__(self):

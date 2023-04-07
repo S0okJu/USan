@@ -76,9 +76,10 @@ def display_product():
             product_json = dict()
             product_json['title'] = product.title
             # TODO author는 query 대신 역참조 데이터 사용해보기 
-            product_json['author'] = UserModel.query.get(product.author_id).username
+            product_json['author'] = product.author.username
             
-            
+            product_json['img_url'] = product.img_set[0].url
+
             # !Datetime를 Datetime 객체로 저장했기 때문에 임시로 저장할 string을 지정했다. 
             if type(product_json['modified_date']) is not "string":
                 product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
@@ -92,7 +93,8 @@ def display_product():
             status=200,
             mimetype="application/json"
         )
-    except sqlalchemy.exc.OperationalError:
+    except sqlalchemy.exc.OperationalError as e:
+        msg.error(e)
         raise error.DBConnectionError()
     
 @bp.route('/post',methods=["POST"])
