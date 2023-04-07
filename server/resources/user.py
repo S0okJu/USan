@@ -52,11 +52,12 @@ def protected():
 def signup():
     # 클라이언트로부터 받은 데이터 가져오기
     user = request.get_json()
-    session = UserModel(username=user['username'], email=user['email'], password=user['password'])
+    session = UserModel(username=user['username'], email=user['email'],
+        password=user['password'], created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     rdb.session.add(session)
     rdb.session.commit()
     
-
     result = {'message': 'success Signup!!'}
     return json.dumps(result)
 
