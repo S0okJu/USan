@@ -34,6 +34,7 @@ def upload(product_id):
     # TODO JWT Token  
     #check accept-encoding 
     accept_type = request.headers['Content-Type']
+    print(accept_type)
     if not accept_type == 'multipart/form-data':
         return Response(
             response = json.dumps({"message":"Invalid header."}),
