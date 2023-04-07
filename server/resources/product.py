@@ -74,15 +74,12 @@ def display_product():
         result_json = dict()
         for product in products.items:
             product_json = product.to_dict()
+            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
+            product_json['img_url'] = product.product_imgs[0].to_dict()['url']
+            result_json[product.product_id] = json.dumps(product_json)
+
             # TODO author는 query 대신 역참조 데이터 사용해보기 
             # product_json['author'] = str(product.author.username)
-            
-            # !Datetime를 Datetime 객체로 저장했기 때문에 임시로 저장할 string을 지정했다. 
-
-            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
-
-            result_json[product.product_id] = json.dumps(product_json)
-            
             
         return Response(
             response = json.dumps(result_json, ensure_ascii=False, indent=3).encode('utf-8'),
