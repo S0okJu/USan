@@ -73,9 +73,12 @@ def display_product():
         products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
         result_json = dict()
         for product in products.items:
-            product_json = product.to_dict()
+            product_json = dict()
+            product_json['title'] = product.title
+            product_json['author'] = product.author.username
             product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
-            product_json['img_url'] = product.product_imgs[0].to_dict()['url']
+            if product.product_imgs:
+                product_json['img_url'] = product.product_imgs[0].to_dict()['url']
             result_json[product.product_id] = json.dumps(product_json)
 
             # TODO author는 query 대신 역참조 데이터 사용해보기 
