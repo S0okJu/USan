@@ -4,60 +4,19 @@ import json
 import hashlib
 
 from flask import request,Blueprint, Response
-from flask_jwt import JWT, jwt_required, current_identity
+from flask_jwt import JWT, jwt_required, current_identity, current_app
 
 # custom 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import UserModel
 from db.init_db import rdb
-from jwt.init_jwt import jwt
+# 웬만한 jwt 객체 설정에 대한 것들은 jwt.utility에 있다. 
+from jwt.init_jwt import jwt, SECRET_KEY # ! jwt 객체는 init_jwt에 있다. (Circular error때문에 )
 from jwt.utility import authenticate
 
 bp = Blueprint('user', __name__, url_prefix='/user')
 blacklist = set()
 
-# 로그인 API 엔드포인트
-@bp.route('/login', methods=['POST'])
-def login():
-    data = request.get_json()
-
-    if not data['email'] or not data['password']:
-        return json.dumps({'message': '인증 실패!'}), 401
-
-    user = authenticate(data['email'], data['password'])
-
-    if not user:
-        return json.dumps({'message': '인증 실패!'}), 401
-
-    access_token = jwt.jwt_encode_callback({'id': user['user_id']})
-    return json.dumps({'access_token': access_token.decode('utf-8')}), 200
-
-# 로그아웃 API 엔드포인트
-@bp.route('/logout', methods=['POST'])
-@jwt_required()
-def logout():
-    jti = current_identity.get('jti')
-    blacklist.add(jti)
-    return json.dumps({'message': '로그아웃 성공!'}), 200
-
-# 로그인 필요 API 엔드포인트
-@bp.route('/protected')
-@jwt_required()
-def protected():
-    return json.dumps({'message': '인증 성공!'})
-
-@bp.route('/signup', methods=['POST'])
-def signup():
-    # 클라이언트로부터 받은 데이터 가져오기
-    user = request.get_json()
-    session = UserModel(username=user['username'], email=user['email'],
-        password=user['password'], created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-    rdb.session.add(session)
-    rdb.session.commit()
-    
-    result = {'message': 'success Signup!!'}
-    return json.dumps(result)
 
 
 

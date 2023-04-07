@@ -2,6 +2,7 @@ import sys, os
 from datetime import timedelta
 
 from flask import Flask
+from flask_jwt import current_app
 from dotenv import load_dotenv
 
 # custom 
@@ -11,12 +12,7 @@ from jwt.init_jwt import init_jwt
 
 # Blueprint
 app = Flask(__name__)
-
-with app.app_context():
-    # your code that needs the application context
-    pass
-
-
+app.app_context().push()
 # DB Setup 
 load_dotenv()
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
@@ -27,13 +23,14 @@ init_db(app)
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 
 # JWT Setup
-init_jwt(app)
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)  
-app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)  
+# app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)  
+# app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)  
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
+app.config['JWT_EXPIRATION_DELTA'] = timedelta(minutes=30)
+app.config['JWT_NOT_BEFORE_DELTA'] = timedelta(minutes=5)
 app.config['JWT_SECRET_KEY'] = 'usan#112'
-
+init_jwt(app)
 
 # Register the blueprint 
 app.register_blueprint(product.bp)
