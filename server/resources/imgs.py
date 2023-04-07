@@ -19,11 +19,9 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 bp = Blueprint('imgs', __name__, url_prefix='/imgs')
 
-@bp.route("/upload", methods=["POST"])
-def upload():
-    resp = request.get_json()
-    resp = json.loads(json.dumps(resp))
-    product_id = resp['product_id']
+@bp.route("/upload/<int:product_id>", methods=["POST"])
+def upload(product_id):
+
     if not request.files:
         return Response(
             response = json.dumps({"message":"Empty Images."}),
