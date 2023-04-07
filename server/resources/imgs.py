@@ -81,12 +81,12 @@ def upload(product_id):
 # type 
 @bp.route('/display', methods=["GET"])
 def display_image():
-    product_id = request.args.type('product_id')
-    display_type = request.args.type('display')
+    product_id = request.args.get('product_id')
+    display_type = request.args.get('display')
     
     # Show only first images
     if display_type == 0:
-        
+
         product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
         files = os.listdir(product_dir)
         return send_from_directory(product_dir,files[0])
