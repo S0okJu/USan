@@ -35,7 +35,7 @@ def upload(product_id):
     #check accept-encoding 
     accept_type = request.headers['Content-Type']
     print(accept_type)
-    if not accept_type == 'multipart/form-data':
+    if not 'multipart/form-data' in accept_type:
         return Response(
             response = json.dumps({"message":"Invalid header."}),
             status=400,
