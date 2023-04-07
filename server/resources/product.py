@@ -75,7 +75,7 @@ def display_product():
         for product in products.items:
             product_json = dict()
             product_json['title'] = product.title
-            product_json['author'] = product.author.username
+            product_json['author'] = product.author.username if product.author else None
             product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
             if product.product_imgs:
                 product_json['img_url'] = product.product_imgs[0].to_dict()['url']
