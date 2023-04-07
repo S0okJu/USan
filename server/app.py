@@ -22,12 +22,10 @@ init_db(app)
 app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
 
 # JWT Setup
-app.config['JWT_SECRET_KEY'] = 'usan'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)  
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)  
 app.config['JWT_BLACKLIST_ENABLED'] = True
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
-app.config['JWT_BLACKLIST_STORE'] = set() 
 init_jwt(app)
 
 # Register the blueprint 
