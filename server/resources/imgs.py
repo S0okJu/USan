@@ -63,11 +63,11 @@ def upload(product_id):
             "file_name":file_name,
             "file_path":file_path
         }
+        print(res_info)
         file_path_list.append(res_info)
         
         # DB 저장 
-        img_session = rdb.session.add(ProductImageModel(url=file_name, product=product_data))
-        rdb.session.add(img_session)
+        rdb.session.add(ProductImageModel(url=file_name, product=product_data))
         
     rdb.session.commit()
     return Response(
