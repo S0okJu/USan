@@ -17,3 +17,6 @@ def authenticate(user_email, password):
 def identity(payload):
     user_id = payload['identity']
     return UserModel.query.get(user_id)
+
+def jwt_payload_callback(identity):
+    return {'user_id': identity['id']}
