@@ -81,8 +81,6 @@ def display_product():
                 product_json['img_url'] = product.product_imgs[0].to_dict()['url']
             result_json[product.product_id] = json.dumps(product_json)
 
-            # TODO author는 query 대신 역참조 데이터 사용해보기 
-            # product_json['author'] = str(product.author.username)
             
         return Response(
             response = json.dumps(result_json, ensure_ascii=False, indent=3).encode('utf-8'),
@@ -174,4 +172,5 @@ def user_profile(user_id):
         raise error.DBNotFound("User")
     products = ProductModel.query.filter_by(author_id=user_id).all()
     result = {"user_info": str(user), "products": [str(p) for p in products]}
+    return json.dumps(result)
     
