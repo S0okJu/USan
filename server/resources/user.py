@@ -29,7 +29,7 @@ def login():
     if not user:
         return json.dumps({'message': '인증 실패!'}), 401
 
-    access_token = jwt.jwt_encode_callback({'identity': user['user_id']})
+    access_token = jwt.jwt_encode_callback({'id': user['user_id']})
     return json.dumps({'access_token': access_token.decode('utf-8')}), 200
 
 # 로그아웃 API 엔드포인트
