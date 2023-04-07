@@ -57,6 +57,8 @@ def signup():
     
     session = UserModel(username=username, email=email, password=password)
     rdb.session.add(session)
+    rdb.session.commit()
+    
 
     result = {'status': 'success', 'username': username, 'email': email, 'password': password}
     return json.dumps(result)
