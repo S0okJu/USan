@@ -1,27 +1,38 @@
 from db.init_db import rdb
 # from sqlalchemy_imageattach.entity import Image, image_attachment
 # user
-class UserModel(rdb.Model):
-    __tablename__= 'User'
-    user_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
-    username = rdb.Column(rdb.String(20), nullable=True)
-    email = rdb.Column(rdb.String(50),nullable=False)
-    password = rdb.Column(rdb.String(256),nullable=False)
-    created_date = rdb.Column(rdb.DateTime(), nullable=False)
-    modified_date = rdb.Column(rdb.DateTime(), nullable=False)
-    
-    def __str__(self):
-        return f"{{'user_id': {self.user_id}, 'username': '{self.username}', 'email': '{self.email}', 'password': '{self.password}', 'created_date': '{self.created_date}', 'modified_date': '{self.modified_date}'}}"
-    
-    def to_dict(self):
-        return {
-            'user_id': self.user_id,
-            'username': self.username,
-            'email': self.email,
-            'created_date': self.created_date.isoformat(),
-            'modified_date': self.modified_date.isoformat()
-        }
 
+#편집(user) 시작
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
+class User(db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), nullable=False)
+
+    def __init__(self, username, email, password):
+        self.username = username
+        self.email = email
+        self.password = password
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def find_by_username(cls, username):
+        return cls.query.filter_by(username=username).first()
+
+    @classmethod
+    def find_by_email(cls, email):
+        return cls.query.filter_by(email=email).first()
+
+#편집 마지막   
 class ProductModel(rdb.Model):
     __tablename__ = 'Product'
     product_id=rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
