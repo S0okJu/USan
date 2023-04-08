@@ -58,11 +58,12 @@ def login():
 
     if result:
         # * Create Access, Refresh token
-        access_token = create_access_token(identity=email_receive)
+        access_token = create_access_token(identity=email_receive, refresh = False)
         refresh_token = create_refresh_token(identity= email_receive)
         
+        
         # token을 줍니다.
-        return jsonify({'msg': 'Login in successfully', 'access_token': access_token, 'refresh_token':refresh_token}),200
+        return jsonify({'msg': 'Login in successfully', 'access_token': access_token,'refresh_token':refresh_token}),200
 
     # 찾지 못하면
     else:
@@ -83,7 +84,7 @@ def logout():
 @jwt_required()
 def refresh():
     current_user = get_jwt_identity()
-    access_token = create_access_token(identity=current_user)
+    access_token = create_access_token(identity=current_user, fresh= False)
     resp = {'access_token': access_token}
     return json.dumps(resp) 
 
