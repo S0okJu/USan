@@ -47,13 +47,13 @@ def register():
 
 
 @bp.route('/login', methods=["POST"])
-def api_login():
+def login():
     user_info = request.get_json()
     email_receive = user_info['email']
     pw_receive = user_info['pw']
 
     pw_hash = generate_password_hash(pw_receive, method='sha256')
-    result = UserModel.query.find_one({'email': email_receive, 'pw': pw_hash})
+    result = UserModel.query.find_one({'email': email_receive, 'password': pw_hash})
 
     if result is not None:
         # * Create Access, Refresh token
