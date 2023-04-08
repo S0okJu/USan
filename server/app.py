@@ -11,7 +11,6 @@ from jwt.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
 # Blueprint
-from resources import product, user, imgs
 
 # Flask 
 app = Flask(__name__)
