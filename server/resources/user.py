@@ -61,18 +61,12 @@ def login():
         refresh_token = create_refresh_token(identity= email_receive)
         
         # token을 줍니다.
-        return Response(
-            response = jsonify({'msg': 'Login in successfully', 'access_token': access_token, 'refresh_token':refresh_token}),
-            status=200,
-            mimetype="application/json"
-        )
+        return jsonify({'msg': 'Login in successfully', 'access_token': access_token, 'refresh_token':refresh_token}),200
+
     # 찾지 못하면
     else:
-        return Response(
-            response = jsonify({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'}),
-            status=401,
-            mimetype="application/json"
-        ) 
+        return jsonify({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'}), 401
+
 
 @bp.route('/logout', methods=['POST'])
 @jwt_required()
