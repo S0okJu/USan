@@ -34,7 +34,7 @@ def register():
     nickname_receive = user_info['nickname']
     email_receive = user_info['email']
 
-    pw_hash = generate_password_hash(pw_receive, method='sha256')
+    pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest()
     user = UserModel(username=nickname_receive, email=email_receive, password=pw_hash)
     rdb.session.add(user)
     rdb.session.commit()
@@ -52,7 +52,7 @@ def login():
     email_receive = user_info['email']
     pw_receive = user_info['password']
 
-    pw_hash = generate_password_hash(pw_receive, method='sha256')
+    pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest()
     print(pw_hash)
     result = UserModel.query.filter(UserModel.email==email_receive, UserModel.password==pw_hash).first()
 
