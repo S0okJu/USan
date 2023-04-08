@@ -58,7 +58,7 @@ def login():
 
     if result:
         # * Create Access, Refresh token
-        access_token = create_access_token(identity=email_receive, refresh = False)
+        access_token = create_access_token(identity=email_receive, fresh = False)
         refresh_token = create_refresh_token(identity= email_receive)
         
         
