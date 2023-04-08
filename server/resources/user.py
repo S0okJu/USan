@@ -53,7 +53,7 @@ def login():
     pw_receive = user_info['password']
 
     pw_hash = generate_password_hash(pw_receive, method='sha256')
-    result = UserModel.query.find_one({'email': email_receive, 'password': pw_hash})
+    result = UserModel.query.filter(email=email_receive, password=pw_hash).first()
 
     if result is not None:
         # * Create Access, Refresh token
