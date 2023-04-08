@@ -19,9 +19,9 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 blacklist = set()
 
 # TODO JWT Token DB에 저장하기 
-@jwt.token_in_blacklist_loader
-def check_if_token_in_blacklist(decrypted_token):
-    jti = decrypted_token['jti']
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blocklist(jwt_header):
+    jti = jwt_header['jti']
     return jti in blacklist
 
 @bp.route('/register', methods=['POST'])
