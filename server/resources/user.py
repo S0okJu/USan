@@ -4,7 +4,7 @@ import json
 import hashlib
 
 from flask import request,Blueprint, Response, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity,create_access_token,create_refresh_token, get_raw_jwt
+from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity,create_access_token,create_refresh_token, get_raw_jwt
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # custom 
@@ -73,7 +73,7 @@ def login():
 @jwt_required()
 def logout():
     # Get JWT ID of the access token 
-    jti = get_raw_jwt()['jti']
+    jti = get_jwt()['jti']
     blacklist.add(jti)
 
     return Response(json.dumps({'msg': 'Logged out successfully'}), status=200, mimetype='application/json')
