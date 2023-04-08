@@ -2,7 +2,7 @@ import os, sys
 
 ROOT_PATH = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 from models import UserModel, ProductImageModel, ProductModel
-from db.init_db import rdb
+from init.init_db import rdb
 
 def check_product(product_id):
     product = ProductModel.query.get(product_id)

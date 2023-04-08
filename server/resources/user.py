@@ -10,9 +10,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # custom 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import UserModel
-from db.init_db import rdb
+from init.init_db import rdb
 # 웬만한 jwt 객체 설정에 대한 것들은 jwt.utility에 있다. 
-from jwt.init_jwt import jwt, SECRET_KEY # ! jwt 객체는 init_jwt에 있다. (Circular error때문에 )
+from init.init_jwt import jwt, SECRET_KEY # ! jwt 객체는 init_jwt에 있다. (Circular error때문에 )
 
 bp = Blueprint('user', __name__, url_prefix='/user')
 blacklist = set()

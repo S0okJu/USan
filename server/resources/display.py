@@ -8,7 +8,7 @@ import sqlalchemy.exc
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import ProductModel, UserModel, ProductImageModel
-from db.init_db import rdb
+from init.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg
 import utils.error.custom_error as error

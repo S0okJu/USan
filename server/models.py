@@ -1,4 +1,4 @@
-from db.init_db import rdb
+from init.init_db import rdb
 # from sqlalchemy_imageattach.entity import Image, image_attachment
 # user
 

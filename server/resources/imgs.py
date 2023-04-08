@@ -9,7 +9,7 @@ import sqlalchemy.exc
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import ProductModel, UserModel, ProductImageModel
-from db.init_db import rdb
+from init.init_db import rdb
 from utils.security.check import check_product
 import utils.error.custom_error as error 
 
@@ -82,16 +82,10 @@ def upload(product_id):
 # 오직 첫번째로 display한 사진을 가져온다. 
 # product_id 
 # type = 0(첫번째 사진만)
-@bp.route('/display', methods=["GET"])
-def display_image():
+@bp.route('/<int:product_id>', methods=["GET"])
+def display_image(product_id):
     try:
-        product_id = request.args.get('product_id')
-        if not product_id:
-            raise error.MissingParams('product_id')
-    
-        if not check_product(product_id):
-            raise error.DBNotFound('Product')
-    
+            
         display_type = request.args.get('type')
         if not display_type:
             raise error.MissingParams('type')

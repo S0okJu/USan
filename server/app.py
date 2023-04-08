@@ -5,9 +5,9 @@ from flask import Flask
 from dotenv import load_dotenv
 
 # custom 
-from db.init_db import init_db
+from init.init_db import init_db
 from resources import product, user,imgs, display
-from jwt.init_jwt import init_jwt
+from init.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
 # Blueprint
