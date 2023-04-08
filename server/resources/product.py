@@ -24,10 +24,7 @@ def get_product(product_id):
         if not question:
             raise error.DBNotFound('Product')
                 
-        q_dict = {}
-        # Model to Json 
-        for col in question.__table__.columns:
-            q_dict[col.name] = str(getattr(question, col.name))
+        q_dict = question.to_dict()
         author = UserModel.query.get(q_dict['author_id']) # get author name 
         del(q_dict['author_id'])
         q_dict['author'] = author 
@@ -72,8 +69,8 @@ def post_product():
         raise error.DBConnectionError()
 
 
-@bp.route('/modify/<int:product_id>',methods=["POST"])
-def modify_product(product_id):
+@bp.route('/modify',methods=["POST"])
+def modify_product():
     # TODO User check using JWT Token 
     
     # Modify the data
@@ -82,7 +79,7 @@ def modify_product(product_id):
         raise error.Empty('JSON')
 
     obj = json.loads(json.dumps(body))
-    p = ProductModel.query.get(product_id)
+    p = ProductModel.query.get(obj['product_id'])
     if not p:
         raise error.DBNotFound('Product')
     
@@ -100,7 +97,7 @@ def modify_product(product_id):
     rdb.session.commit()
     return jsonify({"status_code" : 200, "message":"Modify product completely!"})
 
-@bp.route('/delete/<int:product_id>',methods=["POST"])
+@bp.route('/delete/<int:product_id>',methods=["GET"])
 def delete(product_id):
     # TODO User check using JWT Token 
     

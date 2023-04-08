@@ -51,7 +51,7 @@ def user_profile(user_id):
 # @param page_per 한 페이지당 개수, page = page 인덱스 
 # @return 상품명, 사용자, 수정일 
 @bp.route('/productlist', methods=["GET"])
-def display_product():
+def get_productlist():
 
     page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
@@ -69,8 +69,12 @@ def display_product():
             product_json['title'] = product.title
             product_json['author'] = product.author.username if product.author else None
             product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
+            product_json['favorite'] = product.favorite
+            product_json['status'] = product.status
             if product.product_imgs:
-                product_json['img_url'] = product.product_imgs[0].to_dict()['url']
+                product_json['img_path'] = product.product_imgs[0].to_dict()['url']
+            else:
+                product_json['img_path'] = None
             result_json[product.product_id] = json.dumps(product_json)
 
         return Response(

@@ -2,18 +2,14 @@ from db.init_db import rdb
 # from sqlalchemy_imageattach.entity import Image, image_attachment
 # user
 
-#편집(user) 시작
-from flask_sqlalchemy import SQLAlchemy
+class UserModl(rdb.Model): # User -> UserModel로 수정 
+    __tablename__ = 'User' # 
 
-db = SQLAlchemy()
-
-class User(db.Model):
-    __tablename__ = 'users'
-
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
+    # id -> user_id로 변경 
+    user_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+    username = rdb.Column(rdb.String(80), unique=True, nullable=False)
+    email = rdb.Column(rdb.String(120), unique=True, nullable=False)
+    password = rdb.Column(rdb.String(256), nullable=False)
 
     def __init__(self, username, email, password):
         self.username = username
@@ -21,8 +17,8 @@ class User(db.Model):
         self.password = password
 
     def save_to_db(self):
-        db.session.add(self)
-        db.session.commit()
+        rdb.session.add(self)
+        rdb.session.commit()
 
     @classmethod
     def find_by_username(cls, username):
@@ -62,11 +58,12 @@ class ProductModel(rdb.Model):
             'author_id': self.author_id,
             'images': [img.url for img in self.product_imgs]
         }
+    #  save to db 
+    def save(self):
+        rdb.session.add(self)
+        rdb.session.commit()
     
     
-    
-    def __str__(self):
-        return f"{{'product_id':{self.product_id}, 'title':'{self.title}', 'price':{self.price}, 'address':'{self.address}', 'content':'{self.content}', 'created_date':'{self.created_date}', 'modified_date':'{self.modified_date}', 'favorite':{self.favorite}, 'status':{self.status}, 'author_id':{self.author_id}}}"
     
 class ProductImageModel(rdb.Model):
     __tablename__ = 'ProductImage'
@@ -74,12 +71,13 @@ class ProductImageModel(rdb.Model):
     url = rdb.Column(rdb.String(50), nullable=False)
     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'))
 
-    def __str__(self):
-        return f"{{'img_id':{self.img_id}, 'url':'{self.url}', 'product_id':{self.product_id}}}"
-
     def to_dict(self):
         return {
             'img_id': self.img_id,
             'url': self.url,
             'product_id': self.product_id
         }
+
+    def save(self):
+        rdb.session.add(self)
+        rdb.session.commit()
