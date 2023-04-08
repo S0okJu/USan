@@ -3,7 +3,6 @@ import ast
 import hmac
 import datetime
 
-from flask_jwt import current_app
 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import UserModel

@@ -2,19 +2,18 @@ import sys, os
 from datetime import timedelta
 
 from flask import Flask
-from flask_jwt import current_app
 from dotenv import load_dotenv
 
 # custom 
 from db.init_db import init_db
-from resources import product, user,imgs
+from resources import product, user,imgs, display
 from jwt.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
 # Blueprint
 from resources import product, user, imgs
 
-# Init Flask 
+# Flask 
 app = Flask(__name__)
 app.app_context().push()
 
@@ -28,7 +27,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 init_db(app)
 
 # File upload setup
-app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg', 'gif'])
+app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg'])
 
 # JWT Setup
 # app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)  
@@ -44,6 +43,7 @@ init_jwt(app)
 app.register_blueprint(product.bp)
 app.register_blueprint(user.bp)
 app.register_blueprint(imgs.bp)
+app.register_blueprint(display.bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000, debug=True)

@@ -35,7 +35,7 @@ def upload(product_id):
     #check accept-encoding 
     accept_type = request.headers['Content-Type']
     acc_len = len('multipart/form-data')
-    if len(accept_type) < acc_len and not accept_type[:acc_len] == 'multipart/form-data':
+    if len(accept_type) < acc_len or not accept_type[:acc_len] == 'multipart/form-data':
         return Response(
             response = json.dumps({"message":"Invalid header."}),
             status=400,
@@ -74,37 +74,37 @@ def upload(product_id):
         
     rdb.session.commit()
     return Response(
-        response = json.dumps(file_path_list),
+        response = jsonify(file_path_list),
         status=200,
         mimetype="application/json"
     )
 
-# 오직 첫번째로 display한 사진을 가져온다. 
-# product_id 
-# type 
-@bp.route('/display', methods=["GET"])
-def display_image():
-    try:
-        product_id = request.args.get('product_id')
-        if not product_id:
-            raise error.MissingParams('product_id')
+# # 오직 첫번째로 display한 사진을 가져온다. 
+# # product_id 
+# # type = 0(첫번째 사진만)
+# @bp.route('/display', methods=["GET"])
+# def display_image():
+#     try:
+#         product_id = request.args.get('product_id')
+#         if not product_id:
+#             raise error.MissingParams('product_id')
     
-        if not check_product(product_id):
-            raise error.DBNotFound('Product')
+#         if not check_product(product_id):
+#             raise error.DBNotFound('Product')
     
-        display_type = request.args.get('type')
-        if not display_type:
-            raise error.MissingParams('type')
+#         display_type = request.args.get('type')
+#         if not display_type:
+#             raise error.MissingParams('type')
     
-        # Show only first images
-        if display_type == "0":
-            product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
-            files = os.listdir(product_dir)
-            return send_from_directory(product_dir,files[0])
+#         # Show only first images
+#         if display_type == "0":
+#             product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
+#             files = os.listdir(product_dir)
+#             return send_from_directory(product_dir,files[0])
 
-        return json.dumps({"msg":"Hi"})
-    except sqlalchemy.exc.OperationalError:
-        raise error.DBConnectionError()
+#         return json.dumps({"msg":"Hi"})
+#     except sqlalchemy.exc.OperationalError:
+#         raise error.DBConnectionError()
 
 @bp.route('/delete', methods=["POST"])
 def delete_image():

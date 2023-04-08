@@ -1,5 +1,7 @@
 flask 
 Flask-JWT
+SQLAlchemy
 Werkzeug
 Flask-Migrate
 flask_request_validator
+PyJWT
