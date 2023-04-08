@@ -4,7 +4,7 @@ import json
 import hashlib
 
 from flask import request,Blueprint, Response, jsonify
-from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity,create_refresh_token
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity,create_refresh_token, token_in_blacklist_loader
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # custom 
