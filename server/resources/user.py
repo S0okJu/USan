@@ -20,8 +20,8 @@ blacklist = set()
 
 # TODO JWT Token DB에 저장하기 
 @jwt.token_in_blocklist_loader
-def check_if_token_in_blocklist(jwt_header):
-    jti = jwt_header['jti']
+def check_if_token_in_blocklist(jwt_header, jwt_payload):
+    jti = jwt_payload['jti']
     return jti in blacklist
 
 @bp.route('/register', methods=['POST'])
