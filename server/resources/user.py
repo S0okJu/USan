@@ -62,13 +62,13 @@ def login():
         
         # token을 줍니다.
         return Response(
-            response = json.dumps({'msg': 'Login in successfully', 'access_token': access_token, 'refresh_token':refresh_token}),
+            response = jsonify({'msg': 'Login in successfully', 'access_token': access_token, 'refresh_token':refresh_token}),
             status=200,
             mimetype="application/json")
     # 찾지 못하면
     else:
         return Response(
-            Response = json.dumps({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'},ensure_ascii=False),
+            Response = jsonify({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'}),
             status=401,
             mimetype="application/json"
         ) 
