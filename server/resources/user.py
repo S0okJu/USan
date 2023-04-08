@@ -14,7 +14,8 @@ from init.init_db import rdb
 # 웬만한 jwt 객체 설정에 대한 것들은 jwt.utility에 있다. 
 from init.init_jwt import jwt, SECRET_KEY # ! jwt 객체는 init_jwt에 있다. (Circular error때문에 )
 
-bp = Blueprint('user', __name__, url_prefix='/user')
+bp = Blueprint('users', __name__, url_prefix='/users')
+
 blacklist = set()
 
 # TODO JWT Token DB에 저장하기 
@@ -24,7 +25,7 @@ def check_if_token_in_blocklist(decrypted_token):
     return jti in blacklist
 
 @bp.route('/register', methods=['POST'])
-def api_register():
+def register():
     user_info = request.get_json()
     if user_info:
         pass 
@@ -73,7 +74,7 @@ def api_login():
         ) 
 
 @bp.route('/logout', methods=['POST'])
-@jwt_required
+@jwt_required()
 def logout():
     # Get JWT ID of the access token 
     jti = get_jwt_identity()['jti']
@@ -83,7 +84,7 @@ def logout():
 
 
 @bp.route('/refresh', methods=["POST"])
-@jwt_required 
+@jwt_required()
 def refresh():
     current_user = get_jwt_identity()
     access_token = create_access_token(identity=current_user)
@@ -92,7 +93,7 @@ def refresh():
 
 
 @bp.route('/protected', methods=["GET"])
-@jwt_required 
+@jwt_required() 
 def protected():
     user_email = get_jwt_identity()
     # user = UserModel.query.filter_by(email=user_email).first()
