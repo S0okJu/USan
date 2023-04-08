@@ -37,7 +37,7 @@ def register():
     pw_hash = generate_password_hash(pw_receive, method='sha256')
     user = UserModel(username=nickname_receive, email=email_receive, password=pw_hash)
     rdb.session.add(user)
-    rdb.commit()
+    rdb.session.commit()
 
     return Response(
         response = jsonify({"message":"Success"}),
