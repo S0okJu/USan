@@ -2,7 +2,7 @@ from db.init_db import rdb
 # from sqlalchemy_imageattach.entity import Image, image_attachment
 # user
 
-class UserModl(rdb.Model): # User -> UserModel로 수정 
+class UserModel(rdb.Model): # User -> UserModel로 수정 
     __tablename__ = 'User' # 
 
     # id -> user_id로 변경 
