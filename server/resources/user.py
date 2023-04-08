@@ -53,6 +53,7 @@ def login():
     pw_receive = user_info['password']
 
     pw_hash = generate_password_hash(pw_receive, method='sha256')
+    print(pw_hash)
     result = UserModel.query.filter(UserModel.email==email_receive, UserModel.password==pw_hash).first()
 
     if result:
