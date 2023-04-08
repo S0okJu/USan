@@ -4,7 +4,7 @@ import json
 import hashlib
 
 from flask import request,Blueprint, Response, jsonify
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity,create_refresh_token
+from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identity,create_refresh_token
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # custom 
@@ -33,7 +33,7 @@ def api_register():
     nickname_receive = user_info['nickname']
     email_receive = user_info['email']
 
-    pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
+    pw_hash = generate_password_hash(pw_receive, method='sha256')
     user = UserModel(username=nickname_receive, email=email_receive, password=pw_hash)
     rdb.session.add(user)
     rdb.commit()
@@ -51,19 +51,10 @@ def api_login():
     email_receive = user_info['email']
     pw_receive = user_info['pw']
 
-    # 회원가입 때와 같은 방법으로 pw를 암호화합니다.
-    pw_hash = hashlib.sha256(pw_receive.encode('utf-8')).hexdigest()
-
-    # id, 암호화된pw을 가지고 해당 유저를 찾습니다.
+    pw_hash = generate_password_hash(pw_receive, method='sha256')
     result = UserModel.query.find_one({'email': email_receive, 'pw': pw_hash})
 
-    # 찾으면 JWT 토큰을 만들어 발급합니다.
     if result is not None:
-        # JWT 토큰에는, payload와 시크릿키가 필요합니다.
-        # 시크릿키가 있어야 토큰을 디코딩(=풀기) 해서 payload 값을 볼 수 있습니다.
-        # 아래에선 id와 exp를 담았습니다. 즉, JWT 토큰을 풀면 유저ID 값을 알 수 있습니다.
-        # exp에는 만료시간을 넣어줍니다. 만료시간이 지나면, 시크릿키로 토큰을 풀 때 만료되었다고 에러가 납니다.
-
         # * Create Access, Refresh token
         access_token = create_access_token(identity=email_receive)
         refresh_token = create_refresh_token(identity= email_receive)
@@ -76,7 +67,7 @@ def api_login():
     # 찾지 못하면
     else:
         return Response(
-            Response = json.dumps({'result': 'fail', 'msg': '아이디/비밀번호가 일치하지 않습니다.'},ensure_ascii=False),
+            Response = json.dumps({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'},ensure_ascii=False),
             status=401,
             mimetype="application/json"
         ) 
