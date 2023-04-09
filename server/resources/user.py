@@ -34,7 +34,7 @@ def register():
     nickname_receive = str(user_info['nickname'])
     email_receive = user_info['email']
 
-    pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest().to
+    pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest()
     user = UserModel(username=nickname_receive, email=email_receive, password=pw_hash)
     rdb.session.add(user)
     rdb.session.commit()
