@@ -30,20 +30,16 @@ def register():
     if user_info:
         pass 
 
-    pw_receive = user_info['password']
-    nickname_receive = user_info['nickname']
+    pw_receive = str(user_info['password'])
+    nickname_receive = str(user_info['nickname'])
     email_receive = user_info['email']
 
-    pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest()
+    pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest().to
     user = UserModel(username=nickname_receive, email=email_receive, password=pw_hash)
     rdb.session.add(user)
     rdb.session.commit()
 
-    return Response(
-        response = jsonify({"message":"Success"}),
-        status=201,
-        mimetype="application/json" 
-    )
+    return jsonify({"status_code":200 ,"message":"Success"}), 200 
 
 
 @bp.route('/login', methods=["POST"])
@@ -53,7 +49,6 @@ def login():
     pw_receive = user_info['password']
 
     pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest()
-    print(pw_hash)
     result = UserModel.query.filter(UserModel.email==email_receive, UserModel.password==pw_hash).first()
 
     if result:
