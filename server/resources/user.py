@@ -70,7 +70,7 @@ def login():
         return jsonify({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'}), 401
 
 
-@bp.route('/logout', methods=['POST'])
+@bp.route('/logout', methods=['GET'])
 @jwt_required()
 def logout():
     # Get JWT ID of the access token 
@@ -80,7 +80,7 @@ def logout():
     return Response(json.dumps({'msg': 'Logged out successfully'}), status=200, mimetype='application/json')
 
 
-@bp.route('/refresh', methods=["POST"])
+@bp.route('/refresh', methods=["GET"])
 @jwt_required()
 def refresh():
     current_user = get_jwt_identity()

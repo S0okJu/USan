@@ -33,11 +33,7 @@ def error_handler(error):
         'status': error.status_code,
         'message': error.message
     }
-    return Response(
-        response = jsonify(resp),
-        status= error.status_code,
-        mimetype="application/json" 
-    )
+    return jsonify(resp), error.status_code
 
 
 def init_custom_error_handler(app):
