@@ -40,11 +40,7 @@ def user_profile(user_id):
     else:
         products = ProductModel.query.filter_by(author_id= user_id).limit(display_type)
     result = {"user_info": str(user), "products": [str(p) for p in products]}
-    return Response(
-        response = jsonify(result),
-        status=200,
-        mimetype="application/json"
-    )
+    return jsonify(result), stat200
 
 
 # 상품 조회 (개수별)
@@ -68,7 +64,7 @@ def get_productlist():
             product_json = dict()
             product_json['title'] = product.title
             product_json['author'] = product.author.username if product.author else None
-            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S")
+            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
             product_json['favorite'] = product.favorite
             product_json['status'] = product.status
             if product.product_imgs:
@@ -77,11 +73,6 @@ def get_productlist():
                 product_json['img_path'] = None
             result_json[product.product_id] = json.dumps(product_json)
 
-        return Response(
-            response = jsonify(result_json),
-            status=200,
-            mimetype="application/json"
-        )
+        return jsonify(result_json), 200
     except sqlalchemy.exc.OperationalError as e:
-        msg.error(e)
         raise error.DBConnectionError()

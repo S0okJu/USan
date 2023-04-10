@@ -55,10 +55,9 @@ def login():
         # * Create Access, Refresh token
         access_token = create_access_token(identity=email_receive, fresh = False)
         refresh_token = create_refresh_token(identity= email_receive)
-        
-        
+          
         # token을 줍니다.
-        return jsonify({'msg': 'Login in successfully', 'access_token': access_token,'refresh_token':refresh_token}),200
+        return jsonify({'msg': 'Login in successfully', 'access_token': access_token}),200
 
     # 찾지 못하면
     else:
