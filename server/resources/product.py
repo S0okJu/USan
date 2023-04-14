@@ -4,6 +4,7 @@ import datetime
 
 # * lib
 from flask import request,Response, jsonify, Blueprint, send_from_directory
+from flask_jwt_extended import jwt_required
 import sqlalchemy.exc
 
 # * User defined
@@ -118,7 +119,7 @@ def check_favorite():
         rdb.session.commit()
     else:
         raise error.DBNotFound('Product')
-    return jsonify({"status_code" : 200, "message":"Success"})
+    return jsonify({"status_code" : 200, "message":"Success"}), 200 
 
 @bp.route('/status', methods=["GET"])
 def check_status():
@@ -129,4 +130,4 @@ def check_status():
         rdb.session.commit()
     else:
         raise error.DBNotFound('Product')
-    return jsonify({"status_code" : 200, "message":"Success"})
+    return jsonify({"status_code" : 200, "message":"Success"}), 200 

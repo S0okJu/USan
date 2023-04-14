@@ -12,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from models import UserModel
 from init.init_db import rdb
 # 웬만한 jwt 객체 설정에 대한 것들은 jwt.utility에 있다. 
-from init.init_jwt import jwt, SECRET_KEY # ! jwt 객체는 init_jwt에 있다. (Circular error때문에 )
+from init.init_jwt import jwt, SECRET_KEY 
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -53,13 +53,9 @@ def login():
 
     if result:
         # * Create Access, Refresh token
-        access_token = create_access_token(identity=email_receive, fresh = False)
-        refresh_token = create_refresh_token(identity= email_receive)
-          
-        # token을 줍니다.
+        access_token = create_access_token(identity=result.user_id, fresh = False)
+        refresh_token = create_refresh_token(identity= result.user_id)
         return jsonify({'msg': 'Login in successfully', 'access_token': access_token}),200
-
-    # 찾지 못하면
     else:
         return jsonify({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'}), 401
 
@@ -86,6 +82,6 @@ def refresh():
 @bp.route('/protected', methods=["GET"])
 @jwt_required() 
 def protected():
-    user_email = get_jwt_identity()
+    user_id = get_jwt_identity()
     # user = UserModel.query.filter_by(email=user_email).first()
-    return json.dumps({'msg': f'hello {user_email}'})
+    return json.dumps({'msg': f'hello {user_id}'})

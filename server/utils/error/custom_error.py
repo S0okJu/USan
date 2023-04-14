@@ -28,6 +28,11 @@ class OutOfBound(CustomException):
     def __init__(self):
         super().__init__(status_code=404, message="Out of Bund")
 
+# payment 
+class InvalidPaymentAuthorization(CustomException):
+    def __init__(self):
+        super().__init__(status_code=404, message="Invalid Payment Authorization.")
+
 def error_handler(error):
     resp = {
         'status': error.status_code,
@@ -43,6 +48,7 @@ def init_custom_error_handler(app):
     app.register_error_handler(MissingParams, error_handler)
     app.register_error_handler(EmptyError, error_handler)
     app.register_error_handler(OutOfBound,error_handler)
+    app.register_error_handler(InvalidPaymentAuthorization, error_handler)
 
     
 
