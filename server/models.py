@@ -89,7 +89,7 @@ class UserRefreshToken(rdb.Model):
     id = Column(Integer, primary_key=True,  autoincrement=True, unique=True)
     token = Column(String(255), unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey('User.user_id'), nullable=False)
-    user = relationship("User", backref="user_token")
+    user = relationship("UserModel", backref="user_token")
     created_at = Column(DateTime, default=datetime.now)
     expired_at = Column(DateTime)
 
@@ -115,7 +115,7 @@ class PaymentRefreshToken(rdb.Model):
     id = Column(Integer,  autoincrement=True, unique=True ,primary_key=True)
     token = Column(String(255), unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey('User.user_id'), nullable=False)
-    user = relationship("User", backref="payment_token")
+    user = relationship("UserModel", backref="payment_token")
     created_at = Column(DateTime, default=datetime.now)
     expired_at = Column(DateTime)
 
