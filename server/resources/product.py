@@ -29,14 +29,10 @@ def get_product(product_id):
         author = UserModel.query.get(q_dict['author_id']) # get author name 
         del(q_dict['author_id'])
         q_dict['author'] = author 
-        return Response(
-            response = jsonify(q_dict),
-            status=200,
-            mimetype="application/json" 
-        )
+
+        return jsonify(q_dict),2
     
     except sqlalchemy.exc.SQLAlchemyError as e:
-        msg.error(e)
         raise error.DBConnectionError()
     
 @bp.route('/post',methods=["POST"])
@@ -58,14 +54,9 @@ def post_product():
             status=False,favorite=False)
         rdb.session.add(product_session)
         rdb.session.commit()
-        return Response(
-            response = jsonify({"message":"Success"}),
-            status=200,
-            mimetype="application/json"
-        )
+        return jsonify({"status_code" : 200, "message":"Success"}), 200
     
     except sqlalchemy.exc.SQLAlchemyError as e:
-        print(e)
         raise error.DBConnectionError()
 
 
