@@ -57,9 +57,9 @@ def authorization():
                 return jsonify({"status_code" : 200, "message":"Success"}), 200 
             
             else:
-                error.InvalidPaymentAuthorization()
+                return jsonify(token_json), 404
         else:
-            return error.InvalidPaymentAuthorization()
+            return jsonify(res_json), 404
     except requests.exceptions.Timeout as e:
         print("Timeout Error : ", e)
     except requests.exceptions.ConnectionError as e:
