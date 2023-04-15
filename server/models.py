@@ -35,7 +35,7 @@ class ProductModel(rdb.Model):
     __tablename__ = 'Product'
     product_id=rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
     title = rdb.Column(rdb.String(50), nullable=False)
-    author = rdb.relationship('UserModel', backref=rdb.backref('product_set'))
+    author = rdb.relationship('UserModel', backref=rdb.backref('product_set'), nullable=False)
     price = rdb.Column(rdb.Integer, nullable=False)
     address = rdb.Column(rdb.String(30), nullable=False)
     content = rdb.Column(rdb.String(1000), nullable=False)
