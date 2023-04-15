@@ -48,11 +48,11 @@ def post_product():
             raise error.Empty('Json')
         
         obj = json.loads(json.dumps(body))
-        author_data = UserModel.query.filter_by(UserModel.username == obj['author']).first()
+        author_data = UserModel.query.filter_by(username == obj['author']).first()
         if not author_data:
             raise error.DBNotFound('User')
                 
-        product_session = ProductModel(title=obj['title'], author_id = author_data.user_id,
+        product_session = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
             created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             status=False,favorite=False)
