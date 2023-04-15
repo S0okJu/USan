@@ -52,12 +52,11 @@ def post_product():
         if not author_data:
             raise error.DBNotFound('User')
                 
-        product_session = ProductModel(title=obj['title'], author=author_data,
+        product_session = ProductModel(title=obj['title'], author=obj['author'],
             price=int(obj['price']),address=obj['address'], content=obj['content'],
             created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             status=False,favorite=False)
         rdb.session.add(product_session)
-        
         rdb.session.commit()
         return Response(
             response = jsonify({"message":"Success"}),
