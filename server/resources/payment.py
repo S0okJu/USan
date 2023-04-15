@@ -32,6 +32,7 @@ def authorization():
     try:
         res = requests.get(auth_url)
         res_json = res.json()
+        print(res_json)
         if res.status_code == 200:
             req_data = {
                 'code':res_json['code'],
