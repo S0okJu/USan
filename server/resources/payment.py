@@ -34,7 +34,7 @@ def authorization():
         res_json = res.json()
         if res.status_code == 200:
             req_data = {
-                'code':res_json['authorization_code'],
+                'code':res_json['code'],
                 'client_id':CLIENT_ID,
                 'client_secret':CLIENT_PASSWORD,
                 'redirect_uri':REDIRECT_URI,
