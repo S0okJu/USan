@@ -40,7 +40,7 @@ def user_profile(user_id):
     else:
         products = ProductModel.query.filter_by(author_id= user_id).limit(display_type)
     result = {"user_info": str(user), "products": [str(p) for p in products]}
-    return jsonify(result), stat200
+    return jsonify(result), 200
 
 
 # 상품 조회 (개수별)
