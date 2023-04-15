@@ -41,7 +41,7 @@ class ProductModel(rdb.Model):
     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
     favorite = rdb.Column(rdb.Boolean, nullable=False)
     status = rdb.Column(rdb.Boolean, nullable=False)
-    author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=True)
+    author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=True, server_default='0')
     product_imgs = rdb.relationship('ProductImageModel', backref=rdb.backref('product'), order_by='ProductImageModel.img_id')
 
     def to_dict(self):
