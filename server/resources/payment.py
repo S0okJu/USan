@@ -33,7 +33,7 @@ def authorization():
         res = requests.get(auth_url)
         res_json = res.json()
         print(res_json)
-        if res.status_code == "200":
+        if res.status_code == 200:
             req_data = {
                 'code':res_json['code'],
                 'client_id':CLIENT_ID,
@@ -44,7 +44,7 @@ def authorization():
 
             # Token 발급
             token_res = requests.post(f'{URI_BASE}/token',data=json.loads(req_data))
-            if token_res.status_code == "200":
+            if token_res.status_code == 200:
  
                 token_json = token_res.json()
                 user_id = get_jwt_identity()
