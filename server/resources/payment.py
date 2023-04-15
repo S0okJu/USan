@@ -35,7 +35,7 @@ def authorization():
         print(res_json)
         if res.status_code == "200":
             req_data = {
-                'code':str(res_json['code']),
+                'code':res_json['code'],
                 'client_id':CLIENT_ID,
                 'client_secret':CLIENT_PASSWORD,
                 'redirect_uri':REDIRECT_URI,
@@ -53,6 +53,8 @@ def authorization():
                 refresh_session = PaymentRefreshToken(token=token_json['refresh_token'],user_id=user_id)
                 rdb.session.add(refresh_session)
                 rdb.commit()
+                
+                return jsonify({"status_code" : 200, "message":"Success"}), 200 
             
             else:
                 error.InvalidPaymentAuthorization()
