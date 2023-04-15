@@ -12,7 +12,7 @@ import sqlalchemy.exc
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from init.init_db import rdb
 import utils.error.custom_error as error
-from models.token import PaymentRefreshToken
+from models import PaymentRefreshToken
 
 # * Test이기 때문에 별도로 Client_id와 password는 고정. 
 CLIENT_ID = '1d1099e6-8c17-4ac3-956c-2e9bd6039c19'
