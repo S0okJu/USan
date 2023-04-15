@@ -41,7 +41,7 @@ class ProductModel(rdb.Model):
     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
     favorite = rdb.Column(rdb.Boolean)
     status = rdb.Column(rdb.Boolean, nullable=False)
-    author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('UserModel.user_id'), nullable=False)
+    author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     product_imgs = rdb.relationship('ProductImageModel', backref=rdb.backref('product'), order_by='ProductImageModel.img_id')
 
     def to_dict(self):
@@ -69,7 +69,7 @@ class ProductImageModel(rdb.Model):
     __tablename__ = 'ProductImage'
     img_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
     url = rdb.Column(rdb.String(50), nullable=False)
-    product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('ProductModel.product_id'))
+    product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'))
 
     def to_dict(self):
         return {
@@ -86,7 +86,7 @@ class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'
     id = rdb.Column(rdb.Integer, primary_key=True,  autoincrement=True, unique=True)
     token = rdb.Column(rdb.String(255), unique=True, nullable=False)
-    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('UserModel.user_id'), nullable=False)
+    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="user_token")
     created_at = rdb.Column(rdb.DateTime, default=datetime.now)
     expired_at = rdb.Column(rdb.DateTime)
@@ -112,7 +112,7 @@ class PaymentRefreshToken(rdb.Model):
     __tablename__ = 'PaymentToken'
     id = rdb.Column(rdb.Integer,  autoincrement=True, unique=True ,primary_key=True)
     token = rdb.Column(rdb.String(255), unique=True, nullable=False)
-    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('UserModel.user_id'), nullable=False)
+    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="payment_token")
     created_at = rdb.Column(rdb.DateTime, default=datetime.now)
     expired_at = rdb.Column(rdb.DateTime)
