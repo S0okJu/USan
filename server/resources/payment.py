@@ -14,7 +14,7 @@ from init.init_db import rdb
 import utils.error.custom_error as error
 from models.token import PaymentRefreshToken
 
-# * Test이기 때문에 별도로 Client_id와 password는 고정입니다. 
+# * Test이기 때문에 별도로 Client_id와 password는 고정. 
 CLIENT_ID = '1d1099e6-8c17-4ac3-956c-2e9bd6039c19'
 CLIENT_PASSWORD = 'e51b7de9-9647-4760-8707-e77e7a53bce6'
 STATE_CODE = '12345678901234567890124456729112'
@@ -40,14 +40,18 @@ def authorization():
                 'redirect_uri':REDIRECT_URI,
                 'grant_type':'authorization_code'
             }
+
+            # Token 발급
             token_res = requests.post(f'{URI_BASE}/token',data=json.loads(req_data))
             if token_res.status_code == 200:
-                # TODO Token을 어떻게 보관할까에 대한 고민 
+ 
                 token_json = token_res.json()
                 user_id = get_jwt_identity()
                 
-                # TODO DB에 저장 
-                # TODO Error Handling 
+                # Refresh token DB에 저장 
+                refresh_session = PaymentRefreshToken(token=token_json['refresh_token'],user_id=user_id)
+                rdb.session.add(refresh_session)
+                rdb.commit()
                 
             else:
                 error.InvalidPaymentAuthorization()
