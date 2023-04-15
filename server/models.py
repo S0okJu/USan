@@ -1,8 +1,6 @@
 from init.init_db import rdb
 
 from datetime import datetime, timedelta
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
 
 class UserModel(rdb.Model): # User -> UserModel로 수정 
     __tablename__ = 'User' # 
@@ -86,12 +84,12 @@ class ProductImageModel(rdb.Model):
 
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'
-    id = Column(Integer, primary_key=True,  autoincrement=True, unique=True)
-    token = Column(String(255), unique=True, nullable=False)
-    user_id = Column(Integer, ForeignKey('User.user_id'), nullable=False)
-    user = relationship("UserModel", backref="user_token")
-    created_at = Column(DateTime, default=datetime.now)
-    expired_at = Column(DateTime)
+    id = rdb.Column(rdb.Integer, primary_key=True,  autoincrement=True, unique=True)
+    token = rdb.Column(rdb.String(255), unique=True, nullable=False)
+    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+    user = rdb.relationship("UserModel", backref="user_token")
+    created_at = rdb.Column(rdb.DateTime, default=datetime.now)
+    expired_at = rdb.Column(rdb.DateTime)
 
     def __init__(self, token, user_id, expired_in_minutes=60*24*30):
         self.token = token
@@ -112,12 +110,12 @@ class UserRefreshToken(rdb.Model):
 
 class PaymentRefreshToken(rdb.Model):
     __tablename__ = 'PaymentToken'
-    id = Column(Integer,  autoincrement=True, unique=True ,primary_key=True)
-    token = Column(String(255), unique=True, nullable=False)
-    user_id = Column(Integer, ForeignKey('User.user_id'), nullable=False)
-    user = relationship("UserModel", backref="payment_token")
-    created_at = Column(DateTime, default=datetime.now)
-    expired_at = Column(DateTime)
+    id = rdb.Column(rdb.Integer,  autoincrement=True, unique=True ,primary_key=True)
+    token = rdb.Column(rdb.String(255), unique=True, nullable=False)
+    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+    user = rdb.relationship("UserModel", backref="payment_token")
+    created_at = rdb.Column(rdb.DateTime, default=datetime.now)
+    expired_at = rdb.Column(rdb.DateTime)
 
     def __init__(self, token, user_id, expired_in_minutes=60*24*30):
         self.token = token
