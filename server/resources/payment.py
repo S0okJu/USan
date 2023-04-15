@@ -33,7 +33,7 @@ def authorization():
         res = requests.get(auth_url)
         res_json = res.json()
         print(res_json)
-        if res.status_code == 200:
+        if res.status_code == 200 and 'code' in res_json:
             req_data = {
                 'code':res_json['code'],
                 'client_id':CLIENT_ID,
