@@ -65,7 +65,6 @@ def post_product():
         )
     
     except sqlalchemy.exc.SQLAlchemyError as e:
-        msg.error(e)
         raise error.DBConnectionError()
 
 
