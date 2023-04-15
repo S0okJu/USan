@@ -48,7 +48,7 @@ def post_product():
             raise error.Empty('Json')
         
         obj = json.loads(json.dumps(body))
-        author_data = UserModel.query.filter(UserModel.username == obj['author']).first()
+        author_data = UserModel.query.filter_by(UserModel.username == obj['author']).first()
         if not author_data:
             raise error.DBNotFound('User')
                 
