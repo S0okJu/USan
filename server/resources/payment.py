@@ -27,13 +27,13 @@ bp = Blueprint('payment', __name__, url_prefix='/payment')
 # @jwt_required()
 def authorization():
     auth_url = f'https://testapi.openbanking.or.kr/oauth/v2.0/authorize?response_type=code \
-        client_id={CLIENT_ID}&redirect_uri=http://localhost:6000/auth&scope=login inquiry transfer& \
+        client_id={CLIENT_ID}&redirect_uri=http://localhost:6000/payment/auth&scope=login inquiry transfer& \
         state=12345678901234567890124456729112&auth_type=0'
     try:
         res = requests.get(auth_url)
         res_json = res.json()
         print(res_json)
-        if res.status_code == 200:
+        if res.status_code == "200":
             req_data = {
                 'code':res_json['code'],
                 'client_id':CLIENT_ID,
@@ -44,7 +44,7 @@ def authorization():
 
             # Token 발급
             token_res = requests.post(f'{URI_BASE}/token',data=json.loads(req_data))
-            if token_res.status_code == 200:
+            if token_res.status_code == "200":
  
                 token_json = token_res.json()
                 user_id = get_jwt_identity()
