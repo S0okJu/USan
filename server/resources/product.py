@@ -3,8 +3,8 @@ import json
 import datetime
 
 # * lib
-from flask import request,Response, jsonify, Blueprint, send_from_directory
-from flask_jwt_extended import jwt_required
+from flask import request,Response, jsonify, Blueprint
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import sqlalchemy.exc
 
 # * User defined
@@ -19,6 +19,7 @@ bp = Blueprint('product', __name__, url_prefix='/product')
 # 상품 정보 조회
 # 특정 상품을 메인으로 볼때 사용된다.  
 @bp.route('/<int:product_id>', methods=["GET"])
+@jwt_required()
 def get_product(product_id):
     try:
         question = ProductModel.query.get(product_id)
@@ -26,16 +27,23 @@ def get_product(product_id):
             raise error.DBNotFound('Product')
                 
         q_dict = question.to_dict()
-        author = UserModel.query.get(q_dict['author_id']) # get author name 
-        del(q_dict['author_id'])
-        q_dict['author'] = author 
 
-        return jsonify(q_dict),2
+        author = question.author.to_dict()['username']
+        res_dict ={}
+        res_dict['title'] = q_dict['title']
+        res_dict['author'] = author
+        res_dict['content'] = q_dict['content']
+        res_dict['price'] = q_dict['price']
+        res_dict['favorite'] = q_dict['favorite']
+        res_dict['status'] = q_dict['status']
+        res_dict['modified_date'] = q_dict['modified_date']
+        return jsonify(res_dict),200
     
     except sqlalchemy.exc.SQLAlchemyError as e:
         raise error.DBConnectionError()
     
 @bp.route('/post',methods=["POST"])
+@jwt_required()
 def post_product():
     try:
         # TODO User check using JWT Token 
@@ -61,6 +69,7 @@ def post_product():
 
 
 @bp.route('/modify',methods=["POST"])
+@jwt_required()
 def modify_product():
     # TODO User check using JWT Token 
     
@@ -73,22 +82,26 @@ def modify_product():
     p = ProductModel.query.get(obj['product_id'])
     if not p:
         raise error.DBNotFound('Product')
+
     
+    # 게시글 작성자와 현재 사용자 일치 여부 확인
+    current_user_id = get_jwt_identity()
+    if p.author_id != current_user_id:
+        return jsonify({'error': '게시글 작성자만 수정할 수 있습니다.'}), 403
+
+
     # fix title, content, address, price
-    if obj['title'] != p.title:
-        p.title = obj['title']
-    elif obj['content'] != p.content:
-        p.content = obj['content']
-    elif obj['address'] != p.address:
-        p.address = obj['address']
-    elif obj['price'] != p.price:
-        p.price = obj['price']
+    p.title = obj['title']
+    p.content = obj['content']
+    p.address = obj['address']
+    p.price = obj['price']
     
     p.modified_date = datetime.datetime.now()
     rdb.session.commit()
     return jsonify({"status_code" : 200, "message":"Modify product completely!"})
 
 @bp.route('/delete/<int:product_id>',methods=["GET"])
+@jwt_required()
 def delete(product_id):
     # TODO User check using JWT Token 
     
@@ -101,6 +114,7 @@ def delete(product_id):
     return jsonify({"status_code" : 200, "message":"Success"})
 
 @bp.route("/favorite",methods=["GET"])
+@jwt_required()
 def check_favorite():
     product = request.args.get('product_id')
     
@@ -112,6 +126,7 @@ def check_favorite():
     return jsonify({"status_code" : 200, "message":"Success"}), 200 
 
 @bp.route('/status', methods=["GET"])
+@jwt_required()
 def check_status():
     product = request.args.get('product_id')
     

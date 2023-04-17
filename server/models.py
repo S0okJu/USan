@@ -16,6 +16,12 @@ class UserModel(rdb.Model): # User -> UserModel로 수정
         self.email = email
         self.password = password
 
+    def to_dict(self):
+        return {
+            'user_id': self.user_id,
+            'username': self.username,
+            'email': self.email
+        }
     def save_to_db(self):
         rdb.session.add(self)
         rdb.session.commit()
@@ -85,16 +91,16 @@ class ProductImageModel(rdb.Model):
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'
     refresh_id = rdb.Column(rdb.Integer, primary_key=True,  autoincrement=True, unique=True)
-    token = rdb.Column(rdb.String(255), unique=True, nullable=False)
+    token = rdb.Column(rdb.String(500), unique=True, nullable=False)
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="user_token")
-    created_at = rdb.Column(rdb.DateTime, default=datetime.now)
+    created_at = rdb.Column(rdb.DateTime, default=datetime.now())
     expired_at = rdb.Column(rdb.DateTime)
 
-    def __init__(self, token, user_id, expired_in_minutes=60*24*30):
+    def __init__(self, token, user_id, expired_in_hours=2):
         self.token = token
         self.user_id = user_id
-        self.expired_at = datetime.now() + timedelta(minutes=expired_in_minutes)
+        self.expired_at = datetime.now() + timedelta(hours=expired_in_hours)
 
     def is_valid(self):
         return self.expired_at > datetime.now()
@@ -111,8 +117,8 @@ class UserRefreshToken(rdb.Model):
 class TokenBlocklist(rdb.Model):
     __tablename__ = 'TokenBlocklist'
     block_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True)
-    token = rdb.Column(rdb.String(255), unique=True, nullable=False)
-    blacklisted_at = rdb.Column(rdb.DateTime, default=datetime.now)
+    token = rdb.Column(rdb.String(500), unique=True, nullable=False)
+    blacklisted_at = rdb.Column(rdb.DateTime, default=datetime.now())
 
     def __init__(self, token):
         self.token = token
@@ -127,16 +133,16 @@ class TokenBlocklist(rdb.Model):
 class PaymentRefreshToken(rdb.Model):
     __tablename__ = 'PaymentToken'
     id = rdb.Column(rdb.Integer,  autoincrement=True, unique=True ,primary_key=True)
-    token = rdb.Column(rdb.String(255), unique=True, nullable=False)
+    token = rdb.Column(rdb.String(500), unique=True, nullable=False)
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="payment_token")
-    created_at = rdb.Column(rdb.DateTime, default=datetime.now)
+    created_at = rdb.Column(rdb.DateTime, default=datetime.now())
     expired_at = rdb.Column(rdb.DateTime)
 
-    def __init__(self, token, user_id, expired_in_minutes=60*24*30):
+    def __init__(self, token, user_id, expired_in_hours=2):
         self.token = token
         self.user_id = user_id
-        self.expired_at = datetime.now() + timedelta(minutes=expired_in_minutes)
+        self.expired_at = datetime.now() + timedelta(hours=expired_in_hours)
 
     def is_valid(self):
         return self.expired_at > datetime.now()

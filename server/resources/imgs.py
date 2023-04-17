@@ -3,7 +3,7 @@ import json
 import uuid
 
 # * lib
-from flask import request,Response, jsonify, Blueprint, send_from_directory
+from flask import request,make_response, jsonify, Blueprint, send_from_directory,send_file
 import sqlalchemy.exc
 
 # * User defined
@@ -29,7 +29,6 @@ def upload(product_id):
     if not request.files:
         pass
 
-    img_id = uuid.uuid4() # 랜덤 파일명을 제공하기 위해서 사용됨. 
     
     # TODO JWT Token  
     #check accept-encoding 
@@ -37,22 +36,20 @@ def upload(product_id):
     acc_len = len('multipart/form-data')
     if len(accept_type) < acc_len or not accept_type[:acc_len] == 'multipart/form-data':
         
-        return Response(
-            response = json.dumps({"message":"Invalid header."}),
-            status=400,
-            mimetype="application/json"
-        )
+        return jsonify({"message":"Invalid header."}), 400
+
         
     product_data =  ProductModel.query.filter_by(product_id=product_id).first()
-    if product_data:
+    if not product_data:
         raise error.DBNotFound("Product")
     
-    file_path_list = list()
+    file_path_list = dict()
     images = request.files.getlist('imgs')
     if not images:
         raise error.EmptyError("Image")
     
     for image in images:
+        img_id = uuid.uuid4() 
         file_path = os.path.join(UPLOAD_FOLDER,str(product_id))
         file_name = f"{img_id}.jpg"
         
@@ -65,12 +62,12 @@ def upload(product_id):
         
         # 반환할 정보들 
         res_info = {
-            "file_name":file_name,
+            "file_name":file_name
         }
         file_path_list.append(res_info)
         
         # DB 저장 
-        rdb.session.add(ProductImageModel(name=file_name, product=product_data))
+        rdb.session.add(ProductImageModel(file_name=file_name, product=product_data))
         
     rdb.session.commit()
     return jsonify(file_path_list), 200 
@@ -96,6 +93,19 @@ def display_image(product_id):
     except sqlalchemy.exc.OperationalError:
         raise error.DBConnectionError()
 
-@bp.route('/delete', methods=["POST"])
-def delete_image():
-    pass 
+
+@bp.route('/download/<int:product_id>/<string:filename>', methods=['GET'])
+def download_file(product_id,filename):
+    try:
+        
+        # 파일이 저장된 경로를 지정해줍니다.
+        
+        # 파일 저장 
+        file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
+        file_path = os.path.join(file_path,filename)
+        # with open(file_path, 'rb') as f:
+        #     contents = f.read()
+        return send_file(file_path)
+    except:
+        # 파일이 존재하지 않을 경우 예외처리합니다.
+        return "File not found", 404

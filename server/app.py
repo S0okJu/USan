@@ -10,8 +10,6 @@ from resources import product, user,imgs, display,payment
 from init.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
-# Blueprint
-
 # Flask 
 app = Flask(__name__)
 app.app_context().push()
@@ -33,8 +31,8 @@ app.config['ALLOWED_EXTENSIONS'] = set(['png', 'jpg', 'jpeg'])
 # app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)  
 
 app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
-app.config['JWT_EXPIRATION_DELTA'] = timedelta(minutes=30)
-app.config['JWT_NOT_BEFORE_DELTA'] = timedelta(minutes=5)
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=2)
+app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30) 
 app.config['JWT_SECRET_KEY'] = 'usan#112'
 init_jwt(app)
 
