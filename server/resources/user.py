@@ -4,12 +4,12 @@ import json
 import hashlib
 
 from flask import request,Blueprint, Response, jsonify
-from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity,create_access_token,create_refresh_token
+from flask_jwt_extended import jwt_required,  get_raw_jwt, get_jwt_identity,create_access_token,create_refresh_token
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # custom 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from models import UserModel
+from models import UserModel, TokenBlocklist
 from init.init_db import rdb
 # 웬만한 jwt 객체 설정에 대한 것들은 jwt.utility에 있다. 
 from init.init_jwt import jwt, SECRET_KEY 
@@ -18,11 +18,11 @@ bp = Blueprint('users', __name__, url_prefix='/users')
 
 blacklist = set()
 
-# TODO JWT Token DB에 저장하기 
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blocklist(jwt_header, jwt_payload):
     jti = jwt_payload['jti']
-    return jti in blacklist
+    token = TokenBlocklist.query.filter_by(jti=jti).first()
+    return bool(token)
 
 @bp.route('/register', methods=['POST'])
 def register():
@@ -64,10 +64,11 @@ def login():
 @jwt_required()
 def logout():
     # Get JWT ID of the access token 
-    jti = get_jwt()['jti']
-    blacklist.add(jti)
-
-    return Response(json.dumps({'msg': 'Logged out successfully'}), status=200, mimetype='application/json')
+    jti = get_raw_jwt()['jti']
+    token = TokenBlocklist(jti=jti)
+    rdb.session.add(token)
+    rdb.session.commit()
+    return jsonify({'msg': 'Successfully logged out'}), 200
 
 
 @bp.route('/refresh', methods=["GET"])

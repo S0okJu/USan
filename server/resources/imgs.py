@@ -36,6 +36,7 @@ def upload(product_id):
     accept_type = request.headers['Content-Type']
     acc_len = len('multipart/form-data')
     if len(accept_type) < acc_len or not accept_type[:acc_len] == 'multipart/form-data':
+        
         return Response(
             response = json.dumps({"message":"Invalid header."}),
             status=400,
@@ -65,19 +66,14 @@ def upload(product_id):
         # 반환할 정보들 
         res_info = {
             "file_name":file_name,
-            "file_path":file_path
         }
         file_path_list.append(res_info)
         
         # DB 저장 
-        rdb.session.add(ProductImageModel(url=file_name, product=product_data))
+        rdb.session.add(ProductImageModel(name=file_name, product=product_data))
         
     rdb.session.commit()
-    return Response(
-        response = jsonify(file_path_list),
-        status=200,
-        mimetype="application/json"
-    )
+    return jsonify(file_path_list), 200 
 
 # 오직 첫번째로 display한 사진을 가져온다. 
 # product_id 

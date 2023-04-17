@@ -68,13 +68,13 @@ class ProductModel(rdb.Model):
 class ProductImageModel(rdb.Model):
     __tablename__ = 'ProductImage'
     img_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
-    url = rdb.Column(rdb.String(50), nullable=False)
+    file_name = rdb.Column(rdb.String(50), nullable=False)
     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'))
 
     def to_dict(self):
         return {
             'img_id': self.img_id,
-            'url': self.url,
+            'file_name': self.file_name,
             'product_id': self.product_id
         }
 
@@ -84,7 +84,7 @@ class ProductImageModel(rdb.Model):
 
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'
-    id = rdb.Column(rdb.Integer, primary_key=True,  autoincrement=True, unique=True)
+    refresh_id = rdb.Column(rdb.Integer, primary_key=True,  autoincrement=True, unique=True)
     token = rdb.Column(rdb.String(255), unique=True, nullable=False)
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="user_token")
@@ -101,11 +101,27 @@ class UserRefreshToken(rdb.Model):
 
     def to_dict(self):
         return {
-            'id': self.id,
+            'refresh_id': self.refresh_id,
             'token': self.token,
             'user_id': self.user_id,
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'expired_at': self.expired_at.strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+class TokenBlocklist(rdb.Model):
+    __tablename__ = 'TokenBlocklist'
+    block_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True)
+    token = rdb.Column(rdb.String(255), unique=True, nullable=False)
+    blacklisted_at = rdb.Column(rdb.DateTime, default=datetime.now)
+
+    def __init__(self, token):
+        self.token = token
+
+    def to_dict(self):
+        return {
+            'block_id': self.block_id,
+            'token': self.token,
+            'blacklisted_at': self.blacklisted_at.strftime('%Y-%m-%d %H:%M:%S')
         }
 
 class PaymentRefreshToken(rdb.Model):

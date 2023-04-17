@@ -16,6 +16,10 @@ class DBNotFound(CustomException):
         super().__init__(status_code=404, message=f"{target} Not Found in DB")
 
 # Parameters 
+class InvalidParams(CustomException):
+    def __init__(self):
+        super().__init__(status_code=404, message="Invalid Params")
+
 class MissingParams(CustomException):
     def __init__(self, param):
         super().__init__(status_code=400, message=f"Missing Parameter : {param}")
@@ -45,6 +49,7 @@ def init_custom_error_handler(app):
     app.register_error_handler(CustomException, error_handler)
     app.register_error_handler(DBConnectionError, error_handler)
     app.register_error_handler(DBNotFound, error_handler)
+    app.register_error_handler(InvalidParams, error_handler)
     app.register_error_handler(MissingParams, error_handler)
     app.register_error_handler(EmptyError, error_handler)
     app.register_error_handler(OutOfBound,error_handler)

@@ -3,6 +3,7 @@ import json
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
+from flask_jwt_extended import jwt_required, get_jwt_identity
 import sqlalchemy.exc
 
 # * User defined
@@ -51,28 +52,50 @@ def get_productlist():
 
     page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
+    list_type = int(request.args.get('type'))
     
+    # Initial 
     if not page_per:
-        raise error.EmptyParams('page_per')
+        page_per = 4
     if not page:
-        raise error.EmptyParams('page')
+        page = 1 
+    if not list_type:
+        list_type = 0 
 
     try:
-        products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
-        result_json = dict()
-        for product in products.items:
-            product_json = dict()
-            product_json['title'] = product.title
-            product_json['author'] = product.author.username if product.author else None
-            product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
-            product_json['favorite'] = product.favorite
-            product_json['status'] = product.status
-            if product.product_imgs:
-                product_json['img_path'] = product.product_imgs[0].to_dict()['url']
-            else:
-                product_json['img_path'] = None
-            result_json[product.product_id] = json.dumps(product_json)
+        if list_type == 0:
+            products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+            result_json = dict()
+            for product in products.items:
+                product_json = dict()
+                product_json['title'] = product.title
+                product_json['author'] = product.author.username if product.author else None
+                product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
+                product_json['favorite'] = product.favorite
+                product_json['status'] = product.status
+                if product.product_imgs:
+                    product_json['img'] = product.product_imgs[0].to_dict()['file_name']
+                else:
+                    product_json['img'] = None
+                result_json[product.product_id] = json.dumps(product_json)
 
-        return jsonify(result_json), 200
+            return jsonify(result_json), 200
+        elif list_type == 1:
+            user_id = get_jwt_identity()
+            products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+            for product in products.items:
+                product_json = dict()
+                product_json['title'] = product.title
+                product_json['price'] = int(product.price)
+                product_json['status'] = product.status
+            if product.proudct_imgs:
+                product_json['img'] = product.proudct_imgs[0].to_dict()['file_name']
+            else:
+                product['img']  = None 
+            return jsonify(product_json), 200 
+        else:
+            raise error.InvalidParams()
+        
     except sqlalchemy.exc.OperationalError as e:
         raise error.DBConnectionError()
+    
