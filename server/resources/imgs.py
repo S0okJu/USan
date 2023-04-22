@@ -1,7 +1,6 @@
 import os, sys
 import json 
 import uuid
-import base64
 
 # * lib
 from flask import request,make_response, jsonify, Blueprint, send_from_directory,send_file
@@ -111,10 +110,9 @@ def download_file(product_id,filename):
         # 파일 저장 
         file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
         file_path = os.path.join(file_path,filename)
-        with open(file_path, 'rb') as f:
-            image_data = f.read()
-        encoded_image = base64.b64encode(image_data).decode('utf-8')
-        return jsonify({'image': encoded_image})
+        # with open(file_path, 'rb') as f:
+        #     contents = f.read()
+        return send_file(file_path)
     except:
         # 파일이 존재하지 않을 경우 예외처리합니다.
         return "File not found", 404
