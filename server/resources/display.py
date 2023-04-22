@@ -63,11 +63,12 @@ def get_productlist():
     #     list_type = 0
 
     try:
-        result_json = dict()
+        result_json = list()
         if int(list_type) == 0:
             products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
             for product in products.items:
                 product_json = dict()
+                product_json['product_id'] = product.product_id
                 product_json['title'] = product.title
                 product_json['author'] = product.author.username if product.author else None
                 product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
@@ -77,7 +78,7 @@ def get_productlist():
                     product_json['img'] = product.product_imgs[0].to_dict()['file_name']
                 else:
                     product_json['img'] = None
-                result_json[product.product_id] = product_json
+                result_json.append(product_json)
             return jsonify(result_json), 200
         
         elif int(list_type) == 1:
