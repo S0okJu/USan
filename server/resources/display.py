@@ -93,7 +93,7 @@ def get_productlist():
                     product_json['img'] = product.product_imgs[0].to_dict()['file_name']
                 else:
                     product_json['img']  = None 
-                result_json[product.product_id] = product_json
+                result_json.append(product_json)
                 
             return jsonify(result_json), 200 
         else:

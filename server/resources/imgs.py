@@ -43,7 +43,7 @@ def upload(product_id):
     if not product_data:
         raise error.DBNotFound("Product")
     
-    file_path_list = dict()
+    file_path_list = list()
     images = request.files.getlist('imgs')
     if not images:
         raise error.EmptyError("Image")
