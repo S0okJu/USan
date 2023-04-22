@@ -105,11 +105,10 @@ def display_image(product_id):
 def download_file(product_id,filename):
     try:
         
-        # 파일이 저장된 경로를 지정해줍니다.
-        
         # 파일 저장 
         file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
         file_path = os.path.join(file_path,filename)
+        print(file_path)
         # with open(file_path, 'rb') as f:
         #     contents = f.read()
         return send_file(file_path)
