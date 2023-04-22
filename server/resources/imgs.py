@@ -1,6 +1,7 @@
 import os, sys
 import json 
 import uuid
+import base64
 
 # * lib
 from flask import request,make_response, jsonify, Blueprint, send_from_directory,send_file
@@ -23,7 +24,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 ## Blueprint
 bp = Blueprint('imgs', __name__, url_prefix='/imgs')
 
-@bp.route("/upload/<int:product_id>", methods=["GET"])
+@bp.route("/upload/<int:product_id>", methods=["POST"])
 def upload(product_id):
 
     if not request.files:
@@ -110,9 +111,10 @@ def download_file(product_id,filename):
         # 파일 저장 
         file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
         file_path = os.path.join(file_path,filename)
-        # with open(file_path, 'rb') as f:
-        #     contents = f.read()
-        return send_file(file_path)
+        with open(file_path, 'rb') as f:
+            image_data = f.read()
+        encoded_image = base64.b64encode(image_data).decode('utf-8')
+        return jsonify({'image': encoded_image})
     except:
         # 파일이 존재하지 않을 경우 예외처리합니다.
         return "File not found", 404
