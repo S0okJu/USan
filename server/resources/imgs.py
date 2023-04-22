@@ -106,8 +106,7 @@ def download_file(product_id,filename):
     try:
         
         # 파일 저장 
-        file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
-        file_path = os.path.join(file_path,filename)
+        file_path = os.path.join(UPLOAD_FOLDER, str(product_id),filename)
         print(file_path)
         # with open(file_path, 'rb') as f:
         #     contents = f.read()
