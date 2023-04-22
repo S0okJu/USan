@@ -99,4 +99,5 @@ def get_productlist():
             raise error.InvalidParams()
         
     except sqlalchemy.exc.OperationalError as e:
+
         raise error.DBConnectionError()

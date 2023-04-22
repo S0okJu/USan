@@ -42,6 +42,7 @@ def error_handler(error):
         'status': error.status_code,
         'message': error.message
     }
+    print(resp)
     return jsonify(resp), error.status_code
 
 
