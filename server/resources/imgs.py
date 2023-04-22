@@ -23,7 +23,7 @@ if not os.path.exists(UPLOAD_FOLDER):
 ## Blueprint
 bp = Blueprint('imgs', __name__, url_prefix='/imgs')
 
-@bp.route("/upload/<int:product_id>", methods=["POST"])
+@bp.route("/upload/<int:product_id>", methods=["GET"])
 def upload(product_id):
 
     if not request.files:
