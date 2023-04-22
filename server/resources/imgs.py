@@ -77,19 +77,26 @@ def upload(product_id):
 # type = 0(첫번째 사진만)
 @bp.route('/<int:product_id>', methods=["GET"])
 def display_image(product_id):
-    try:
-            
+    try:  
         display_type = request.args.get('type')
         if not display_type:
             raise error.MissingParams('type')
-    
+
+        product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
+        files = os.listdir(product_dir)
         # Show only first images
         if display_type == "0":
-            product_dir = os.path.join(UPLOAD_FOLDER,str(product_id))
-            files = os.listdir(product_dir)
-            return send_from_directory(product_dir,files[0])
-
-        return json.dumps({"msg":"Hi"})
+            return send_from_directory(product_dir, files[0])
+        elif display_type == "1":
+            return send_from_directory(product_dir)
+        try:
+            num_images = int(display_type)
+            if num_images > len(files):
+                num_images = len(files)
+            images = [send_from_directory(product_dir, filename) for filename in files[:num_images]]
+            return Response(response=json.dumps(images), status=200, mimetype='application/json')
+        except ValueError:
+            raise error.InvalidParams('type')
     except sqlalchemy.exc.OperationalError:
         raise error.DBConnectionError()
 

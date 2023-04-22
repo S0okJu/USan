@@ -1,0 +1,21 @@
+FROM ubuntu:latest
+
+RUN apt-get update && \
+    apt-get -y install mysql-server && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+RUN mkdir /docker-entrypoint-initdb.d
+
+COPY my.cnf /etc/mysql/my.cnf
+
+ENV MYSQL_ROOT_PASSWORD=usan123
+ENV MYSQL_DATABASE=USANDB
+ENV MYSQL_USER=root
+ENV MYSQL_PASSWORD=usan123
+
+ADD setup.sql /docker-entrypoint-initdb.d
+
+EXPOSE 3306
+
+CMD ["mysqld"]
