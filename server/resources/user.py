@@ -84,9 +84,6 @@ def logout():
 def refresh():
     current_user_id = get_jwt_identity()
     
-    # Get the user's refresh token from the current JWT
-    refresh_token = get_jwt()['refresh_token']
-
     # Get the user's refresh token from the database
     token = UserRefreshToken.query.filter_by(user_id=current_user_id, token=refresh_token).first()
 
