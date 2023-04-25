@@ -4,7 +4,7 @@ import json
 import hashlib
 
 from flask import request,Blueprint, Response, jsonify
-from flask_jwt_extended import  jwt_required, get_jwt_identity,create_access_token,create_refresh_token
+from flask_jwt_extended import  jwt_required, jwt_refresh_token_required, get_jwt_identity,create_access_token,create_refresh_token
 from flask_jwt_extended import get_jwt
 
 # custom 
@@ -52,9 +52,13 @@ def login():
     result = UserModel.query.filter(UserModel.email==email_receive, UserModel.password==pw_hash).first()
 
     if result:
-        # * Create Access, Refresh token
-        access_token = create_access_token(identity=result.user_id, fresh = False)
-        refresh_token = create_refresh_token(identity= result.user_id)
+        UserRefreshToken.query.filter_by(user_id=result.user_id).delete()
+        rdb.session.commit()
+
+        # Create Access, Refresh token
+        access_token = create_access_token(identity=result.user_id, fresh=False)
+        refresh_token = create_refresh_token(identity=result.user_id)
+
         # Token DB에 저장 
         token = UserRefreshToken(token=refresh_token, user_id=result.user_id)
         rdb.session.add(token)
@@ -79,9 +83,20 @@ def logout():
 @jwt_required(refresh=True)
 def refresh():
     current_user_id = get_jwt_identity()
+    
+    # Get the user's refresh token from the current JWT
+    refresh_token = get_jwt()['refresh_token']
+
+    # Get the user's refresh token from the database
+    token = UserRefreshToken.query.filter_by(user_id=current_user_id, token=refresh_token).first()
+
+    if not token or not token.is_valid():
+        return jsonify({"msg": "Invalid refresh token"}), 401
+
+    # Create a new access token
     access_token = create_access_token(identity=current_user_id, fresh=False)
-    resp = {'access_token': access_token}
-    return jsonify(resp), 200
+
+    return jsonify({"access_token": access_token}), 200
 
 @bp.route('/protected', methods=["GET"])
 @jwt_required() 

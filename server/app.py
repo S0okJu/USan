@@ -10,6 +10,7 @@ from resources import product, user,imgs, display,payment
 from init.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
+TEST = True
 # Flask 
 app = Flask(__name__)
 app.app_context().push()
@@ -19,7 +20,10 @@ init_custom_error_handler(app=app)
 
 # DB Setup 
 load_dotenv()
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+if TEST == False:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('TEST_DATABASE_URI')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 init_db(app)
 

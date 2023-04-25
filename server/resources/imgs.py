@@ -16,19 +16,51 @@ import utils.error.custom_error as error
 ## 경로 
 ROOT_PATH = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 UPLOAD_FOLDER = os.path.join(ROOT_PATH,'upload')
-# upload 파일이 있는지 확인 
+PROFILE_FOLDER = os.path.join(ROOT_PATH, 'profile')
+
+# upload 폴더 유무 확인 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
+if not os.path.exists(PROFILE_FOLDER):
+    os.makedirs(PROFILE_FOLDER)
+
+
+
 ## Blueprint
 bp = Blueprint('imgs', __name__, url_prefix='/imgs')
+@bp.route("/profile/<int:user_id>")
+def profile_upload(user_id):
+    accept_type = request.headers['Content-Type']
+    acc_len = len('multipart/form-data')
+    if len(accept_type) < acc_len or not accept_type[:acc_len] == 'multipart/form-data':    
+        return jsonify({"message":"Invalid header."}), 400
+    
+    file = request.files['imgs']
+    img_id = uuid.uuid4() 
+    file_path = os.path.join(UPLOAD_FOLDER,str(user_id))
+    file_name = f"{img_id}.jpg"
+
+        # 파일 저장 
+    file_path = os.path.join(file_path, file_name)
+    file.save(file_path)
+        
+    # 반환할 정보들 
+    res_info = {
+        "file_name":file_name
+    }
+           # DB 저장 
+    # rdb.session.add(ProductImageModel(file_name=file_name, product=product_data))
+        
+    rdb.session.commit()
+    return jsonify(res_info), 200 
+    
 
 @bp.route("/upload/<int:product_id>", methods=["POST"])
 def upload(product_id):
 
     if not request.files:
         pass
-
     
     # TODO JWT Token  
     #check accept-encoding 

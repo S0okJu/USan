@@ -34,6 +34,17 @@ class UserModel(rdb.Model): # User -> UserModel로 수정
     def find_by_email(cls, email):
         return cls.query.filter_by(email=email).first()
 
+# class UserProfileModel(rdb.Model):
+#     __tablename__ = 'ProfileImage'
+#     profile_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+#     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'))
+#     profile_image = rdb.Column(rdb.String(255), nullable=False)
+
+#     def __init__(self, user_id, profile_image):
+#         self.user_id = user_id
+#         self.profile_image = profile_image
+
+
 #편집 마지막   
 class ProductModel(rdb.Model):
     __tablename__ = 'Product'
@@ -90,7 +101,7 @@ class ProductImageModel(rdb.Model):
 
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'
-    refresh_id = rdb.Column(rdb.Integer, primary_key=True,  autoincrement=True, unique=True)
+    refresh_id = rdb.Column(rdb.Integer, primary_key=True,  autoincrement=True, unique=True, nullable=False)
     token = rdb.Column(rdb.String(500), unique=True, nullable=False)
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="user_token")

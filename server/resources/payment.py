@@ -18,22 +18,20 @@ from models import PaymentRefreshToken
 CLIENT_ID = '1d1099e6-8c17-4ac3-956c-2e9bd6039c19'
 CLIENT_PASSWORD = 'e51b7de9-9647-4760-8707-e77e7a53bce6'
 STATE_CODE = '12345678901234567890124456729112'
-REDIRECT_URI = 'http://localhost:6000/auth'
-URI_BASE = 'https://testapi.openbanking.or.kr/oauth/v2.0'
+REDIRECT_URI = 'http://localhost:6000/payment/auth'
+URI_BASE = 'https://testapi.openbanking.or.kr/oauth/2.0'
 
 bp = Blueprint('payment', __name__, url_prefix='/payment')
 
 @bp.route('/auth',methods=["POST"])
 # @jwt_required()
 def authorization():
-    auth_url = f'https://testapi.openbanking.or.kr/oauth/v2.0/authorize?response_type=code \
-        client_id={CLIENT_ID}&redirect_uri=http://localhost:6000/payment/auth&scope=login+inquiry+transfer& \
-        state=12345678901234567890124456729112&auth_type=0'
+    auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N'
     try:
         res = requests.get(auth_url)
-        res_json = res.json()
-        print(res_json)
-        if res.status_code == 200 and 'code' in res_json:
+        if res.status_code == 200:
+            res_json = res.text
+            print(res_json)
             req_data = {
                 'code':res_json['code'],
                 'client_id':CLIENT_ID,
@@ -47,19 +45,20 @@ def authorization():
             if token_res.status_code == 200:
  
                 token_json = token_res.json()
-                user_id = get_jwt_identity()
+                print(token_json)
+               #  user_id = get_jwt_identity()
                 
                 # Refresh token DB에 저장 
-                refresh_session = PaymentRefreshToken(token=token_json['refresh_token'],user_id=user_id)
-                rdb.session.add(refresh_session)
-                rdb.commit()
+                # refresh_session = PaymentRefreshToken(token=token_json['refresh_token'],user_id=user_id)
+                # rdb.session.add(refresh_session)
+                # rdb.commit()
                 
                 return jsonify({"status_code" : 200, "message":"Success"}), 200 
             
             else:
-                return jsonify(token_json), 404
+                return jsonify({'message':'Token Generation Error'}), 404
         else:
-            return jsonify(res_json), 404
+            return jsonify({'message':'Authorization Error'}), 404
     except requests.exceptions.Timeout as e:
         print("Timeout Error : ", e)
     except requests.exceptions.ConnectionError as e:
@@ -69,3 +68,5 @@ def authorization():
     except requests.exceptions.RequestException as e:
         print("AnyException : ", e)
 
+def get_token():
+    pass
