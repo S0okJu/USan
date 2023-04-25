@@ -10,7 +10,7 @@ from resources import product, user,imgs, display,payment
 from init.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
-TEST = True
+TEST = False
 # Flask 
 app = Flask(__name__)
 app.app_context().push()
