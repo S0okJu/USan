@@ -3,5 +3,7 @@ Flask-JWT
 SQLAlchemy
 Werkzeug
 Flask-Migrate
-flask_request_validator
 PyJWT
+flask_jwt_extended
+requests
+mysql-connector-python

@@ -29,6 +29,8 @@ if not os.path.exists(PROFILE_FOLDER):
 
 ## Blueprint
 bp = Blueprint('imgs', __name__, url_prefix='/imgs')
+
+
 @bp.route("/profile/<int:user_id>")
 def profile_upload(user_id):
     accept_type = request.headers['Content-Type']
@@ -39,6 +41,8 @@ def profile_upload(user_id):
     file = request.files['imgs']
     img_id = uuid.uuid4() 
     file_path = os.path.join(UPLOAD_FOLDER,str(user_id))
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
     file_name = f"{img_id}.jpg"
 
         # 파일 저장 
