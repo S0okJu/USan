@@ -80,7 +80,7 @@ def logout():
     return jsonify({'msg': 'Successfully logged out'}), 200
 
 @bp.route('/refresh', methods=["GET"])
-@jwt_required(refresh=True)
+@jwt_required()
 def refresh():
     current_user_id = get_jwt_identity()
     
