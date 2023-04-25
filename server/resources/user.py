@@ -85,7 +85,7 @@ def refresh():
     current_user_id = get_jwt_identity()
     
     # Get the user's refresh token from the database
-    token = UserRefreshToken.query.filter_by(user_id=current_user_id, token=refresh_token).first()
+    token = UserRefreshToken.query.filter_by(user_id=current_user_id).first()
 
     if not token or not token.is_valid():
         return jsonify({"msg": "Invalid refresh token"}), 401
