@@ -4,7 +4,7 @@ import json
 import hashlib
 
 from flask import request,Blueprint, Response, jsonify
-from flask_jwt_extended import  jwt_required, jwt_refresh_token_required, get_jwt_identity,create_access_token,create_refresh_token
+from flask_jwt_extended import  jwt_required,  get_jwt_identity,create_access_token,create_refresh_token
 from flask_jwt_extended import get_jwt
 
 # custom 
