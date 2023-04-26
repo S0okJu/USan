@@ -25,6 +25,8 @@ if not os.path.exists(UPLOAD_FOLDER):
 if not os.path.exists(PROFILE_FOLDER):
     os.makedirs(PROFILE_FOLDER)
 
+# 파일 권한 설정 (chmod 644)
+os.chmod(UPLOAD_FOLDER, 0o644)
 
 
 ## Blueprint
