@@ -31,33 +31,39 @@ if not os.path.exists(PROFILE_FOLDER):
 bp = Blueprint('imgs', __name__, url_prefix='/imgs')
 
 
-@bp.route("/profile/<int:user_id>")
+@bp.route("/profile/<int:user_id>", methods=["POST"])
 def profile_upload(user_id):
-    accept_type = request.headers['Content-Type']
-    acc_len = len('multipart/form-data')
-    if len(accept_type) < acc_len or not accept_type[:acc_len] == 'multipart/form-data':    
-        return jsonify({"message":"Invalid header."}), 400
-    
-    file = request.files['imgs']
-    img_id = uuid.uuid4() 
-    file_path = os.path.join(UPLOAD_FOLDER,str(user_id))
-    if not os.path.exists(file_path):
-        os.makedirs(file_path)
-    file_name = f"{img_id}.jpg"
+    try:
+        accept_type = request.headers['Content-Type']
+        acc_len = len('multipart/form-data')
+        if len(accept_type) < acc_len or not accept_type[:acc_len] == 'multipart/form-data':    
+            return jsonify({"message":"Invalid header."}), 400
 
-        # 파일 저장 
-    file_path = os.path.join(file_path, file_name)
-    file.save(file_path)
+        file = request.files['imgs']
+        if not file:
+            return jsonify({"message":"Empty Image"}), 400
+        img_id = uuid.uuid4() 
+        file_path = os.path.join(PROFILE_FOLDER,str(user_id))
+        if not os.path.exists(file_path):
+            os.makedirs(file_path)
+        file_name = f"{img_id}.jpg"
+
+            # 파일 저장 
+        file_path = os.path.join(file_path, file_name)
+        file.save(file_path)
+
+        # 반환할 정보들 
+        res_info = {
+            "file_name":file_name
+        }
+               # DB 저장 
+        # rdb.session.add(ProductImageModel(file_name=file_name, product=product_data))
+
+        rdb.session.commit()
+        return jsonify(res_info), 200 
+    except Exception as e:
+        print(e)
         
-    # 반환할 정보들 
-    res_info = {
-        "file_name":file_name
-    }
-           # DB 저장 
-    # rdb.session.add(ProductImageModel(file_name=file_name, product=product_data))
-        
-    rdb.session.commit()
-    return jsonify(res_info), 200 
     
 
 @bp.route("/upload/<int:product_id>", methods=["POST"])

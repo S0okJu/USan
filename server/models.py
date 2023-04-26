@@ -101,7 +101,7 @@ class ProductImageModel(rdb.Model):
 
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'
-    refresh_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True, nullable=False, default=0)
+    refresh_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True, nullable=True)
     token = rdb.Column(rdb.String(500), unique=True, nullable=False)
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="user_token")
