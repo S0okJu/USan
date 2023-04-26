@@ -149,10 +149,12 @@ def download_file(product_id,filename):
         
         # 파일 저장 
         file_path = os.path.join(UPLOAD_FOLDER, str(product_id),filename)
+        mimetype = 'image/jpeg'
+
         print(file_path)
         # with open(file_path, 'rb') as f:
         #     contents = f.read()
-        return send_file(file_path)
+        return send_file(file_path,mimetype=mimetype)
     except:
         # 파일이 존재하지 않을 경우 예외처리합니다.
         return "File not found", 404
