@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/unselect_ic_home"
+        android:enabled="true"
+        android:title="Home" />
+    <item
+        android:id="@+id/chat"
+        android:icon="@drawable/unselect_ic_chat"
+        android:enabled="true"
+        android:title="Chat" />
+    <item
+        android:id="@+id/user"
+        android:icon="@drawable/unselect_ic_user"
+        android:enabled="true"
+        android:title="User" />
+</menu>
