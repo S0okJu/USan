@@ -1,9 +1,13 @@
 package com.example.usan_comb1;
 
+import com.example.usan_comb1.request.LoginData;
 import com.example.usan_comb1.request.ProductRequest;
+import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.request.UpdateRequest;
+import com.example.usan_comb1.response.LoginResponse;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.ProductResponse;
+import com.example.usan_comb1.response.RegisterResponse;
 
 import java.util.List;
 
@@ -37,6 +41,12 @@ public interface ProductService {
     // 상품 수정
     @POST("/product/modify")
     Call<ResponseBody> updateProduct(@Path("id") Integer productId, @Body UpdateRequest updateProduct);
+
+    @POST("/users/login")
+    Call<LoginResponse> userLogin(@Body LoginData data);
+
+    @POST("/users/register")
+    Call<RegisterResponse> userRegister(@Body RegisterData data);
 
     /*
     통신을 정의해주는 interface를 만들어 통신을 위한 함수를 만들어줍니다.

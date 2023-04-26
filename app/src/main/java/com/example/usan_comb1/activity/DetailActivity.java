@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
@@ -17,12 +18,20 @@ import androidx.cardview.widget.CardView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
+import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.response.PostResult;
 import com.google.android.material.appbar.MaterialToolbar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private TextView tvTitle, tvPrice, tvDetail;
+    private TextView tvTitle, tvPrice, tvDetail, tvAuthor;
+    private ProductService mProductService;
     private ImageButton imgButton;
     private boolean isFavorite = false;
     private ViewPager viewPager;
@@ -36,6 +45,9 @@ public class DetailActivity extends AppCompatActivity {
         tvTitle = findViewById(R.id.tv_title);
         tvPrice = findViewById(R.id.tv_price);
         tvDetail = findViewById(R.id.tv_detail);
+        tvAuthor = findViewById(R.id.tv_author);
+
+        mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
         // 제목, 가격, 설명 설정
         tvTitle.setText("상품 제목");
@@ -84,8 +96,37 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
+        Intent intent = getIntent();
+        if (intent != null) {
+            checkData();
+        }
 
+    }
 
+    public void checkData() {
+        PostResult postResult = new PostResult();
+        Integer productId = postResult.getProduct_Id();
+        mProductService.getProduct(productId).enqueue(new Callback<PostResult>() {
+            @Override
+            public void onResponse(Call<PostResult> call, Response<PostResult> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PostResult product = response.body();
+
+                    tvTitle.setText(product.getPost_Title());
+                    tvPrice.setText(product.getPost_Price());
+                    tvDetail.setText(product.getPost_Content());
+                    tvAuthor.setText(product.getPost_Author());
+
+                } else {
+                    Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PostResult> call, Throwable t) {
+                Toast.makeText(DetailActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
