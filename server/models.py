@@ -106,12 +106,8 @@ class UserRefreshToken(rdb.Model):
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="user_token")
     created_at = rdb.Column(rdb.DateTime, default=datetime.now())
-    expired_at = rdb.Column(rdb.DateTime)
+    expired_at = rdb.Column(rdb.DateTime, default = datetime.now() + timedelta(hours=2))
 
-    def __init__(self, token, user_id, expired_in_hours=2):
-        self.token = token
-        self.user_id = user_id
-        self.expired_at = datetime.now() + timedelta(hours=expired_in_hours)
 
     def is_valid(self):
         return self.expired_at > datetime.now()
@@ -130,9 +126,6 @@ class TokenBlocklist(rdb.Model):
     block_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True)
     token = rdb.Column(rdb.String(500), unique=True, nullable=False)
     blacklisted_at = rdb.Column(rdb.DateTime, default=datetime.now())
-
-    def __init__(self, token):
-        self.token = token
 
     def to_dict(self):
         return {
