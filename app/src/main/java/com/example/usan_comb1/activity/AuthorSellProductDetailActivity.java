@@ -37,9 +37,9 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
         tvDetail = findViewById(R.id.tv_detail);
 
         // 제목, 가격, 설명 설정
-        tvTitle.setText("상품 제목");
-        tvPrice.setText("100,000원");
-        tvDetail.setText("상품 설명입니다.");
+        //tvTitle.setText("상품 제목");
+        //tvPrice.setText("100,000원");
+        //tvDetail.setText("상품 설명입니다.");
 
         viewPager = findViewById(R.id.viewPager);
         ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageReslds);
