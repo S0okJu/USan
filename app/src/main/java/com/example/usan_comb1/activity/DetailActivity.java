@@ -49,6 +49,15 @@ public class DetailActivity extends AppCompatActivity {
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
+        Intent intent = getIntent();
+        if (intent != null) {
+            // product_id 값을 받아옵니다.
+            int product_id = intent.getIntExtra("product_id", -1);
+            if (product_id != -1) {
+                checkData(product_id);
+            }
+        }
+
         // 제목, 가격, 설명 설정
         tvTitle.setText("상품 제목");
         tvPrice.setText("100,000원");
@@ -95,18 +104,12 @@ public class DetailActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-        Intent intent = getIntent();
-        if (intent != null) {
-            checkData();
-        }
-
     }
 
-    public void checkData() {
+    public void checkData(int product_id) {
         PostResult postResult = new PostResult();
-        Integer productId = postResult.getProduct_Id();
-        mProductService.getProduct(productId).enqueue(new Callback<PostResult>() {
+        postResult.setProduct_Id(product_id);
+        mProductService.getProduct(product_id).enqueue(new Callback<PostResult>() {
             @Override
             public void onResponse(Call<PostResult> call, Response<PostResult> response) {
                 if (response.isSuccessful() && response.body() != null) {

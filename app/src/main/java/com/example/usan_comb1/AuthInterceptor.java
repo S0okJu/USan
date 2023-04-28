@@ -33,13 +33,14 @@ public class AuthInterceptor implements Interceptor {
 
 
 class Main {
-    private static final String BASE_URL = "http://43.201.95.57:53132/";
+    private static final String BASE_URL = "http://52.78.124.117:50237/";
 
     public static void main(String[] args) {
         String accessToken = "myAccessToken";
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         httpClient.addInterceptor(new AuthInterceptor(accessToken));
+        OkHttpClient client = httpClient.build();
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)

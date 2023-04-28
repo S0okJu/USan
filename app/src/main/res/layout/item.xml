@@ -4,7 +4,10 @@
     android:id="@+id/card_view_friend"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
     card_view:cardUseCompatPadding="true"
+    android:clickable="true"
+    android:focusable="true"
     >
 
     <RelativeLayout
@@ -30,6 +33,8 @@
             android:layout_marginLeft="16dp"
             android:paddingTop="20dp"
             android:lines="2"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:text="title" />
 
         <TextView
