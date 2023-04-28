@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 # custom 
 from init.init_db import init_db
-from resources import product, user,imgs, display,payment
+from resources import product, user,imgs, display,payment, profile
 from init.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
@@ -46,6 +46,7 @@ app.register_blueprint(user.bp)
 app.register_blueprint(imgs.bp)
 app.register_blueprint(display.bp)
 app.register_blueprint(payment.bp)
+app.register_blueprint(profile.bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000, debug=True)

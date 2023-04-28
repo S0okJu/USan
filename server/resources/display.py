@@ -74,6 +74,7 @@ def get_productlist():
                 product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
                 product_json['favorite'] = product.favorite
                 product_json['status'] = product.status
+                product_json['price'] = product.price
                 if product.product_imgs:
                     product_json['img'] = product.product_imgs[0].to_dict()['file_name']
                 else:
