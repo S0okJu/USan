@@ -19,7 +19,7 @@ bp = Blueprint('product', __name__, url_prefix='/product')
 # 상품 정보 조회
 # 특정 상품을 메인으로 볼때 사용된다.  
 @bp.route('/<int:product_id>', methods=["GET"])
-@jwt_required()
+# # # @jwt_required()
 def get_product(product_id):
     try:
         question = ProductModel.query.get(product_id)
@@ -43,7 +43,7 @@ def get_product(product_id):
         raise error.DBConnectionError()
     
 @bp.route('/post',methods=["POST"])
-@jwt_required()
+# # @jwt_required()
 def post_product():
     try:
         # TODO User check using JWT Token 
@@ -69,7 +69,7 @@ def post_product():
 
 
 @bp.route('/modify',methods=["POST"])
-@jwt_required()
+# # @jwt_required()
 def modify_product():
     # TODO User check using JWT Token 
     
@@ -101,7 +101,7 @@ def modify_product():
     return jsonify({"status_code" : 200, "message":"Modify product completely!"})
 
 @bp.route('/delete/<int:product_id>',methods=["GET"])
-@jwt_required()
+# # # @jwt_required()
 def delete(product_id):
     # TODO User check using JWT Token 
     
@@ -114,7 +114,7 @@ def delete(product_id):
     return jsonify({"status_code" : 200, "message":"Success"})
 
 @bp.route("/favorite",methods=["GET"])
-@jwt_required()
+# # # @jwt_required()
 def check_favorite():
     product = request.args.get('product_id')
     
@@ -126,7 +126,7 @@ def check_favorite():
     return jsonify({"status_code" : 200, "message":"Success"}), 200 
 
 @bp.route('/status', methods=["GET"])
-@jwt_required()
+# # @jwt_required()
 def check_status():
     product = request.args.get('product_id')
     
