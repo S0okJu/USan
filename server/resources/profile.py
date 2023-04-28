@@ -22,7 +22,7 @@ bp = Blueprint('profile', __name__, url_prefix='/profile')
 # 개수만큼 사진을 보여줄 수 있다. 
 # 사용자 정보와 product를 볼 수 있다. 
 @bp.route("/<int:user_id>", methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def user_profile(user_id):
     user = UserModel.query.get(user_id)
     if not user:
@@ -45,7 +45,7 @@ def user_profile(user_id):
     return jsonify(result), 200
 
 @bp.route("/<int:user_id>", methods=["POST"])
-@jwt_required()
+# @jwt_required()
 def modify_profile(user_id):
     body = request.get_json()
     user = UserModel.query.get(user_id)
