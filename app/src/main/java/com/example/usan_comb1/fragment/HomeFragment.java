@@ -85,7 +85,7 @@ public class HomeFragment extends Fragment {
         adapter.setOnItemClickListener(data -> {
             // 아이템을 클릭했을 때 다른 액티비티로 넘어가는 코드를 추가합니다.
             Intent intent = new Intent(getActivity(), DetailActivity.class);
-            intent.putExtra("data", data); // 넘어갈 데이터를 인텐트에 추가합니다.
+            intent.putExtra("product_id", data.getProduct_id()); // 넘어갈 데이터를 인텐트에 추가합니다.
             startActivity(intent);
         });
 
@@ -164,6 +164,7 @@ public class HomeFragment extends Fragment {
                 data.setImg(jsonObject.getString("img"));
                 data.setTitle(jsonObject.getString("title"));
                 data.setAuthor(jsonObject.getString("author"));
+                data.setProduct_id(jsonObject.getInt("product_id"));
                 dataArrayList.add(data);
             }
             catch (JSONException e)

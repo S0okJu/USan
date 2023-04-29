@@ -21,6 +21,7 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.response.PostResult;
 import com.google.android.material.appbar.MaterialToolbar;
 
@@ -36,7 +37,7 @@ public class DetailActivity extends AppCompatActivity {
     private boolean isFavorite = false;
     private ViewPager viewPager;
     private int[] imageReslds = {R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg};
-
+    private Integer productId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,14 +99,14 @@ public class DetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent != null) {
-            checkData();
+            Integer productId = intent.getIntExtra("product_id", 0);
+            checkData(productId);
         }
 
     }
 
-    public void checkData() {
-        PostResult postResult = new PostResult();
-        Integer productId = postResult.getProduct_Id();
+    public void checkData(Integer productId) {
+
         mProductService.getProduct(productId).enqueue(new Callback<PostResult>() {
             @Override
             public void onResponse(Call<PostResult> call, Response<PostResult> response) {

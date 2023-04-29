@@ -2,11 +2,14 @@ package com.example.usan_comb1.response;
 
 import android.graphics.Bitmap;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 // 페이지 별 상품 정보 Response
 public class PostList implements Serializable {
 
+    @SerializedName("product_id")
     private Integer product_id;
     private String title;
     //private String price;
@@ -35,7 +38,7 @@ public class PostList implements Serializable {
     public String getImg() { return img; }
 
 
-    public void setProduct_id(Integer id) { this.product_id = product_id; }
+    public void setProduct_id(int product_id) { this.product_id = product_id; }
 
     public void setTitle(String title) { this.title = title; }
 
@@ -53,6 +56,7 @@ public class PostList implements Serializable {
     public Bitmap getBitmap() { return bitmap; }
 
     public void setBitmap(Bitmap bitmap) { this.bitmap = bitmap; }
+
 
 
     /*
