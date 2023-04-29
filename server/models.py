@@ -73,7 +73,7 @@ class ProductModel(rdb.Model):
             'favorite': self.favorite,
             'status': self.status,
             'author_id': self.author_id,
-            'images': [img.url for img in self.product_imgs]
+            'images': [img.file_name for img in self.product_imgs]
         }
     #  save to db 
     def save(self):
@@ -101,7 +101,7 @@ class ProductImageModel(rdb.Model):
 
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'
-    refresh_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True, nullable=True)
+    refresh_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True)
     token = rdb.Column(rdb.String(500), unique=True, nullable=False)
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="user_token")
