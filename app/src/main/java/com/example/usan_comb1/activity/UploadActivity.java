@@ -12,12 +12,14 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.usan_comb1.AuthInterceptor;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.request.ProductRequest;
 import com.example.usan_comb1.response.ProductResponse;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -131,6 +133,7 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void uploadData(ProductRequest data) {
+
         mProductService.postProduct(data).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {

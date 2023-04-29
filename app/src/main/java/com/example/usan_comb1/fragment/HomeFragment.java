@@ -24,6 +24,7 @@ import com.example.usan_comb1.activity.ProductActivity;
 import com.example.usan_comb1.activity.UploadActivity;
 import com.example.usan_comb1.adapter.CustomAdapter;
 import com.example.usan_comb1.response.PostList;
+import com.example.usan_comb1.response.PostResult;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -82,12 +83,16 @@ public class HomeFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         // CustomAdapter의 아이템 클릭 리스너를 설정합니다.
-        adapter.setOnItemClickListener(data -> {
+        adapter.setOnItemClickListener(new CustomAdapter.OnItemClickListener() {
             // 아이템을 클릭했을 때 다른 액티비티로 넘어가는 코드를 추가합니다.
-            Intent intent = new Intent(getActivity(), DetailActivity.class);
-            intent.putExtra("product_id", data.getProduct_id()); // 넘어갈 데이터를 인텐트에 추가합니다.
-            startActivity(intent);
+
+            public void onItemClick(View view, int position, PostList data) {
+                Intent intent = new Intent(getActivity(), DetailActivity.class);
+                intent.putExtra("product_id", data.getProduct_id());// 넘어갈 데이터를 인텐트에 추가합니다.
+                startActivity(intent);
+            }
         });
+
 
         getData();
 

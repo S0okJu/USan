@@ -45,4 +45,24 @@ public class PostResult {
     public String getCreated_date() { return created_date; }
 
     public String getModified_date() { return modified_date; }
+
+    public void setProduct_Id(Integer product_id) { this.product_id = product_id; }
+
+    public void setPost_Title(String title) { this.title = title; }
+
+    public void setPost_Price(String price) { this.price = price; }
+
+    public void setPost_Author(String author) { this.author = author; }
+
+    public void setPost_Content(String content) { this.content = content; }
+
+    public void setAddress(String address) { this.address = address; }
+
+    public void setStatus(boolean status) { this.status = status; }
+
+    public void setFavorite(boolean favorite) { this.favorite = favorite; }
+
+    public void setCreated_date(String created_date) { this.created_date = created_date; }
+
+    public void setModified_date(String modified_date) { this.modified_date = modified_date; }
 }

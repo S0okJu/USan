@@ -25,7 +25,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     // Interface for item click listener
     public interface OnItemClickListener {
-        void onItemClick(PostList data);
+        void onItemClick(View view, int position, PostList data);
     }
 
     private OnItemClickListener listener;
@@ -73,7 +73,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         // 아이템 클릭 리스너를 설정합니다.
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                listener.onItemClick(data);
+                listener.onItemClick(v, position, data);
             }
         });
     }
