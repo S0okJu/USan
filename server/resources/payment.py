@@ -25,7 +25,7 @@ bp = Blueprint('payment', __name__, url_prefix='/payment')
 
 
 
-@bp.route('/auth',methods=["POST"])
+@bp.route('/auth')
 # @jwt_required()
 def authorization():
     auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N'
