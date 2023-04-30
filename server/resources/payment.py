@@ -3,7 +3,7 @@ import json
 import datetime
 
 # * lib
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, redirect
 from flask_jwt_extended import jwt_required,get_jwt_identity
 import requests
 import sqlalchemy.exc
@@ -23,14 +23,16 @@ URI_BASE = 'https://testapi.openbanking.or.kr/oauth/2.0'
 
 bp = Blueprint('payment', __name__, url_prefix='/payment')
 
-
-
-@bp.route('/auth')
+@bp.route('/auth',methods=["POST"])
 # @jwt_required()
 def authorization():
     auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N'
+    
+    
     try:
         res = requests.get(auth_url)
+        if res:
+            return redirect(res.url)
         if res.status_code == 200:
             res_json = res.text
             print(res_json)
