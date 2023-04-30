@@ -18,51 +18,25 @@ from models import PaymentRefreshToken
 CLIENT_ID = '1d1099e6-8c17-4ac3-956c-2e9bd6039c19'
 CLIENT_PASSWORD = 'e51b7de9-9647-4760-8707-e77e7a53bce6'
 STATE_CODE = '12345678901234567890124456729112'
-REDIRECT_URI = 'http://localhost:6000/payment/auth'
+REDIRECT_URI = 'http://localhost:6000/payment/callback'
 URI_BASE = 'https://testapi.openbanking.or.kr/oauth/2.0'
 
-bp = Blueprint('payment', __name__, url_prefix='/payment')
+# Sample로 남겨둠
+AUTH_CODE='CNKriKDdTrIM76lzuQqzAKT7qpxPru'
+SAMPLE_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAxMDI3NjYxIiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2OTA1OTgyNzQsImp0aSI6ImYyMzYzMTA5LTQ4OGItNDFmYi1hYjM5LTY5ZDNiMTRjMmQxYyJ9.ldi1RWJaX9FEw8D2WcRBzqGnL0Iwy6-3sKXa2dX0_aQ"
+SAMPLE_REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAxMDI3NjYxIiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2OTE0NjIyNzQsImp0aSI6IjQ3NGVkN2QyLTVjZWMtNGQ4NC04NTdjLTg2NWM4MGFkYWI2MSJ9.0-IR_LVpTKYC9lntxkEgUAmy3SPJWvxaL7v6yANYDUM"
+SAMPLE_SEQ = "1101027661"
 
+bp = Blueprint('payment', __name__, url_prefix='/payment')
 @bp.route('/auth',methods=["POST"])
 # @jwt_required()
 def authorization():
     auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N'
     
-    
     try:
-        res = requests.get(auth_url)
-        if res:
-            return redirect(res.url)
-        if res.status_code == 200:
-            res_json = res.text
-            print(res_json)
-            req_data = {
-                'code':res_json['code'],
-                'client_id':CLIENT_ID,
-                'client_secret':CLIENT_PASSWORD,
-                'redirect_uri':REDIRECT_URI,
-                'grant_type':'authorization_code'
-            }
+        authorization_redirect = requests.Request('GET', auth_url).prepare()
+        return redirect(authorization_redirect.url)
 
-            # Token 발급
-            token_res = requests.post(f'{URI_BASE}/token',data=json.loads(req_data))
-            if token_res.status_code == 200:
- 
-                token_json = token_res.json()
-                print(token_json)
-               #  user_id = get_jwt_identity()
-                
-                # Refresh token DB에 저장 
-                # refresh_session = PaymentRefreshToken(token=token_json['refresh_token'],user_id=user_id)
-                # rdb.session.add(refresh_session)
-                # rdb.commit()
-                
-                return jsonify({"status_code" : 200, "message":"Success"}), 200 
-            
-            else:
-                return jsonify({'message':'Token Generation Error'}), 404
-        else:
-            return jsonify({'message':'Authorization Error'}), 404
     except requests.exceptions.Timeout as e:
         print("Timeout Error : ", e)
     except requests.exceptions.ConnectionError as e:
@@ -72,5 +46,23 @@ def authorization():
     except requests.exceptions.RequestException as e:
         print("AnyException : ", e)
 
+
+@bp.route("/callback")
+def callback():
+    # Authorization Code 추출
+    authorization_code = request.args.get('code')
+
+    # Access Token 발급 요청
+    token_url = 'https://api.finerit.co.kr/v2.0/oauth2/token'
+    data = {
+        'grant_type': 'authorization_code',
+        'code': authorization_code,
+        'client_id': CLIENT_ID,
+        'client_secret': CLIENT_PASSWORD,
+        'redirect_uri': REDIRECT_URI
+    }
+    token_response = requests.post(token_url, data=data)
+    # TODO 
+    
 def get_token():
     pass

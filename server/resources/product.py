@@ -119,7 +119,7 @@ def check_favorite():
     product = request.args.get('product_id')
     
     if product:
-        product.favorite = True
+        product.favorite = 1
         rdb.session.commit()
     else:
         raise error.DBNotFound('Product')
@@ -131,7 +131,7 @@ def check_status():
     product = request.args.get('product_id')
     
     if product:
-        product.status = True
+        product.status = 1
         rdb.session.commit()
     else:
         raise error.DBNotFound('Product')
