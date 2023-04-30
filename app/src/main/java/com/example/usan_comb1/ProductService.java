@@ -22,9 +22,17 @@ import retrofit2.http.Query;
 public interface ProductService {
     //@통신 방식("통신 API명")
 
+    // 판매 완료
+    @GET("product/status?product_id=<product_id>")
+    Call<ResponseBody> setStatus(@Query("product_id") Integer productId);
+
+    // 관심 물건
+    @GET("product/favorite?product_id=<product_id>")
+    Call<Void> setFavorite(@Query("product_id") Integer productId);
+
     // 이미지 다운로드
     @GET("imgs/download/<product_id>/<filename>")
-    Call<ResponseBody> downloadImage(@Path("product_id") Integer productId, @Path("filename") String filename);
+    Call<ResponseBody> downloadImage(@Query("product_id") Integer productId, @Query("filename") String filename);
 
     // 페이지 별 상품 정보
     @GET("display/productlist?page_per=10&page=1&type=0")
