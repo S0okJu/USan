@@ -116,11 +116,15 @@ def delete(product_id):
 @bp.route("/favorite",methods=["GET"])
 # # # @jwt_required()
 def check_favorite():
-    product = request.args.get('product_id')
-    
-    if product:
-        product.favorite = 1
-        rdb.session.commit()
+    product_id = request.args['product_id']
+
+    if product_id:
+        product = ProductModel.query.get(product_id)
+        if product:
+            product.favorite = True
+            rdb.session.commit()
+        else:
+            raise error.DBNotFound('product_id')
     else:
         raise error.DBNotFound('Product')
     return jsonify({"status_code" : 200, "message":"Success"}), 200 
@@ -128,10 +132,11 @@ def check_favorite():
 @bp.route('/status', methods=["GET"])
 # # @jwt_required()
 def check_status():
-    product = request.args.get('product_id')
-    
-    if product:
-        product.status = 1
+    product_id = request.args['product_id']
+
+    if product_id:
+        product = ProductModel.query.get(product_id)
+        product.status = True
         rdb.session.commit()
     else:
         raise error.DBNotFound('Product')
