@@ -23,11 +23,11 @@ public interface ProductService {
     //@통신 방식("통신 API명")
 
     // 판매 완료
-    @GET("product/status?product_id=<product_id>")
+    @GET("product/status")
     Call<ResponseBody> setStatus(@Query("product_id") Integer productId);
 
     // 관심 물건
-    @GET("product/favorite?product_id=<product_id>")
+    @GET("product/favorite")
     Call<Void> setFavorite(@Query("product_id") Integer productId);
 
     // 이미지 다운로드
@@ -50,9 +50,15 @@ public interface ProductService {
     @POST("/product/modify")
     Call<ResponseBody> updateProduct(@Path("id") Integer productId, @Body UpdateRequest updateProduct);
 
+    // 상품 삭제
+    @GET("product/<product_id>")
+    Call<Void> deletePost(@Query("product_id") Integer productId);
+
+    // 사용자 로그인
     @POST("/users/login")
     Call<LoginResponse> userLogin(@Body LoginData data);
 
+    // 사용자 회원가입
     @POST("/users/register")
     Call<RegisterResponse> userRegister(@Body RegisterData data);
 

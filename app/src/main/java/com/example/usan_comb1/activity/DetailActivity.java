@@ -138,13 +138,13 @@ public class DetailActivity extends AppCompatActivity {
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful() && response.body() != null) {
+                if (response.isSuccessful()) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.remove(String.valueOf(productId));
                     editor.apply();
                 }
                 else {
-                    showToast("서버 에러가 발생하였습니다.");
+                    showToast("서버에서 정상적으로 처리되지 않았습니다.");
                 }
             }
 
@@ -159,6 +159,8 @@ public class DetailActivity extends AppCompatActivity {
     private void removeFavorite(Integer productId) {
         // 서버와 통신하여 즐겨찾기 목록에서 제거
         // Retrofit2
+
+        //isFavorite = !isFavorite;
 
         Call<Void> call = mProductService.setFavorite(productId);
             call.enqueue(new Callback<Void>() {
