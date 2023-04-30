@@ -179,7 +179,4 @@ public class HomeFragment extends Fragment {
             adapter.notifyDataSetChanged(); // Adapter에 데이터 변경을 알려줌
         }
     }
-
-
-
 }

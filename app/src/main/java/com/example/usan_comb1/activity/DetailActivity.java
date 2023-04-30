@@ -2,6 +2,9 @@ package com.example.usan_comb1.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +13,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,19 +27,23 @@ import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.response.PostResult;
 import com.google.android.material.appbar.MaterialToolbar;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class DetailActivity extends AppCompatActivity {
 
+
     private TextView tvTitle, tvPrice, tvDetail, tvAuthor;
     private ProductService mProductService;
-    private ImageButton imgButton;
     private boolean isFavorite = false;
     private ViewPager viewPager;
     private int[] imageReslds = {R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg};
     private Integer productId;
+
+    private SharedPreferences sharedPreferences; // 즐겨찾기 목록을 저장하는 SharedPreferences
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,12 +56,14 @@ public class DetailActivity extends AppCompatActivity {
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
+        productId = getIntent().getIntExtra("product_id", -1);
+
         Intent intent = getIntent();
         if (intent != null) {
             // product_id 값을 받아옵니다.
-            int product_id = intent.getIntExtra("product_id", -1);
-            if (product_id != -1) {
-                checkData(product_id);
+            //int product_id = intent.getIntExtra("product_id", -1);
+            if (productId != -1) {
+                checkData(productId);
             }
         }
 
@@ -68,16 +76,27 @@ public class DetailActivity extends AppCompatActivity {
         ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageReslds);
         viewPager.setAdapter(adapter);
 
-        imgButton = findViewById(R.id.imgbtn);
-        imgButton.setOnClickListener(new View.OnClickListener() {
+        // SharedPreferences 초기화
+        sharedPreferences = getSharedPreferences("favorites", MODE_PRIVATE);
+
+        // 즐겨찾기 버튼 초기화
+        ImageView favoriteButton = findViewById(R.id.imgbtn);
+        isFavorite = sharedPreferences.getBoolean(String.valueOf(productId), false);
+
+
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 버튼 아이콘 변경 코드 작성
+                // 버튼 아이콘 클릭 시 호출되는 메서드
                 isFavorite = !isFavorite;
                 if (isFavorite) {
-                    imgButton.setImageResource(R.drawable.select_ic_heart);
+                    favoriteButton.setImageResource(R.drawable.select_ic_heart);
+                    addFavorite(productId);
+                    showToast("관심물품으로 등록되었습니다.");
                 } else {
-                    imgButton.setImageResource(R.drawable.unselect_ic_heart);
+                    favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
+                    removeFavorite(productId);
+                    showToast("관심물품에서 삭제되었습니다.");
                 }
             }
         });
@@ -107,6 +126,60 @@ public class DetailActivity extends AppCompatActivity {
         });
 
     }
+
+    // 토스트 메시지를 출력하는 메서드
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public void addFavorite(Integer productId) {
+        isFavorite = !isFavorite;
+        Call<Void> call = mProductService.setFavorite(productId);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.remove(String.valueOf(productId));
+                    editor.apply();
+                }
+                else {
+                    showToast("서버 에러가 발생하였습니다.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                showToast("서버 에러가 발생하였습니다.");
+            }
+        });
+    }
+
+    // 즐겨찾기 목록에서 제거하는 메서드
+    private void removeFavorite(Integer productId) {
+        // 서버와 통신하여 즐겨찾기 목록에서 제거
+        // Retrofit2
+
+        Call<Void> call = mProductService.setFavorite(productId);
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        // SharedPreferences에서 제거
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.remove(String.valueOf(productId));
+                        editor.apply();
+                    } else {
+                        showToast("서버 에러가 발생하였습니다.");
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    showToast("서버 에러가 발생하였습니다.");
+                }
+            });
+        }
 
     public void checkData(Integer productId) {
 

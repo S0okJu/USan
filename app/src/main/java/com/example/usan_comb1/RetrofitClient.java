@@ -7,10 +7,13 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class RetrofitClient {
 
-    private static final String BASE_URL = "http://52.78.124.117:53263/";
 
 
+    // 이건 저(김다경)의 sample url입니다..
     //private static final String BASE_URL = "http://192.168.50.188:6000/";
+
+    private static final String BASE_URL = "http://43.201.95.57:54698/";
+
 
     private static Retrofit retrofit = null;
 
