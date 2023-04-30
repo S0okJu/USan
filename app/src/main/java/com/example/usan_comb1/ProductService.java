@@ -35,7 +35,7 @@ public interface ProductService {
     Call<ResponseBody> downloadImage(@Query("product_id") Integer productId, @Query("filename") String filename);
 
     // 페이지 별 상품 정보
-    @GET("display/productlist?page_per=10&page=1&type=0")
+    @GET("display/productlist?page_pger=10&page=1&type=0")
     Call<String> string_call();
 
     // 특정 상품 표시

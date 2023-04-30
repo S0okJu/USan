@@ -138,6 +138,7 @@ public class DetailActivity extends AppCompatActivity {
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
+                // * body !=null 삭제
                 if (response.isSuccessful()) {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.remove(String.valueOf(productId));
@@ -159,8 +160,6 @@ public class DetailActivity extends AppCompatActivity {
     private void removeFavorite(Integer productId) {
         // 서버와 통신하여 즐겨찾기 목록에서 제거
         // Retrofit2
-
-        //isFavorite = !isFavorite;
 
         Call<Void> call = mProductService.setFavorite(productId);
             call.enqueue(new Callback<Void>() {
