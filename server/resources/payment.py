@@ -3,7 +3,7 @@ import json
 import datetime
 
 # * lib
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, redirect
 from flask_jwt_extended import jwt_required,get_jwt_identity
 import requests
 import sqlalchemy.exc
@@ -18,22 +18,40 @@ from models import PaymentRefreshToken
 CLIENT_ID = '1d1099e6-8c17-4ac3-956c-2e9bd6039c19'
 CLIENT_PASSWORD = 'e51b7de9-9647-4760-8707-e77e7a53bce6'
 STATE_CODE = '12345678901234567890124456729112'
-REDIRECT_URI = 'http://localhost:6000/payment/auth'
+REDIRECT_URI = 'http://localhost:6000/payment/callback'
 URI_BASE = 'https://testapi.openbanking.or.kr/oauth/2.0'
 
 bp = Blueprint('payment', __name__, url_prefix='/payment')
 
-@bp.route('/auth',methods=["POST"])
-# @jwt_required()
+
+@bp.route('/auth', methods=["GET"])
 def authorization():
     auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N'
     try:
-        res = requests.get(auth_url)
-        if res.status_code == 200:
-            res_json = res.text
-            print(res_json)
-            req_data = {
-                'code':res_json['code'],
+        authorization_redirect = requests.Request('GET', auth_url).prepare()
+        return redirect(authorization_redirect.url)
+
+    except requests.exceptions.Timeout as e:
+        print("Timeout Error : ", e)
+    except requests.exceptions.ConnectionError as e:
+        print("Error Connecting : ", e)
+    except requests.exceptions.HTTPError as e:
+        print("Http Error : ", e)
+    except requests.exceptions.RequestException as e:
+        print("AnyException : ", e)
+        
+
+
+@bp.route('/callback')
+# @jwt_required()
+def get_token():
+    auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=2&cellphone_cert_yn=Y&authorized_cert_yn=N'
+    try:
+        authorization_code = request.args.get('code')
+        if not authorization_code:
+
+            data = {
+                'code':authorization_code,
                 'client_id':CLIENT_ID,
                 'client_secret':CLIENT_PASSWORD,
                 'redirect_uri':REDIRECT_URI,
@@ -41,7 +59,7 @@ def authorization():
             }
 
             # Token 발급
-            token_res = requests.post(f'{URI_BASE}/token',data=json.loads(req_data))
+            token_res = requests.post(f'{URI_BASE}/token',data=json.loads(data))
             if token_res.status_code == 200:
  
                 token_json = token_res.json()
