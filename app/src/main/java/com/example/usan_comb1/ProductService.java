@@ -23,11 +23,11 @@ public interface ProductService {
     //@통신 방식("통신 API명")
 
     // 판매 완료
-    @GET("product/status?product_id=<product_id>")
+    @GET("product/status")
     Call<ResponseBody> setStatus(@Query("product_id") Integer productId);
 
     // 관심 물건
-    @GET("product/favorite?product_id=<product_id>")
+    @GET("product/favorite")
     Call<Void> setFavorite(@Query("product_id") Integer productId);
 
     // 이미지 다운로드
