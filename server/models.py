@@ -60,6 +60,7 @@ class ProductModel(rdb.Model):
     status = rdb.Column(rdb.Boolean, nullable=True)
     author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     product_imgs = rdb.relationship('ProductImageModel', backref=rdb.backref('product'), order_by='ProductImageModel.img_id')
+    # transactions = rdb.relationship('Transaction', back_populates='product')
 
     def to_dict(self):
         return {
@@ -159,3 +160,58 @@ class PaymentRefreshToken(rdb.Model):
             'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
             'expired_at': self.expired_at.strftime('%Y-%m-%d %H:%M:%S')
         }
+
+# class SellerModel(rdb.Model):
+#     __tablename__ = 'Seller'
+    
+#     seller_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+#     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+#     items = rdb.relationship('ProductModel', backref='seller', lazy=True)
+
+#     def __init__(self, user_id):
+#         self.user_id = user_id
+
+#     def to_dict(self):
+#         return {
+#             'seller_id': self.seller_id,
+#             'user_id': self.user_id
+#         }
+
+
+# class BuyerModel(rdb.Model):
+#     __tablename__ = 'Buyer'
+    
+#     buyer_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+#     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+#     purchases = rdb.relationship('ProductModel', backref='buyer', lazy=True)
+
+#     def __init__(self, user_id):
+#         self.user_id = user_id
+
+#     def to_dict(self):
+#         return {
+#             'buyer_id': self.buyer_id,
+#             'user_id': self.user_id
+#         }
+
+# class Transaction(rdb.Model):
+#     __tablename__ = 'transactions'
+
+#     id = rdb.Column(rdb.Integer, primary_key=True)
+#     date = rdb.Column(rdb.DateTime, default=datetime.utcnow)
+#     seller_id = rdb.Column(rdb.Integer, rdb.ForeignKey('sellers.id'))
+#     buyer_id = rdb.Column(rdb.Integer, rdb.ForeignKey('buyers.id'))
+#     price = rdb.Column(rdb.Integer)
+#     seller = rdb.relationship('Seller', back_populates='transactions')
+#     buyer = rdb.relationship('Buyer', back_populates='transactions')
+#     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'))
+#     product = rdb.relationship('ProductModel', back_populates='transactions')
+
+#     def to_dict(self):
+#         return {
+#             'id': self.id,
+#             'date': self.date,
+#             'seller_id': self.seller_id,
+#             'buyer_id': self.buyer_id,
+#             'price': self.price
+#         }

@@ -43,6 +43,33 @@ def user_profile(user_id):
     result = {"user_info": str(user), "products": [str(p) for p in products]}
     return jsonify(result), 200
 
+@bp.route("/<int:user_id>/productlist", methods=["GET"])
+def get_user_productlist(user_id):
+    page_per = int(request.args.get('page_per'))
+    page = int(request.args.get('page'))
+    
+    if not page_per:
+        raise error.InvalidParams()
+    if not page:
+        raise error.InvalidParams()
+
+    result_json = list()
+    try:
+        products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+        for product in products.items:
+            product_json = dict()
+            product_json['title'] = product.title
+            product_json['price'] = int(product.price)
+            product_json['status'] = product.status
+            if product.product_imgs:
+                product_json['img'] = product.product_imgs[0].to_dict()['file_name']
+            else:
+                product_json['img']  = None 
+            result_json.append(product_json)
+                
+        return jsonify(result_json), 200
+    except sqlalchemy.exc.OperationalError:
+        raise error.DBConnectionError()
 
 # 상품 조회 (개수별)
 # @param page_per 한 페이지당 개수, page = page 인덱스 
@@ -82,21 +109,6 @@ def get_productlist():
                 result_json.append(product_json)
             return jsonify(result_json), 200
         
-        elif int(list_type) == 1:
-            user_id = get_jwt_identity()
-            products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
-            for product in products.items:
-                product_json = dict()
-                product_json['title'] = product.title
-                product_json['price'] = int(product.price)
-                product_json['status'] = product.status
-                if product.product_imgs:
-                    product_json['img'] = product.product_imgs[0].to_dict()['file_name']
-                else:
-                    product_json['img']  = None 
-                result_json.append(product_json)
-                
-            return jsonify(result_json), 200 
         else:
             raise error.InvalidParams()
         
