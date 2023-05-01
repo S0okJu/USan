@@ -56,6 +56,8 @@ def get_user_productlist(user_id):
     result_json = list()
     try:
         products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+        if not products:
+            raise error.DBNotFound('Product')
         for product in products.items:
             product_json = dict()
             product_json['title'] = product.title
