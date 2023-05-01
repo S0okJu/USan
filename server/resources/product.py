@@ -116,10 +116,17 @@ def delete(product_id):
 @bp.route("/favorite",methods=["GET"])
 # # # @jwt_required()
 def check_favorite():
-    product = request.args.get('product_id')
+    product_id = request.args.get('product_id')
+    check_type = request.args.get('type')
     
+    product = ProductModel.query.get(product_id)
     if product:
-        product.favorite = 1
+        if check_type == 0:
+            product.favorite = False
+        elif check_type == 1:
+            product.favorite = True
+        else:
+            error.InvalidParams()
         rdb.session.commit()
     else:
         raise error.DBNotFound('Product')
@@ -128,10 +135,17 @@ def check_favorite():
 @bp.route('/status', methods=["GET"])
 # # @jwt_required()
 def check_status():
-    product = request.args.get('product_id')
+    product_id = request.args.get('product_id')
+    check_type = request.args.get('type')
     
+    product = ProductModel.query.get(product_id)
     if product:
-        product.status = 1
+        if check_type == 0:
+            product.status = False
+        elif check_type == 1:
+            product.status = True
+        else:
+            error.InvalidParams()
         rdb.session.commit()
     else:
         raise error.DBNotFound('Product')
