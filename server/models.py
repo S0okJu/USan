@@ -215,3 +215,27 @@ class PaymentRefreshToken(rdb.Model):
 #             'buyer_id': self.buyer_id,
 #             'price': self.price
 #         }
+# class PaymentModel(rdb.Model):
+#     __tablename__ = 'Payment'
+#     payment_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+#     seller_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+#     buyer_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+#     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
+#     payment_method = rdb.Column(rdb.String(50), nullable=False)
+#     payment_amount = rdb.Column(rdb.Integer, nullable=False)
+#     payment_status = rdb.Column(rdb.String(50), nullable=False)
+#     created_date = rdb.Column(rdb.DateTime(), nullable=False)
+#     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
+
+#     def to_dict(self):
+#         return {
+#             'payment_id': self.payment_id,
+#             'seller_id': self.seller_id,
+#             'buyer_id': self.buyer_id,
+#             'product_id': self.product_id,
+#             'payment_method': self.payment_method,
+#             'payment_amount': self.payment_amount,
+#             'payment_status': self.payment_status,
+#             'created_date': self.created_date.isoformat(),
+#             'modified_date': self.modified_date.isoformat()
+#         }
