@@ -128,6 +128,7 @@ def check_favorite():
         else:
             error.InvalidParams()
         rdb.session.commit()
+
     else:
         raise error.DBNotFound('Product')
     return jsonify({"status_code" : 200, "message":"Success"}), 200 
