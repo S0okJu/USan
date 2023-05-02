@@ -77,6 +77,7 @@ def get_user_productlist(user_id):
 # @param page_per 한 페이지당 개수, page = page 인덱스 
 # @return 상품명, 사용자, 수정일 
 @bp.route("/productlist", methods=["GET"])
+@jwt_required()
 def get_productlist():
 
     page_per = int(request.args.get('page_per'))
