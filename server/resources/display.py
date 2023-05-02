@@ -70,6 +70,7 @@ def get_myproduct():
 
 
 @bp.route("/<string:username>/productlist", methods=["GET"])
+@jwt_required()
 def get_user_productlist(username):
     page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
@@ -81,7 +82,7 @@ def get_user_productlist(username):
 
     result_json = list()
     try:
-        products = ProductModel.query.filter(ProductModel.author == username).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+        products = ProductModel.query.join(UserModel).filter(UserModel.username == username).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
         if not products:
             raise error.DBNotFound('Product')
         for product in products.items:

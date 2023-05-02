@@ -64,7 +64,7 @@ def login():
         rdb.session.add(token)
         rdb.session.commit()
 
-        return jsonify({'msg': 'Login in successfully', 'access_token': access_token}),200
+        return jsonify({'msg': 'Login in successfully', 'access_token': access_token, 'username':result.username}),200
     else:
         return jsonify({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'}), 401
 
