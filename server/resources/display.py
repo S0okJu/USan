@@ -17,6 +17,7 @@ from utils.security.check import check_product, check_user
 
 bp = Blueprint('display', __name__, url_prefix='/display')
 
+
 # * User profile 
 # type=0(default = all)
 # 개수만큼 사진을 보여줄 수 있다. 
@@ -43,8 +44,33 @@ def user_profile(user_id):
     result = {"user_info": str(user), "products": [str(p) for p in products]}
     return jsonify(result), 200
 
-@bp.route("/<int:user_id>/productlist", methods=["GET"])
-def get_user_productlist(user_id):
+@bp.route("/myproduct",methods=["GET"])
+@jwt_required()
+def get_myproduct():
+    user_id = get_jwt_identity()
+    result_json = list()
+    try:
+        products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+        for product in products.items:
+            product_json = dict()
+            product_json['title'] = product.title
+            product_json['price'] = int(product.price)
+            product_json['status'] = bool(product.status)
+            if product.product_imgs:
+                product_json['img'] = product.product_imgs[0].to_dict()['file_name']
+            else:
+                product_json['img']  = None 
+            result_json.append(product_json)
+
+        return jsonify(result_json), 200 
+    except sqlalchemy.exc.OperationalError as e:
+        raise error.DBConnectionError()
+    except Exception as e:
+        print(e)
+
+
+@bp.route("/<string:username>/productlist", methods=["GET"])
+def get_user_productlist(username):
     page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
     
@@ -55,7 +81,7 @@ def get_user_productlist(user_id):
 
     result_json = list()
     try:
-        products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+        products = ProductModel.query.filter(ProductModel.author == username).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
         if not products:
             raise error.DBNotFound('Product')
         for product in products.items:
@@ -111,25 +137,10 @@ def get_productlist():
                     product_json['img'] = None
                 result_json.append(product_json)
             return jsonify(result_json), 200 
-        elif int(list_type) == 1:
-            user_id = get_jwt_identity()
-            products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
-            for product in products.items:
-                product_json = dict()
-                product_json['title'] = product.title
-                product_json['price'] = int(product.price)
-                product_json['status'] = bool(product.status)
-                if product.product_imgs:
-                    product_json['img'] = product.product_imgs[0].to_dict()['file_name']
-                else:
-                    product_json['img']  = None 
-                result_json.append(product_json)
-
-            return jsonify(result_json), 200 
-
-        else:
-            raise error.InvalidParams()
-        
+    
     except sqlalchemy.exc.OperationalError as e:
 
         raise error.DBConnectionError()
+    except Exception as e:
+        print(e)
+
