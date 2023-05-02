@@ -87,16 +87,13 @@ public class DetailActivity extends AppCompatActivity {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 버튼 아이콘 클릭 시 호출되는 메서드
-                isFavorite = !isFavorite;
-                if (isFavorite) {
+                isFavorite = !isFavorite; // isFavorite 값을 반전시킵니다.
+                if (isFavorite) { // 현재 isFavorite 값이 true인 경우 관심상품으로 추가합니다.
                     favoriteButton.setImageResource(R.drawable.select_ic_heart);
                     addFavorite(productId);
-                    showToast("관심물품으로 등록되었습니다.");
-                } else {
+                } else { // 현재 isFavorite 값이 false인 경우 관심상품에서 제거합니다.
                     favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
                     removeFavorite(productId);
-                    showToast("관심물품에서 삭제되었습니다.");
                 }
             }
         });
@@ -132,8 +129,9 @@ public class DetailActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    // 관심상품 목록에 추가하는 메서드
     public void addFavorite(Integer productId) {
-        isFavorite = !isFavorite;
+        //isFavorite = !isFavorite;
         Call<Void> call = mProductService.setFavorite(productId);
         call.enqueue(new Callback<Void>() {
             @Override
@@ -143,6 +141,7 @@ public class DetailActivity extends AppCompatActivity {
                     SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.remove(String.valueOf(productId));
                     editor.apply();
+                    showToast("관심물품으로 등록되었습니다.");
                 }
                 else {
                     showToast("서버에서 정상적으로 처리되지 않았습니다.");
@@ -156,32 +155,33 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-    // 즐겨찾기 목록에서 제거하는 메서드
+    // 관심상품 목록에서 제거하는 메서드
     private void removeFavorite(Integer productId) {
         // 서버와 통신하여 즐겨찾기 목록에서 제거
         // Retrofit2
-
-        Call<Void> call = mProductService.setFavorite(productId);
-            call.enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        // SharedPreferences에서 제거
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.remove(String.valueOf(productId));
-                        editor.apply();
-                    } else {
-                        showToast("서버 에러가 발생하였습니다.");
-                    }
+        Call<Void> call = mProductService.unFavorite(productId);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    // SharedPreferences에서 제거
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.remove(String.valueOf(productId));
+                    editor.apply();
+                    showToast("관심물품에서 제거되었습니다.");
+                } else {
+                    showToast("서버에서 정상적으로 처리되지 않았습니다.");
                 }
+            }
 
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    showToast("서버 에러가 발생하였습니다.");
-                }
-            });
-        }
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                showToast("서버 에러가 발생하였습니다.");
+            }
+        });
+    }
 
+    // 상세페이지로 데이터 불러오기
     public void checkData(Integer productId) {
 
         mProductService.getProduct(productId).enqueue(new Callback<PostResult>() {

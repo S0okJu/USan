@@ -3,6 +3,8 @@ package com.example.usan_comb1.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -139,6 +141,12 @@ public class UploadActivity extends AppCompatActivity {
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ProductResponse result = response.body();
+                    // save access token and refresh token to SharedPreferences
+                    SharedPreferences sharedPrefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPrefs.edit();
+                    editor.putString("access_token", result.getAccessToken());
+                    editor.apply();
+
                     Toast.makeText(UploadActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                     showProgress(false);
                     finish();

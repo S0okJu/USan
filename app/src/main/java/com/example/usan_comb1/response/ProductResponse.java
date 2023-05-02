@@ -11,6 +11,9 @@ public class ProductResponse {
     @SerializedName("message")
     private String message;
 
+    @SerializedName("access_token")
+    private String access_token;
+
     public int getStatus_code() {
         return status_code;
     }
@@ -25,5 +28,9 @@ public class ProductResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getAccessToken() {
+        return access_token;
     }
 }
