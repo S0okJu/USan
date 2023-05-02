@@ -109,7 +109,7 @@ def get_productlist():
                 else:
                     product_json['img'] = None
                 result_json.append(product_json)
-            
+            return jsonify(result_json), 200 
         elif int(list_type) == 1:
             user_id = get_jwt_identity()
             products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
