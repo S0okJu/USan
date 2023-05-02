@@ -77,7 +77,7 @@ def get_user_productlist(user_id):
 # @param page_per 한 페이지당 개수, page = page 인덱스 
 # @return 상품명, 사용자, 수정일 
 @bp.route("/productlist", methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def get_productlist():
 
     page_per = int(request.args.get('page_per'))
@@ -118,7 +118,7 @@ def get_productlist():
                 product_json = dict()
                 product_json['title'] = product.title
                 product_json['price'] = int(product.price)
-                product_json['status'] = product.status
+                product_json['status'] = bool(product.status)
                 if product.product_imgs:
                     product_json['img'] = product.product_imgs[0].to_dict()['file_name']
                 else:
