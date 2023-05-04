@@ -1,4 +1,4 @@
-package com.example.usan1;
+package com.example.register;
 
 import org.junit.Test;
 

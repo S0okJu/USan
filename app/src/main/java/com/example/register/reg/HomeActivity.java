@@ -1,8 +1,10 @@
-package com.example.usan1;
+package com.example.register.reg;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.example.register.R;
 
 public class HomeActivity extends AppCompatActivity {
 
