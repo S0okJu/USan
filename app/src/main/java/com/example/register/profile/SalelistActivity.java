@@ -38,6 +38,7 @@ public class SalelistActivity extends AppCompatActivity {
 
 
         // Intent로부터 값을 가져옴
+        // Intent로 데이터를 전달합니다.
         Intent intent = getIntent();
         String username = intent.getStringExtra("username");
 
