@@ -1,14 +1,11 @@
 package com.example.usan_comb1.fragment;
 
-import static android.content.ContentValues.TAG;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ProgressBar;
 
 import androidx.core.widget.NestedScrollView;
@@ -20,11 +17,9 @@ import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.activity.DetailActivity;
-import com.example.usan_comb1.activity.ProductActivity;
 import com.example.usan_comb1.activity.UploadActivity;
-import com.example.usan_comb1.adapter.CustomAdapter;
+import com.example.usan_comb1.adapter.HomeAdapter;
 import com.example.usan_comb1.response.PostList;
-import com.example.usan_comb1.response.PostResult;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
@@ -32,22 +27,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.GET;
-import retrofit2.http.Query;
 
 public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private CustomAdapter adapter;
+    private HomeAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     FloatingActionButton fab;
 
@@ -78,12 +66,12 @@ public class HomeFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_view);
         progressBar = view.findViewById(R.id.progress_bar);
 
-        adapter = new CustomAdapter(getActivity(), dataArrayList);
+        adapter = new HomeAdapter(getActivity(), dataArrayList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(adapter);
 
         // CustomAdapter의 아이템 클릭 리스너를 설정합니다.
-        adapter.setOnItemClickListener(new CustomAdapter.OnItemClickListener() {
+        adapter.setOnItemClickListener(new HomeAdapter.OnItemClickListener() {
             // 아이템을 클릭했을 때 다른 액티비티로 넘어가는 코드를 추가합니다.
 
             public void onItemClick(View view, int position, PostList data) {

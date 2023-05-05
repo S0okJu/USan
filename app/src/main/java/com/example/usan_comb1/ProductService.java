@@ -24,11 +24,11 @@ public interface ProductService {
 
     // 판매 완료 해제
     @GET("product/status&type=0")
-    Call<ResponseBody> unStatus(@Query("product_id") Integer productId);
+    Call<Void> unStatus(@Query("product_id") Integer productId);
 
     // 판매 완료
     @GET("product/status?type=1")
-    Call<ResponseBody> setStatus(@Query("product_id") Integer productId);
+    Call<Void> setStatus(@Query("product_id") Integer productId);
 
     // 관심 물건 등록 해제
     @GET("product/favorite?type=0")
@@ -56,7 +56,7 @@ public interface ProductService {
 
     // 상품 수정
     @POST("/product/modify")
-    Call<ResponseBody> updateProduct(@Path("id") Integer productId, @Body UpdateRequest updateProduct);
+    Call<ResponseBody> updateProduct(@Query("id") Integer productId, @Body UpdateRequest updateProduct);
 
     // 상품 삭제
     @GET("product/<product_id>")

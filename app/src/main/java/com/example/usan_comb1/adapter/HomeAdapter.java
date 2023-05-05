@@ -18,7 +18,7 @@ import com.example.usan_comb1.response.PostList;
 
 import java.util.ArrayList;
 
-public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder>
+public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
 {
     private ArrayList<PostList> dataArrayList;
     private Activity activity;
@@ -35,7 +35,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
         this.listener = listener;
     }
 
-    public CustomAdapter(Activity activity, ArrayList<PostList> dataArrayList)
+    public HomeAdapter(Activity activity, ArrayList<PostList> dataArrayList)
     {
         this.activity = activity;
         this.dataArrayList = dataArrayList;
@@ -43,14 +43,14 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.ViewHolder
 
     @NonNull
     @Override
-    public CustomAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+    public HomeAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CustomAdapter.ViewHolder holder, int position)
+    public void onBindViewHolder(@NonNull HomeAdapter.ViewHolder holder, int position)
     {
         PostList data = dataArrayList.get(position);
         DownImage downImage = new DownImage();

@@ -34,7 +34,6 @@ import retrofit2.Response;
 
 public class DetailActivity extends AppCompatActivity {
 
-
     private TextView tvTitle, tvPrice, tvDetail, tvAuthor;
     private ProductService mProductService;
     private boolean isFavorite = false;
@@ -48,6 +47,9 @@ public class DetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
+
+        // SharedPreferences 초기화
+        sharedPreferences = getSharedPreferences("favorites", MODE_PRIVATE);
 
         tvTitle = findViewById(R.id.tv_title);
         tvPrice = findViewById(R.id.tv_price);
@@ -76,18 +78,26 @@ public class DetailActivity extends AppCompatActivity {
         ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageReslds);
         viewPager.setAdapter(adapter);
 
-        // SharedPreferences 초기화
-        sharedPreferences = getSharedPreferences("favorites", MODE_PRIVATE);
-
         // 즐겨찾기 버튼 초기화
         ImageView favoriteButton = findViewById(R.id.imgbtn);
         isFavorite = sharedPreferences.getBoolean(String.valueOf(productId), false);
 
 
+        // SharedPreferences에서 product_id와 isFavorite 값을 읽어와서 favorite button의 상태를 설정합니다.
+        String key = String.valueOf(productId) + "_favorite";
+        boolean favorite = sharedPreferences.getBoolean(key, false);
+        isFavorite = favorite;
+        if (isFavorite) {
+            favoriteButton.setImageResource(R.drawable.select_ic_heart);
+        } else {
+            favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
+        }
+
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isFavorite = !isFavorite; // isFavorite 값을 반전시킵니다.
+
                 if (isFavorite) { // 현재 isFavorite 값이 true인 경우 관심상품으로 추가합니다.
                     favoriteButton.setImageResource(R.drawable.select_ic_heart);
                     addFavorite(productId);
@@ -138,8 +148,10 @@ public class DetailActivity extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 // * body !=null 삭제
                 if (response.isSuccessful()) {
+                    // SharedPreferences에서 product_id와 isFavorite 값을 저장합니다.
                     SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.remove(String.valueOf(productId));
+                    String key = String.valueOf(productId) + "_favorite";
+                    editor.putBoolean(key, isFavorite);
                     editor.apply();
                     showToast("관심물품으로 등록되었습니다.");
                 }

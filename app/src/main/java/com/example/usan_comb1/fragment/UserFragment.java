@@ -1,39 +1,22 @@
 package com.example.usan_comb1.fragment;
 
-import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
-import com.example.usan_comb1.activity.DetailActivity;
+import com.example.usan_comb1.activity.FavoriteActivity;
 import com.example.usan_comb1.activity.UploadActivity;
-import com.example.usan_comb1.adapter.CustomAdapter;
-import com.example.usan_comb1.response.PostList;
-import com.example.usan_comb1.response.PostResult;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,10 +24,12 @@ import retrofit2.Response;
 
 public class UserFragment extends Fragment {
 
-    private Button del_button;
+    private Button delete_button, update_button, state_button, favorite_button;
 
     private ProductService mProductService;
     private Integer productId;
+
+    private boolean isFinish = false;
 
     public UserFragment() {
         // Required empty public constructor
@@ -62,15 +47,26 @@ public class UserFragment extends Fragment {
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
-        del_button = view.findViewById(R.id.delete_button);
+        delete_button = view.findViewById(R.id.delete_button);
+        update_button = view.findViewById(R.id.update_button);
+        state_button = view.findViewById(R.id.state_button);
+        favorite_button = view.findViewById(R.id.favorite_button);
 
+        favorite_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), FavoriteActivity.class);
+                startActivity(intent);
+            }
+        });
         // 삭제 버튼 클릭 이벤트 핸들러
-        del_button.setOnClickListener(new View.OnClickListener() {
+        delete_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage("게시글을 삭제하시겠습니까?")
+                builder.setTitle("게시글 삭제")
+                .setMessage("게시글을 삭제하시겠습니까?")
                         // setNegative - 왼쪽 / setPositive - 오른쪽
                         .setNegativeButton("예", new DialogInterface.OnClickListener() {
                             @Override
@@ -92,7 +88,50 @@ public class UserFragment extends Fragment {
             }
         });
 
-// 내 게시글일 경우 게시글 삭제 요청 보내기
+        /*
+
+        // 수정 버튼 클릭 이벤트 핸들러
+        update_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+                public void onItemClick(View view, int position, PostList data) {
+                    Intent intent = new Intent(getActivity(), DetailActivity.class);
+                    intent.putExtra("product_id", data.getProduct_id());// 넘어갈 데이터를 인텐트에 추가합니다.
+                    startActivity(intent);
+                }
+        });
+                 */
+
+        state_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String[] items = new String[]{"판매 중", "판매 완료"};
+                final int[] selectedIndex = {0};
+
+                AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+                dialog.setTitle("거래 상태를 선택하세요.")
+                        .setSingleChoiceItems(
+                                items,
+                                0,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        selectedIndex[0] = which;
+                                    }
+                                }
+                        )
+                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if(which == 0) {
+                                    statePost();
+                                }
+                                else {
+                                    unstatePost();
+                                }
+                            }
+                        }).create().show();
+            }
+        });
 
         return view;
     }
@@ -145,6 +184,30 @@ public class UserFragment extends Fragment {
         }
     }
      */
+
+    private void statePost() {
+        Call<Void> call = mProductService.setStatus(productId);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if(response.isSuccessful()) {
+                    showToast("게시글 처리가 완료되었습니다.");
+                } else {
+                    showToast("서버에서 정상적으로 처리되지 않았습니다.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                    showToast("서버 에러가 발생하였습니다.");
+            }
+        });
+
+    }
+
+    private void unstatePost() {
+        showToast("완료되었습니다.");
+    }
 
 
     // 토스트 메시지를 출력하는 메서드
