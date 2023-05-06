@@ -24,9 +24,9 @@ class MissingParams(CustomException):
     def __init__(self, param):
         super().__init__(status_code=400, message=f"Missing Parameter : {param}")
 
-class EmptyError(CustomException):
-    def __init__(self, target):
-        super().__init__(status_code=400, message=f"Empty {target}")
+class EmptyJSONError(CustomException):
+    def __init__(self):
+        super().__init__(status_code=400, message=f"Empty value in JSON")
 
 class OutOfBound(CustomException):
     def __init__(self):
@@ -52,7 +52,7 @@ def init_custom_error_handler(app):
     app.register_error_handler(DBNotFound, error_handler)
     app.register_error_handler(InvalidParams, error_handler)
     app.register_error_handler(MissingParams, error_handler)
-    app.register_error_handler(EmptyError, error_handler)
+    app.register_error_handler(EmptyJSONError, error_handler)
     app.register_error_handler(OutOfBound,error_handler)
     app.register_error_handler(InvalidPaymentAuthorization, error_handler)
 

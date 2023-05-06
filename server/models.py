@@ -34,6 +34,14 @@ class UserModel(rdb.Model): # User -> UserModel로 수정
     def find_by_email(cls, email):
         return cls.query.filter_by(email=email).first()
 
+    @classmethod
+    def check_by_username(cls, username) -> bool:
+        user = cls.query.filter_by(username=username).first()
+        if not user:
+            return False
+        else:
+            return True
+
 # class UserProfileModel(rdb.Model):
 #     __tablename__ = 'ProfileImage'
 #     profile_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
@@ -56,7 +64,6 @@ class ProductModel(rdb.Model):
     content = rdb.Column(rdb.String(1000), nullable=False)
     created_date = rdb.Column(rdb.DateTime(), nullable=False)
     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
-    favorite = rdb.Column(rdb.Boolean, nullable=True)
     status = rdb.Column(rdb.Boolean, nullable=True)
     author_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     product_imgs = rdb.relationship('ProductImageModel', backref=rdb.backref('product'), order_by='ProductImageModel.img_id')
@@ -99,6 +106,16 @@ class ProductImageModel(rdb.Model):
     def save(self):
         rdb.session.add(self)
         rdb.session.commit()
+
+class FavoriteModel(rdb.Model):
+    __tablename__='Favorite'
+    favorite_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True)
+    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+    user = rdb.relationship("UserModel", backref="user_favorite")
+    
+    product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
+    product = rdb.relationship("ProductModel", backref="favorite_product")
+    favorite =  rdb.Column(rdb.Boolean, nullable=True)
 
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'

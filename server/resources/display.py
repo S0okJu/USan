@@ -5,10 +5,12 @@ import json
 from flask import request,Response, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import sqlalchemy.exc
+from sqlalchemy import and_
+
 
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from models import ProductModel, UserModel, ProductImageModel
+from models import ProductModel, UserModel, ProductImageModel, FavoriteModel
 from init.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg
@@ -23,6 +25,7 @@ bp = Blueprint('display', __name__, url_prefix='/display')
 # 개수만큼 사진을 보여줄 수 있다. 
 # 사용자 정보와 product를 볼 수 있다. 
 @bp.route("/profile/<int:user_id>", methods=["GET"])
+@jwt_required()
 def user_profile(user_id):
     user = UserModel.query.get(user_id)
     if not user:
@@ -45,7 +48,7 @@ def user_profile(user_id):
     return jsonify(result), 200
 
 @bp.route("/myproduct",methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def get_myproduct():
     user_id = get_jwt_identity()
     result_json = list()
@@ -70,32 +73,27 @@ def get_myproduct():
 
 
 @bp.route("/<string:username>/productlist", methods=["GET"])
-@jwt_required()
+# @jwt_required()
 def get_user_productlist(username):
-    page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
     
-    if not page_per:
-        raise error.InvalidParams()
     if not page:
         raise error.InvalidParams()
 
     result_json = list()
     try:
-        products = ProductModel.query.join(UserModel).filter(UserModel.username == username).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+        products = ProductModel.query.join(UserModel).filter(UserModel.username == username).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = 5)
         if not products:
             raise error.DBNotFound('Product')
         for product in products.items:
             product_json = dict()
+            product_json['product_id'] = product.product_id
             product_json['title'] = product.title
-            product_json['price'] = int(product.price)
-            product_json['status'] = product.status
             if product.product_imgs:
                 product_json['img'] = product.product_imgs[0].to_dict()['file_name']
             else:
                 product_json['img']  = None 
-            result_json.append(product_json)
-                
+            result_json.append(product_json)  
         return jsonify(result_json), 200
     except sqlalchemy.exc.OperationalError:
         raise error.DBConnectionError()
@@ -110,14 +108,6 @@ def get_productlist():
     page_per = int(request.args.get('page_per'))
     page = int(request.args.get('page'))
     list_type = int(request.args.get('type'))
-
-    # Initial 
-    # if not page_per:
-    #     page_per = 4
-    # if not page:
-    #     page = 1 
-    # if list_type is None:
-    #     list_type = 0
 
     try:
         result_json = list()
@@ -145,3 +135,40 @@ def get_productlist():
     except Exception as e:
         print(e)
 
+@bp.route("/<string:username>/favorite", methods=["GET"])
+# @jwt_required()
+def get_favoritelist(username):
+    page = int(request.args.get('page'))
+
+    if not page:
+        raise error.EmptyJSONError()
+    
+    if UserModel.check_by_username(username) == False:
+        raise error.DBConnectionError('User')
+    
+    # Get user_id 
+    user = UserModel(username=username)
+
+    try:
+        result_json = list()
+        # 이미지, 제목, 작성자, 가격
+        products = FavoriteModel.query.filter(user_id = user.user_id).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = 5)
+        if not products:
+            raise error.DBNotFound('product')
+        
+        for product in products.items:
+            product_json = dict()
+            product_json['title'] = product.title
+            product_json['author'] = username
+            product_json['price'] = product.price
+            if product.product_imgs:
+                product_json['img'] = product.product_imgs[0].to_dict()['file_name']
+            else:
+                product_json['img'] = None
+            result_json.append(product_json)
+        
+        return jsonify(result_json), 200 
+    except sqlalchemy.exc.OperationalError as e:
+        raise error.DBConnectionError()
+    except Exception as e:
+        print(e)

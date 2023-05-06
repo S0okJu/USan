@@ -1,4 +1,4 @@
-migrations/
+server/migrations/
 profile/
 upload/
 __pycache__/
