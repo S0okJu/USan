@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from init.init_db import init_db
 from resources import product, user,imgs, display,payment, profile
 from init.init_jwt import init_jwt
+from init.init_redis import init_redis
 from utils.error.custom_error import init_custom_error_handler
 
 TEST = False
