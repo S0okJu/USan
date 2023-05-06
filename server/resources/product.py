@@ -43,7 +43,7 @@ def get_product(product_id):
         raise error.DBConnectionError()
     
 @bp.route('/post',methods=["POST"])
-# @jwt_required()
+@jwt_required()
 def post_product():
     try:
         # TODO User check using JWT Token 

@@ -159,7 +159,7 @@ def get_favoritelist(username):
         for product in products.items:
             product_json = dict()
             product_json['title'] = product.title
-            product_json['author'] = username
+            product_json['author'] = product.author.username if product.author else None
             product_json['price'] = product.price
             if product.product_imgs:
                 product_json['img'] = product.product_imgs[0].to_dict()['file_name']
