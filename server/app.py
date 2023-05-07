@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 
 # custom 
 from init.init_db import init_db
-from resources import product, user,imgs, display,payment, profile
+from init.init_socket import init_socket, socketio
+from resources import product, user,imgs, display,payment, profile, distance
 from init.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
@@ -40,6 +41,9 @@ app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)
 app.config['JWT_SECRET_KEY'] = 'usan#112'
 init_jwt(app)
 
+# SocketIo
+init_socket(app)
+
 # Register the blueprint 
 app.register_blueprint(product.bp)
 app.register_blueprint(user.bp)
@@ -47,7 +51,8 @@ app.register_blueprint(imgs.bp)
 app.register_blueprint(display.bp)
 app.register_blueprint(payment.bp)
 app.register_blueprint(profile.bp)
+app.register_blueprint(distance.bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000, debug=True)
-    
+    socketio.run(app)

@@ -113,7 +113,7 @@ def get_productlist():
 
     try:
         result_json = list()
-        if int(list_type) == 0:
+        if list_type == 0:
             products = ProductModel.query.order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
             for product in products.items:
                 product_json = dict()
@@ -130,6 +130,25 @@ def get_productlist():
                 result_json.append(product_json)
             return jsonify(result_json), 200 
     
+        elif list_type == 1:
+            user_id = get_jwt_identity()
+            products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
+            for product in products.items:
+                product_json = dict()
+                product_json['title'] = product.title
+                product_json['price'] = int(product.price)
+                product_json['status'] = bool(product.status)
+                if product.product_imgs:
+                    product_json['img'] = product.product_imgs[0].to_dict()['file_name']
+                else:
+                    product_json['img']  = None 
+                result_json.append(product_json)
+
+            return jsonify(result_json), 200 
+
+        else:
+            raise error.InvalidParams()
+        
     except sqlalchemy.exc.OperationalError as e:
 
         raise error.DBConnectionError()

@@ -7,3 +7,4 @@ PyJWT
 flask_jwt_extended
 requests
 mysql-connector-python
+flask-socketio

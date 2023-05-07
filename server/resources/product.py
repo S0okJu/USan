@@ -119,7 +119,6 @@ def check_favorite():
     check_type = request.args.get('type')
     user_id = get_jwt_identity()
 
-
     product = FavoriteModel.query.filter_by(user_id = int(user_id) ,product_id = int(product_id))
     if product:
         if check_type == 0:
