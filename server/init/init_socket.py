@@ -1,7 +1,6 @@
 from flask_socketio import SocketIO
  
-socketio = None 
+socketio = SocketIO()
 
 def init_socket(app):
-    global socketio
-    socketio = SocketIO(app)
+    socketio.init_app(app)

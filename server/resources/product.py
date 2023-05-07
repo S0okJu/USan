@@ -114,7 +114,7 @@ def delete(product_id):
     return jsonify({"status_code" : 200, "message":"Success"})
 
 @bp.route("/favorite",methods=["GET"])
-# # # @jwt_required()
+@jwt_required()
 def check_favorite():
     product_id = request.args.get('product_id')
     check_type = request.args.get('type')
@@ -134,7 +134,7 @@ def check_favorite():
     return jsonify({"status_code" : 200, "message":"Success"}), 200 
 
 @bp.route('/status', methods=["GET"])
-# # @jwt_required()
+@jwt_required()
 def check_status():
     product_id = request.args.get('product_id')
     check_type = request.args.get('type')
