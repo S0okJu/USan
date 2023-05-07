@@ -121,7 +121,6 @@ def get_productlist():
                 product_json['title'] = product.title
                 product_json['author'] = product.author.username if product.author else None
                 product_json['modified_date'] = product.modified_date.strftime("%Y-%m-%d %H:%M:%S") 
-                product_json['favorite'] = product.favorite
                 product_json['status'] = product.status
                 product_json['price'] = product.price
                 if product.product_imgs:
