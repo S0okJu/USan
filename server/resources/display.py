@@ -89,6 +89,8 @@ def get_user_productlist(username):
             product_json = dict()
             product_json['product_id'] = product.product_id
             product_json['title'] = product.title
+            product_json['price'] = int(product.price)
+            product_json['status'] = product.status
             if product.product_imgs:
                 product_json['img'] = product.product_imgs[0].to_dict()['file_name']
             else:
