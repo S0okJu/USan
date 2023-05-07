@@ -58,7 +58,7 @@ def post_product():
         product_session = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
             created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            status=False,favorite=False)
+            status=False)
         rdb.session.add(product_session)
         rdb.session.commit()
         return jsonify({"status_code" : 200, "message":"Success"}), 200
