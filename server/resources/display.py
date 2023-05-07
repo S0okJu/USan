@@ -73,7 +73,7 @@ def get_myproduct():
 
 
 @bp.route("/<string:username>/productlist", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def get_user_productlist(username):
     page = int(request.args.get('page'))
     
@@ -104,7 +104,7 @@ def get_user_productlist(username):
 # @param page_per 한 페이지당 개수, page = page 인덱스 
 # @return 상품명, 사용자, 수정일 
 @bp.route("/productlist", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def get_productlist():
 
     page_per = int(request.args.get('page_per'))
@@ -156,7 +156,7 @@ def get_productlist():
         print(e)
 
 @bp.route("/<string:username>/favorite", methods=["GET"])
-# @jwt_required()
+@jwt_required()
 def get_favoritelist(username):
     page = int(request.args.get('page'))
 
