@@ -6,10 +6,9 @@ from dotenv import load_dotenv
 
 # custom 
 from init.init_db import init_db
-from init.init_socket import init_socket
+from init.init_socket import init_socket, socketio
 from resources import product, user,imgs, display,payment, profile, distance
 from init.init_jwt import init_jwt
-from init.init_redis import init_redis
 from utils.error.custom_error import init_custom_error_handler
 
 TEST = False
@@ -56,4 +55,4 @@ app.register_blueprint(distance.bp)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000, debug=True)
-    
+    socketio.run(app)
