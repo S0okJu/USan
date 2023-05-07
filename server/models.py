@@ -78,7 +78,6 @@ class ProductModel(rdb.Model):
             'content': self.content,
             'created_date': self.created_date,
             'modified_date': self.modified_date,
-            'favorite': self.favorite,
             'status': self.status,
             'author_id': self.author_id,
             'images': [img.file_name for img in self.product_imgs]

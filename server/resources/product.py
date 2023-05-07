@@ -34,7 +34,6 @@ def get_product(product_id):
         res_dict['author'] = author
         res_dict['content'] = q_dict['content']
         res_dict['price'] = q_dict['price']
-        res_dict['favorite'] = q_dict['favorite']
         res_dict['status'] = q_dict['status']
         res_dict['modified_date'] = q_dict['modified_date']
         return jsonify(res_dict),200
