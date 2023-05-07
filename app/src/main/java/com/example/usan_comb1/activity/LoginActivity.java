@@ -3,6 +3,7 @@ package com.example.usan_comb1.activity;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -22,6 +23,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// 로그인
 public class LoginActivity extends AppCompatActivity {
     private EditText EtEmail, EtPwd;
     private Button btnlgn, btnreg;
@@ -103,12 +105,14 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences sharedPrefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPrefs.edit();
                     editor.putString("access_token", result.getAccessToken());
-                    editor.putString("refresh_token", result.getRefreshToken());
                     editor.apply();
 
+                    // Profile Intent에 username 추가
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
-                    finish();
+
+                    Intent profileIntent = new Intent(LoginActivity.this, SalelistActivity.class);
+                    profileIntent.putExtra("username", result.getUsername());
                 } else {
                     Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show();
                 }

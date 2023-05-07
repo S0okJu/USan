@@ -10,8 +10,8 @@ public class LoginResponse {
     @SerializedName("access_token")
     private String access_token;
 
-    @SerializedName("refresh_token")
-    private String refresh_token;
+    @SerializedName("username")
+    private String username;
 
     public String getMessage() {
         return message;
@@ -21,8 +21,7 @@ public class LoginResponse {
         return access_token;
     }
 
-    public String getRefreshToken() {
-        return refresh_token;
-    }
+    // Username 추가
+    public String getUsername(){return username;}
 }
 

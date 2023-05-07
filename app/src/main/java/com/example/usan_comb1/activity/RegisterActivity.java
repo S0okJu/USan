@@ -19,6 +19,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// 회원가입
 public class RegisterActivity extends AppCompatActivity {
     private EditText EtPwd, EtName, EtEmail;
     private Button Btnreg;

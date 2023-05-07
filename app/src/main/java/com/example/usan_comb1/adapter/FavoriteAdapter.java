@@ -1,7 +1,6 @@
 package com.example.usan_comb1.adapter;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,62 +12,95 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.example.usan_comb1.FavoriteProduct;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.PostList;
 
 import java.util.ArrayList;
 
-public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder> {
+// 관심 목록 RecyclerView Adapter
+public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder>
+{
+    private ArrayList<PostList> dataArrayList;
+    private Activity activity;
 
-    private ArrayList<FavoriteProduct> mFavoriteProducts;
-    private Context mContext;
+    // Interface for item click listener
+    public interface OnItemClickListener {
+        void onItemClick(int position, PostList data);
+    }
 
-    public FavoriteAdapter(Context context, ArrayList<FavoriteProduct> favoriteProducts) {
-        mContext = context;
-        mFavoriteProducts = favoriteProducts;
+    private OnItemClickListener listener;
+
+    // Set item click listener
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+    public FavoriteAdapter(Activity activity, ArrayList<PostList> dataArrayList)
+    {
+        this.activity = activity;
+        this.dataArrayList = dataArrayList;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.item, parent, false);
+    public FavoriteAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
+    {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        FavoriteProduct favoriteProduct = mFavoriteProducts.get(position);
+    public void onBindViewHolder(@NonNull FavoriteAdapter.ViewHolder holder, int position)
+    {
+        PostList data = dataArrayList.get(position);
+        DownImage downImage = new DownImage();
 
-        holder.titleTextView.setText(favoriteProduct.getTitle());
-        holder.authorTextView.setText(favoriteProduct.getAuthor());
-        //holder.priceTextView.setText(String.valueOf(favoriteProduct.getPrice()));
+        if (downImage.getFilename() != null) {
+            Glide.with(activity)
+                    .load(data.getImg())
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .into(holder.coverImage);
+        } else {
+            // 이미지가 null인 경우, 기본 이미지 또는 에러 이미지를 설정해 줄 수 있습니다.
+            Glide.with(activity)
+                    .load(R.drawable.error)
+                    .into(holder.coverImage);
+        }
 
-        Glide.with(mContext)
-                .load(favoriteProduct.getImageUrl())
-                .placeholder(R.drawable.error)
-                .into(holder.coverImageView);
+        holder.txtTitle.setText(data.getTitle());
+        holder.txtAuthor.setText(data.getAuthor());
+
+        // 아이템 클릭 리스너를 설정합니다.
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(position, data);
+            }
+        });
     }
 
     @Override
-    public int getItemCount() {
-        return mFavoriteProducts.size();
+    public int getItemCount()
+    {
+
+        if(dataArrayList != null) {
+            return dataArrayList.size();
+        }
+        return 0;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder
+    {
+        ImageView coverImage;
+        TextView txtTitle, txtAuthor;
 
-        public ImageView coverImageView;
-        public TextView titleTextView;
-        public TextView authorTextView;
-        //public TextView priceTextView;
+        public ViewHolder(@NonNull View view)
+        {
+            super(view);
 
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            coverImageView = itemView.findViewById(R.id.adpt_coverImage);
-            titleTextView = itemView.findViewById(R.id.adpt_title);
-            authorTextView = itemView.findViewById(R.id.adpt_author);
+            coverImage = view.findViewById(R.id.adpt_coverImage);
+            txtTitle = view.findViewById(R.id.adpt_title);
+            txtAuthor = view.findViewById(R.id.adpt_author);
         }
     }
 }

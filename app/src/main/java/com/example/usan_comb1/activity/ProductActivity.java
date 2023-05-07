@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.example.usan_comb1.R;
 
+// 미정
 public class ProductActivity extends AppCompatActivity {
 
     @Override

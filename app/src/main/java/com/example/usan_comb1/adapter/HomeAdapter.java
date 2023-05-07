@@ -18,6 +18,7 @@ import com.example.usan_comb1.response.PostList;
 
 import java.util.ArrayList;
 
+// HomeFragment RecyclerView Adapter
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
 {
     private ArrayList<PostList> dataArrayList;

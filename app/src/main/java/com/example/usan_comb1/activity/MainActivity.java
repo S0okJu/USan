@@ -16,6 +16,7 @@ import com.example.usan_comb1.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+// 하단바, 플로팅 버튼
 public class MainActivity extends AppCompatActivity {
 
     // 하단바 구현을 위한 변수 선언

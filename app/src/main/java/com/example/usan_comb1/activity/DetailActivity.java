@@ -17,39 +17,50 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.usan_comb1.FavoriteProduct;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.adapter.CardAdapter;
 import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.response.PostResult;
+import com.example.usan_comb1.response.ProductResponse;
+import com.example.usan_comb1.response.RetroProduct;
 import com.google.android.material.appbar.MaterialToolbar;
+
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+// 상세페이지
 public class DetailActivity extends AppCompatActivity {
 
     private TextView tvTitle, tvPrice, tvDetail, tvAuthor;
+    private TextView price;
     private ProductService mProductService;
-    private boolean isFavorite = false;
+    public boolean isFavorite;
     private ViewPager viewPager;
     private int[] imageReslds = {R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg};
     private Integer productId;
+    private String username;
+    private String accessToken;
+    private static final String KEY_IS_FAVORITE = "is_favorite";
 
-    private SharedPreferences sharedPreferences; // 즐겨찾기 목록을 저장하는 SharedPreferences
+    private RecyclerView recyclerView;
+    private CardAdapter cardadapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
-
-        // SharedPreferences 초기화
-        sharedPreferences = getSharedPreferences("favorites", MODE_PRIVATE);
 
         tvTitle = findViewById(R.id.tv_title);
         tvPrice = findViewById(R.id.tv_price);
@@ -60,14 +71,42 @@ public class DetailActivity extends AppCompatActivity {
 
         productId = getIntent().getIntExtra("product_id", -1);
 
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
+
         Intent intent = getIntent();
+        username = intent.getStringExtra("username");
         if (intent != null) {
-            // product_id 값을 받아옵니다.
-            //int product_id = intent.getIntExtra("product_id", -1);
             if (productId != -1) {
                 checkData(productId);
             }
         }
+
+        int page_per = 10;
+        int page = 1;
+        Call<List<RetroProduct>> call = mProductService.getProductList("Bearer " + accessToken, username, page_per, page);
+        call.enqueue(new Callback<List<RetroProduct>>() {
+            @Override
+            public void onResponse(Call<List<RetroProduct>> call, Response<List<RetroProduct>> response) {
+                if (response.isSuccessful()) {
+                    generateDataList(response.body());
+                } else {
+                    Toast.makeText(DetailActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<RetroProduct>> call, Throwable t) {
+                Toast.makeText(DetailActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+
+        //하단바 가격을 나타내는 뷰 객체
+        price = findViewById(R.id.txtvprice);
+        mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
+
 
         // 제목, 가격, 설명 설정
         tvTitle.setText("상품 제목");
@@ -78,20 +117,17 @@ public class DetailActivity extends AppCompatActivity {
         ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageReslds);
         viewPager.setAdapter(adapter);
 
+
+        if (savedInstanceState != null) {
+            isFavorite = savedInstanceState.getBoolean(KEY_IS_FAVORITE);
+        } else {
+            isFavorite = false;
+        }
+
+        updateFavoriteButtonImage();
+
         // 즐겨찾기 버튼 초기화
         ImageView favoriteButton = findViewById(R.id.imgbtn);
-        isFavorite = sharedPreferences.getBoolean(String.valueOf(productId), false);
-
-
-        // SharedPreferences에서 product_id와 isFavorite 값을 읽어와서 favorite button의 상태를 설정합니다.
-        String key = String.valueOf(productId) + "_favorite";
-        boolean favorite = sharedPreferences.getBoolean(key, false);
-        isFavorite = favorite;
-        if (isFavorite) {
-            favoriteButton.setImageResource(R.drawable.select_ic_heart);
-        } else {
-            favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
-        }
 
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,7 +143,10 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }
         });
+
+        /*
         // 카드뷰 객체 생성
+
         CardView cardView1 = findViewById(R.id.card1);
         CardView cardView2= findViewById(R.id.card2);
 
@@ -131,6 +170,7 @@ public class DetailActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+         */
 
     }
 
@@ -141,18 +181,12 @@ public class DetailActivity extends AppCompatActivity {
 
     // 관심상품 목록에 추가하는 메서드
     public void addFavorite(Integer productId) {
-        //isFavorite = !isFavorite;
-        Call<Void> call = mProductService.setFavorite(productId);
+        Call<Void> call = mProductService.setFavorite("Bearer " + accessToken, productId);
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 // * body !=null 삭제
                 if (response.isSuccessful()) {
-                    // SharedPreferences에서 product_id와 isFavorite 값을 저장합니다.
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    String key = String.valueOf(productId) + "_favorite";
-                    editor.putBoolean(key, isFavorite);
-                    editor.apply();
                     showToast("관심물품으로 등록되었습니다.");
                 }
                 else {
@@ -171,15 +205,11 @@ public class DetailActivity extends AppCompatActivity {
     private void removeFavorite(Integer productId) {
         // 서버와 통신하여 즐겨찾기 목록에서 제거
         // Retrofit2
-        Call<Void> call = mProductService.unFavorite(productId);
+        Call<Void> call = mProductService.unFavorite("Bearer " + accessToken, productId);
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    // SharedPreferences에서 제거
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                    editor.remove(String.valueOf(productId));
-                    editor.apply();
                     showToast("관심물품에서 제거되었습니다.");
                 } else {
                     showToast("서버에서 정상적으로 처리되지 않았습니다.");
@@ -196,7 +226,8 @@ public class DetailActivity extends AppCompatActivity {
     // 상세페이지로 데이터 불러오기
     public void checkData(Integer productId) {
 
-        mProductService.getProduct(productId).enqueue(new Callback<PostResult>() {
+        mProductService.getProduct("Bearer " + accessToken, productId)
+                .enqueue(new Callback<PostResult>() {
             @Override
             public void onResponse(Call<PostResult> call, Response<PostResult> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -217,6 +248,28 @@ public class DetailActivity extends AppCompatActivity {
                 Toast.makeText(DetailActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+        @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_IS_FAVORITE, isFavorite);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        isFavorite = savedInstanceState.getBoolean(KEY_IS_FAVORITE);
+        updateFavoriteButtonImage();
+    }
+
+    private void updateFavoriteButtonImage() {
+        ImageView favoriteButton = findViewById(R.id.imgbtn);
+        if (isFavorite) {
+            favoriteButton.setImageResource(R.drawable.select_ic_heart);
+        } else {
+            favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
+        }
     }
 
     @Override
@@ -259,5 +312,14 @@ public class DetailActivity extends AppCompatActivity {
         public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
             container.removeView((View) object);
         }
+
+    }
+
+    private void generateDataList(List<RetroProduct> productList) {
+        recyclerView = findViewById(R.id.recyclerView);
+        cardadapter = new CardAdapter(this, productList);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(cardadapter);
     }
 }

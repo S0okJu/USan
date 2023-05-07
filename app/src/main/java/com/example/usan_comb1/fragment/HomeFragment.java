@@ -1,6 +1,8 @@
 package com.example.usan_comb1.fragment;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +40,7 @@ public class HomeFragment extends Fragment {
     private HomeAdapter adapter;
     private RecyclerView.LayoutManager layoutManager;
     FloatingActionButton fab;
+    private String accessToken;
 
     NestedScrollView nestedScrollView;
     ProgressBar progressBar;
@@ -60,6 +63,9 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+        SharedPreferences prefs = getActivity().getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
+
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
         nestedScrollView = view.findViewById(R.id.scroll_view);
@@ -75,9 +81,13 @@ public class HomeFragment extends Fragment {
             // 아이템을 클릭했을 때 다른 액티비티로 넘어가는 코드를 추가합니다.
 
             public void onItemClick(View view, int position, PostList data) {
-                Intent intent = new Intent(getActivity(), DetailActivity.class);
-                intent.putExtra("product_id", data.getProduct_id());// 넘어갈 데이터를 인텐트에 추가합니다.
-                startActivity(intent);
+                Intent intent = getActivity().getIntent();
+                String username = intent.getStringExtra("username");
+
+                Intent ProductIntent = new Intent(getActivity(), DetailActivity.class);
+                ProductIntent.putExtra("product_id", data.getProduct_id());// 넘어갈 데이터를 인텐트에 추가합니다.
+                ProductIntent.putExtra("username", username);
+                startActivity(ProductIntent);
             }
         });
 
@@ -117,7 +127,7 @@ public class HomeFragment extends Fragment {
     {
 
         ProductService productService = RetrofitClient.getProductService();
-        Call<String> call = productService.string_call();
+        Call<String> call = productService.string_call("Bearer " + accessToken);
         call.enqueue(new Callback<String>()
         {
             @Override
