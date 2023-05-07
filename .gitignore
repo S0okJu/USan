@@ -1,4 +1,6 @@
-migrations/
+server/migrations/
 profile/
 upload/
 __pycache__/
+server/__pycache__/
+server/init/__pycache__/
