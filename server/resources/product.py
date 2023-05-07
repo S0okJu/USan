@@ -104,7 +104,7 @@ def modify_product():
 def delete(product_id):
     # TODO User check using JWT Token 
     
-    p = ProductModel.query.get(product_id)
+    p = ProductModel.query.get(int(product_id))
     if not p:
         raise error.DBNotFound('Product')
     rdb.session.delete(p)
