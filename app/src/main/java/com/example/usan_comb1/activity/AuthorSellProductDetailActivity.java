@@ -51,6 +51,8 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_author_sell_product_detail);
+        SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
+        String accessToken = prefs.getString("access_token", "");
 
         if(savedInstanceState != null){
             mProductName = savedInstanceState.getString("productName");
@@ -73,7 +75,7 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
             // product_id 값을 받아옵니다.
             int productId = intent.getIntExtra("product_id", -1);
             if (productId != -1) {
-                checkData(productId);
+                checkData(accessToken, productId);
             }
         }
 
@@ -115,7 +117,7 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
         mProductPrice = savedInstanceState.getInt("productPrice");
     }
 
-    public void checkData(Integer productId) {
+    public void checkData(String accessToken, Integer productId) {
 
         // 서버 응답이 올 때까지 텍스트 뷰들의 텍스트를 초기화합니다.
         tvTitle.setText("");
@@ -127,7 +129,7 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
         SharedPreferences sharedPref = getSharedPreferences("user", Context.MODE_PRIVATE);
         int authorId = sharedPref.getInt("id", -1);
 
-        mProductService.getProductsByAuthor(authorId).enqueue(new Callback<List<PostResult>>() {
+        mProductService.getProductsByAuthor(accessToken, authorId).enqueue(new Callback<List<PostResult>>() {
             @Override
             public void onResponse(Call<List<PostResult>> call, Response<List<PostResult>> response) {
                 if (response.isSuccessful() && response.body() != null) {

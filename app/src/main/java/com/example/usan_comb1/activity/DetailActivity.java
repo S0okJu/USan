@@ -84,7 +84,7 @@ public class DetailActivity extends AppCompatActivity {
 
         int page_per = 10;
         int page = 1;
-        Call<List<RetroProduct>> call = mProductService.getProductList("Bearer " + accessToken, username, page_per, page);
+        Call<List<RetroProduct>> call = mProductService.getProductList(accessToken, username, page_per, page);
         call.enqueue(new Callback<List<RetroProduct>>() {
             @Override
             public void onResponse(Call<List<RetroProduct>> call, Response<List<RetroProduct>> response) {
@@ -181,7 +181,7 @@ public class DetailActivity extends AppCompatActivity {
 
     // 관심상품 목록에 추가하는 메서드
     public void addFavorite(Integer productId) {
-        Call<Void> call = mProductService.setFavorite("Bearer " + accessToken, productId);
+        Call<Void> call = mProductService.setFavorite(accessToken, productId);
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -205,7 +205,7 @@ public class DetailActivity extends AppCompatActivity {
     private void removeFavorite(Integer productId) {
         // 서버와 통신하여 즐겨찾기 목록에서 제거
         // Retrofit2
-        Call<Void> call = mProductService.unFavorite("Bearer " + accessToken, productId);
+        Call<Void> call = mProductService.unFavorite(accessToken, productId);
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -226,7 +226,7 @@ public class DetailActivity extends AppCompatActivity {
     // 상세페이지로 데이터 불러오기
     public void checkData(Integer productId) {
 
-        mProductService.getProduct("Bearer " + accessToken, productId)
+        mProductService.getProduct( accessToken, productId)
                 .enqueue(new Callback<PostResult>() {
             @Override
             public void onResponse(Call<PostResult> call, Response<PostResult> response) {

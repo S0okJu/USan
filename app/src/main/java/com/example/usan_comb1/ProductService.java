@@ -30,15 +30,15 @@ public interface ProductService {
 
     // 작성자가 등록한 모든 상품 정보를 가져오는 API
     @GET("products/author/{author_id}")
-    Call<List<PostResult>> getProductsByAuthor(@Path("product_id") Integer authorId);
+    Call<List<PostResult>> getProductsByAuthor(@Header("Authorization") String accessToken,@Path("author_id") Integer authorId);
 
     // 판매 완료 해제
     @GET("product/status&type=0")
-    Call<Void> unStatus(@Query("product_id") Integer productId);
+    Call<Void> unStatus(@Header("Authorization") String accessToken, @Query("product_id") Integer productId);
 
     // 판매 완료
     @GET("product/status?type=1")
-    Call<Void> setStatus(@Query("product_id") Integer productId);
+    Call<Void> setStatus(@Header("Authorization") String accessToken,@Query("product_id") Integer productId);
 
     // 관심 물건 등록 해제
     @GET("product/favorite?type=0")
@@ -50,11 +50,11 @@ public interface ProductService {
 
     // 관심 물건 목록
     @GET("/display/{username}/favorite")
-    Call<String> string_favorite(@Path("username") String username, @Query("page") Integer page);
+    Call<String> string_favorite(@Header("Authorization") String accessToken,@Path("username") String username, @Query("page") Integer page);
 
     // 이미지 다운로드
-    @GET("imgs/download/<product_id>/<filename>")
-    Call<ResponseBody> downloadImage(@Query("product_id") Integer productId, @Query("filename") String filename);
+    @GET("imgs/download/{product_id}/{filename}")
+    Call<ResponseBody> downloadImage(@Path("product_id") Integer productId, @Path("filename") String filename);
 
     // 페이지 별 상품 정보
     @GET("display/productlist?page_per=10&page=1&type=0")
@@ -70,11 +70,12 @@ public interface ProductService {
 
     // 상품 수정
     @POST("/product/modify")
-    Call<ResponseBody> updateProduct(@Query("id") Integer productId, @Body UpdateRequest updateProduct);
+    Call<ResponseBody> updateProduct(@Header("Authorization") String accessToken, @Query("id") Integer productId, @Body UpdateRequest updateProduct);
 
     // 상품 삭제
-    @GET("product/<product_id>")
-    Call<Void> deletePost(@Query("product_id") Integer productId);
+    // @query -> path
+    @GET("product/delete/{product_id}")
+    Call<Void> deletePost(@Header("Authorization") String accessToken, @Path("product_id") Integer productId);
 
     // 사용자 로그인
     @POST("/users/login")
