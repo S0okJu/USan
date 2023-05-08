@@ -127,7 +127,7 @@ public class HomeFragment extends Fragment {
     {
 
         ProductService productService = RetrofitClient.getProductService();
-        Call<String> call = productService.string_call("Bearer " + accessToken);
+        Call<String> call = productService.string_call(accessToken);
         call.enqueue(new Callback<String>()
         {
             @Override

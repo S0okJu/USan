@@ -104,7 +104,9 @@ public class LoginActivity extends AppCompatActivity {
                     // save access token and refresh token to SharedPreferences
                     SharedPreferences sharedPrefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPrefs.edit();
-                    editor.putString("access_token", result.getAccessToken());
+
+                    // Fix 처음부터 Bearer와 함께 추가
+                    editor.putString("access_token", "Bearer " +result.getAccessToken());
                     editor.apply();
 
                     // Profile Intent에 username 추가

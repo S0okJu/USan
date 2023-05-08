@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -68,6 +69,10 @@ public class FavoriteActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
+        // Authorization
+        SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
+        String accessToken = prefs.getString("access_token", "");
+
         // CustomAdapter의 아이템 클릭 리스너를 설정합니다.
         adapter.setOnItemClickListener(new FavoriteAdapter.OnItemClickListener() {
             // 아이템을 클릭했을 때 다른 액티비티로 넘어가는 코드를 추가합니다.
@@ -80,7 +85,7 @@ public class FavoriteActivity extends AppCompatActivity {
 
 
 
-        getData();
+        getData(accessToken);
 
         nestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener()
         {
@@ -90,18 +95,20 @@ public class FavoriteActivity extends AppCompatActivity {
                 if (scrollY == v.getChildAt(0).getMeasuredHeight() - v.getMeasuredHeight())
                 {
                     progressBar.setVisibility(View.VISIBLE);
-                    getData();
+                    getData(accessToken);
                 }
             }
         });
 
     }
 
-    private void getData()
+    private void getData(String accessToken)
     {
 
+
         ProductService productService = RetrofitClient.getProductService();
-        Call<String> call = productService.string_favorite(userName, productId);
+        //ERROR : page는 어떻게?
+        Call<String> call = productService.string_favorite(accessToken, userName, page);
         call.enqueue(new Callback<String>()
         {
             @Override

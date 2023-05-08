@@ -3,7 +3,9 @@ package com.example.usan_comb1.activity;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -33,6 +35,9 @@ public class UpdateActivity extends AppCompatActivity {
     private EditText ePrice;
 
     private UpdateRequest previousProduct; // 이전에 올린 게시글의 내용을 담을 변수
+    //Authorization
+    private SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
+    private String accessToken = prefs.getString("access_token", "");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +61,7 @@ public class UpdateActivity extends AppCompatActivity {
     private void getProduct(int productId) {
         ProductService productService = RetrofitClient.getProductService();
         UpdateRequest updateProduct = new UpdateRequest(0,"", "", "", "");  // UpdateProduct 객체 생성
-        Call<ResponseBody> call = productService.updateProduct(productId, updateProduct);
+        Call<ResponseBody> call = productService.updateProduct(accessToken, productId, updateProduct);
 
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -124,7 +129,7 @@ public class UpdateActivity extends AppCompatActivity {
 
         ProductService productService = RetrofitClient.getProductService();
 
-        Call<ResponseBody> call = productService.updateProduct(productId, product);
+        Call<ResponseBody> call = productService.updateProduct(accessToken, productId, product);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
