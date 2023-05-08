@@ -50,7 +50,7 @@ public interface ProductService {
 
     // 관심 물건 목록
     @GET("/display/{username}/favorite")
-    Call<String> string_favorite(@Header("Authorization") String accessToken,@Path("username") String username, @Query("page") Integer page);
+    Call<String> string_favorite(@Header("Authorization") String accessToken,@Path("username") String username);
 
     // 이미지 다운로드
     @GET("imgs/download/{product_id}/{filename}")
