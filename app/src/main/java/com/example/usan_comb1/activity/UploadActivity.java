@@ -1,5 +1,8 @@
 package com.example.usan_comb1.activity;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,15 +14,14 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.example.usan_comb1.AuthInterceptor;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.request.ProductRequest;
 import com.example.usan_comb1.response.ProductResponse;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -37,8 +39,7 @@ public class UploadActivity extends AppCompatActivity {
     private ProgressBar mProgressView;
 
     private String path;
-    private SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
-    private String accessToken = prefs.getString("access_token", "");
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,12 +136,19 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void uploadData(ProductRequest data) {
+        SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
+        String accessToken = prefs.getString("access_token", "");
 
-        mProductService.postProduct( data).enqueue(new Callback<ProductResponse>() {
+        mProductService.postProduct(accessToken, data).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ProductResponse result = response.body();
+                    // save access token and refresh token to SharedPreferences
+                    // SharedPreferences sharedPrefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+                    // SharedPreferences.Editor editor = sharedPrefs.edit();
+                    // editor.putString("access_token", result.getAccessToken());
+                    // editor.apply();
 
                     Toast.makeText(UploadActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                     showProgress(false);

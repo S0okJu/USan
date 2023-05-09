@@ -1,30 +1,41 @@
 package com.example.usan_comb1.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.usan_comb1.FavoriteProduct;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.adapter.CardAdapter;
+import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.response.PostResult;
+import com.example.usan_comb1.response.ProductResponse;
 import com.example.usan_comb1.response.RetroProduct;
+import com.google.android.material.appbar.MaterialToolbar;
 
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -46,7 +57,6 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CardAdapter cardadapter;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,11 +75,13 @@ public class DetailActivity extends AppCompatActivity {
         accessToken = prefs.getString("access_token", "");
         String username = prefs.getString("username","");
 
-//        if (intent != null) {
-//            if (productId != -1) {
-//                checkData(productId);
-//            }
-//        }
+        Intent intent = getIntent();
+        // username = intent.getStringExtra("username");
+        if (intent != null) {
+            if (productId != -1) {
+                checkData(productId);
+            }
+        }
 
         int page_per = 10;
         int page = 1;
@@ -217,29 +229,29 @@ public class DetailActivity extends AppCompatActivity {
 
         mProductService.getProduct( accessToken, productId)
                 .enqueue(new Callback<PostResult>() {
-            @Override
-            public void onResponse(Call<PostResult> call, Response<PostResult> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    PostResult product = response.body();
+                    @Override
+                    public void onResponse(Call<PostResult> call, Response<PostResult> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            PostResult product = response.body();
 
-                    tvTitle.setText(product.getPost_Title());
-                    tvPrice.setText(product.getPost_Price());
-                    tvDetail.setText(product.getPost_Content());
-                    tvAuthor.setText(product.getPost_Author());
+                            tvTitle.setText(product.getPost_Title());
+                            tvPrice.setText(product.getPost_Price());
+                            tvDetail.setText(product.getPost_Content());
+                            tvAuthor.setText(product.getPost_Author());
 
-                } else {
-                    Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
-                }
-            }
+                        } else {
+                            Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
+                        }
+                    }
 
-            @Override
-            public void onFailure(Call<PostResult> call, Throwable t) {
-                Toast.makeText(DetailActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onFailure(Call<PostResult> call, Throwable t) {
+                        Toast.makeText(DetailActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
-        @Override
+    @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(KEY_IS_FAVORITE, isFavorite);

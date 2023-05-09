@@ -66,7 +66,7 @@ public interface ProductService {
 
     // 상품 추가
     @POST("product/post")
-    Call<ProductResponse> postProduct(@Body ProductRequest request);
+    Call<ProductResponse> postProduct(@Header("Authorization") String accessToken, @Body ProductRequest request);
 
     // 상품 수정
     @POST("/product/modify")
