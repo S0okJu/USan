@@ -135,6 +135,7 @@ def get_productlist():
             products = ProductModel.query.filter(ProductModel.author_id == int(user_id)).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = page_per)
             for product in products.items:
                 product_json = dict()
+                product_json['product_id'] = product.product_id
                 product_json['title'] = product.title
                 product_json['price'] = int(product.price)
                 product_json['status'] = bool(product.status)
