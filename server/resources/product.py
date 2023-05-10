@@ -64,6 +64,7 @@ def post_product():
         return jsonify({"status_code" : 200, "message":"Success"}), 200
     
     except sqlalchemy.exc.SQLAlchemyError as e:
+        print(e)
         raise error.DBConnectionError()
 
 

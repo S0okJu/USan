@@ -34,16 +34,14 @@ rooms = set()
 @bp.route("/<int:product_id>/start", methods=["GET"])
 def make_room(product_id):
     room = product_id
-    socketio.join_room(room)
     rooms.add(room)
     print(f'Make {room} room completely!')    
 
     return jsonify({"msg":"Success"}), 200
 
 @socketio.on('location_data')
-@bp.route("/send",methods=["GET"])
 def handle_location_data(data):
-    room = int(request.args.get('room'))
+    room = int(data['room'])
     username = data['username']
     location = data['location']
     role = data['role']
