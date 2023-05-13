@@ -1,9 +1,6 @@
 package com.example.usan_comb1.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
@@ -107,14 +106,18 @@ public class LoginActivity extends AppCompatActivity {
 
                     // Fix 처음부터 Bearer와 함께 추가
                     editor.putString("access_token", "Bearer " +result.getAccessToken());
+
+                    // 사용자 username를 추가한다.
+                    editor.putString("username", result.getUsername());
                     editor.apply();
 
                     // Profile Intent에 username 추가
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
 
-                    Intent profileIntent = new Intent(LoginActivity.this, SalelistActivity.class);
-                    profileIntent.putExtra("username", result.getUsername());
+                    // Intent profileIntent = new Intent(LoginActivity.this, SalelistActivity.class);
+                    // profileIntent.putExtra("username", result.getUsername());
+
                 } else {
                     Toast.makeText(LoginActivity.this, "로그인 실패", Toast.LENGTH_SHORT).show();
                 }

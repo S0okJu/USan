@@ -1,7 +1,6 @@
 package com.example.usan_comb1.fragment;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,23 +8,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
-import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
-import com.example.usan_comb1.RetrofitClient;
-import com.example.usan_comb1.activity.FavoriteActivity;
-import com.example.usan_comb1.activity.ProfileActivity;
 import com.example.usan_comb1.activity.SalelistActivity;
-import com.example.usan_comb1.activity.UploadActivity;
 import com.example.usan_comb1.activity.UserActivity;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class UserFragment extends Fragment {
 
@@ -60,6 +48,7 @@ public class UserFragment extends Fragment {
 
                 Intent salelistIntent = new Intent(getActivity(), SalelistActivity.class);
                 salelistIntent.putExtra("username", username);
+                System.out.println("Fragment Salelist : "+ username);
                 startActivity(salelistIntent);
             }
         });

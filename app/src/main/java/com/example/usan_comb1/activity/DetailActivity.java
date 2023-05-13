@@ -46,7 +46,7 @@ public class DetailActivity extends AppCompatActivity {
     private TextView tvTitle, tvPrice, tvDetail, tvAuthor;
     private TextView price;
     private ProductService mProductService;
-    public boolean isFavorite = false;
+    public boolean isFavorite;
     private ViewPager viewPager;
     private int[] imageReslds = {R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg};
     private Integer productId;
@@ -117,6 +117,15 @@ public class DetailActivity extends AppCompatActivity {
         ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageReslds);
         viewPager.setAdapter(adapter);
 
+
+        if (savedInstanceState != null) {
+            isFavorite = savedInstanceState.getBoolean(KEY_IS_FAVORITE);
+        } else {
+            isFavorite = false;
+        }
+
+        updateFavoriteButtonImage();
+
         // 즐겨찾기 버튼 초기화
         ImageView favoriteButton = findViewById(R.id.imgbtn);
 
@@ -125,7 +134,7 @@ public class DetailActivity extends AppCompatActivity {
             public void onClick(View v) {
                 isFavorite = !isFavorite; // isFavorite 값을 반전시킵니다.
 
-                if (isFavorite == true) { // 현재 isFavorite 값이 true인 경우 관심상품으로 추가합니다.
+                if (isFavorite) { // 현재 isFavorite 값이 true인 경우 관심상품으로 추가합니다.
                     favoriteButton.setImageResource(R.drawable.select_ic_heart);
                     addFavorite(productId);
                 } else { // 현재 isFavorite 값이 false인 경우 관심상품에서 제거합니다.
@@ -134,7 +143,6 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }
         });
-
 
         /*
         // 카드뷰 객체 생성
@@ -230,15 +238,6 @@ public class DetailActivity extends AppCompatActivity {
                     tvDetail.setText(product.getPost_Content());
                     tvAuthor.setText(product.getPost_Author());
 
-                    ImageView favoriteButton = findViewById(R.id.imgbtn);
-
-                    if(product.isFavorite() == true) {
-                        favoriteButton.setImageResource(R.drawable.select_ic_heart);
-                    } else {
-                        favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
-                    }
-
-
                 } else {
                     Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
                 }
@@ -251,6 +250,27 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
+        @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(KEY_IS_FAVORITE, isFavorite);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        isFavorite = savedInstanceState.getBoolean(KEY_IS_FAVORITE);
+        updateFavoriteButtonImage();
+    }
+
+    private void updateFavoriteButtonImage() {
+        ImageView favoriteButton = findViewById(R.id.imgbtn);
+        if (isFavorite) {
+            favoriteButton.setImageResource(R.drawable.select_ic_heart);
+        } else {
+            favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
+        }
+    }
 
     @Override
     public void onBackPressed() {

@@ -40,6 +40,7 @@ public class UploadActivity extends AppCompatActivity {
 
     private String path;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -135,17 +136,19 @@ public class UploadActivity extends AppCompatActivity {
     }
 
     private void uploadData(ProductRequest data) {
+        SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
+        String accessToken = prefs.getString("access_token", "");
 
-        mProductService.postProduct(data).enqueue(new Callback<ProductResponse>() {
+        mProductService.postProduct(accessToken, data).enqueue(new Callback<ProductResponse>() {
             @Override
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ProductResponse result = response.body();
                     // save access token and refresh token to SharedPreferences
-                    SharedPreferences sharedPrefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
-                    SharedPreferences.Editor editor = sharedPrefs.edit();
-                    editor.putString("access_token", result.getAccessToken());
-                    editor.apply();
+                    // SharedPreferences sharedPrefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+                    // SharedPreferences.Editor editor = sharedPrefs.edit();
+                    // editor.putString("access_token", result.getAccessToken());
+                    // editor.apply();
 
                     Toast.makeText(UploadActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                     showProgress(false);
