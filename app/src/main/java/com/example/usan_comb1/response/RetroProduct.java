@@ -8,12 +8,22 @@ public class RetroProduct {
     @SerializedName("status") private boolean status;
     @SerializedName("img") private String img;
     @SerializedName("price") private Integer price;
+    @SerializedName("product_id") private Integer productId;
 
-    public RetroProduct(String title, boolean status, String img, Integer price) {
+    public RetroProduct(String title, boolean status, String img, Integer price, Integer productId) {
         this.title = title;
         this.status = status;
         this.img = img;
         this.price = price;
+        this.productId = productId;
+    }
+
+    public Integer getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Integer productId) {
+        this.productId = productId;
     }
 
     public String getTitle() {
