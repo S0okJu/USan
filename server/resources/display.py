@@ -15,7 +15,6 @@ from init.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg
 import utils.error.custom_error as error
-from utils.security.check import check_product, check_user 
 
 bp = Blueprint('display', __name__, url_prefix='/display')
 
@@ -95,6 +94,10 @@ def get_user_productlist(username):
                 product_json['img'] = product.product_imgs[0].to_dict()['file_name']
             else:
                 product_json['img']  = None 
+            related ={
+
+                ''
+            }
             result_json.append(product_json)  
         return jsonify(result_json), 200
     except sqlalchemy.exc.OperationalError:
@@ -186,6 +189,7 @@ def get_favoritelist(username):
                 product_json['img'] = product.product_imgs[0].to_dict()['file_name']
             else:
                 product_json['img'] = None
+            
             result_json.append(product_json)
         
         return jsonify(result_json), 200 

@@ -23,6 +23,7 @@ bp = Blueprint('product', __name__, url_prefix='/product')
 def get_product(product_id):
     try:
         question = ProductModel.query.get(product_id)
+        user_id = get_jwt_identity()
         if not question:
             raise error.DBNotFound('Product')
                 
@@ -36,6 +37,24 @@ def get_product(product_id):
         res_dict['price'] = q_dict['price']
         res_dict['status'] = q_dict['status']
         res_dict['modified_date'] = q_dict['modified_date']
+        fav = FavoriteModel.query.filter_by(product_id=int(product_id),user_id=int(user_id)).first()
+        if fav: 
+            res_dict['favorite'] =  fav.favorite
+        else:
+            res_dict['favorite'] = False
+        
+        # related
+        related_product = ProductModel.query.filter(ProductModel.author_id == int(user_id), ProductModel.product_id != int(product_id)).order_by(ProductModel.modified_date.desc()).limit(2).all()
+        realted_list = []
+        for related in related_product:
+            rproduct = dict()
+            rproduct['product_id'] = related.product_id 
+            rproduct['title'] = related.title
+            rproduct['price'] = related.price
+            realted_list.append(rproduct)
+        
+        res_dict['related'] = realted_list
+        # print(res_dict)
         return jsonify(res_dict),200
     
     except sqlalchemy.exc.SQLAlchemyError as e:
@@ -59,6 +78,9 @@ def post_product():
             price=int(obj['price']),address=obj['address'], content=obj['content'],
             created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             status=False)
+        fav_session= FavoriteModel(user_id = author_data.user_id, product=product_session,favorite=False)
+
+        rdb.session.add(fav_session)
         rdb.session.add(product_session)
         rdb.session.commit()
         return jsonify({"status_code" : 200, "message":"Success"}), 200
@@ -117,17 +139,23 @@ def delete(product_id):
 @jwt_required()
 def check_favorite():
     product_id = request.args.get('product_id')
-    check_type = request.args.get('type')
+    check_type = int(request.args.get('type'))
     user_id = get_jwt_identity()
 
     product = FavoriteModel.query.filter_by(user_id = int(user_id) ,product_id = int(product_id))
     if product:
-        if check_type == 0:
-            product.favorite = False
-        elif check_type == 1:
-            product.favorite = True
+        fav = FavoriteModel.query.filter_by(product_id=product_id, user_id = user_id).first()
+        if not fav:
+            if check_type == 1:
+                f = FavoriteModel(user_id=user_id, product_id = product_id, favorite=True)
+                rdb.session.add(f)
         else:
-            error.InvalidParams()
+            if check_type == 0:
+                fav.favorite = False
+            elif check_type == 1:
+                fav.favorite= True
+            else:
+                error.InvalidParams()
         rdb.session.commit()
 
     else:
