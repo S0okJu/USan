@@ -238,6 +238,15 @@ public class DetailActivity extends AppCompatActivity {
                     tvDetail.setText(product.getPost_Content());
                     tvAuthor.setText(product.getPost_Author());
 
+                    ImageView favoriteButton = findViewById(R.id.imgbtn);
+
+                    isFavorite = product.isFavorite();
+                    if (product.isFavorite() == true) {
+                        favoriteButton.setImageResource(R.drawable.select_ic_heart);
+                    } else {
+                        favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
+                    }
+
                 } else {
                     Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
                 }
@@ -250,18 +259,6 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-        @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(KEY_IS_FAVORITE, isFavorite);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        isFavorite = savedInstanceState.getBoolean(KEY_IS_FAVORITE);
-        updateFavoriteButtonImage();
-    }
 
     private void updateFavoriteButtonImage() {
         ImageView favoriteButton = findViewById(R.id.imgbtn);

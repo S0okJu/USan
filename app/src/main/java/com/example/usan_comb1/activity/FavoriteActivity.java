@@ -107,9 +107,7 @@ public class FavoriteActivity extends AppCompatActivity {
 
 
         ProductService productService = RetrofitClient.getProductService();
-        //ERROR : page는 어떻게?
-        int page = 10;
-        Call<String> call = productService.string_favorite(accessToken, userName, page);
+        Call<String> call = productService.string_favorite(accessToken, userName);
         call.enqueue(new Callback<String>()
         {
             @Override

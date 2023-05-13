@@ -12,12 +12,13 @@ import android.widget.ImageView;
 import androidx.fragment.app.Fragment;
 
 import com.example.usan_comb1.R;
+import com.example.usan_comb1.activity.FavoriteActivity;
 import com.example.usan_comb1.activity.SalelistActivity;
 import com.example.usan_comb1.activity.UserActivity;
 
 public class UserFragment extends Fragment {
 
-    private Button btnviewprf, btnsalelist;
+    private Button btnviewprf, btnsalelist, btnwishlist;
     private ImageView imageView;
 
     @SuppressLint("MissingInflatedId")
@@ -28,6 +29,7 @@ public class UserFragment extends Fragment {
 
 
         btnviewprf = view.findViewById(R.id.btnviewprf);
+        btnwishlist = view.findViewById(R.id.btnwishlist);
         btnsalelist = view.findViewById(R.id.btnsalelist);
         imageView = view.findViewById(R.id.imageView);
 
@@ -36,6 +38,20 @@ public class UserFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), UserActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        btnwishlist.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Intent 정보를 넘겨줌
+                Intent intent = getActivity().getIntent();
+                String username = intent.getStringExtra("username");
+
+                Intent wishlistIntent = new Intent(getActivity(), FavoriteActivity.class);
+                wishlistIntent.putExtra("username", username);
+                System.out.println("Fragment Wishlist : "+ username);
+                startActivity(wishlistIntent);
             }
         });
 
