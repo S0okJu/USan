@@ -1,9 +1,9 @@
-package com.example.usan_comb1;
+package com.example.usan_comb1.response;
 
 import com.google.gson.annotations.SerializedName;
 
 public class FavoriteProduct {
-    private String product_id;
+    private int product_id;
     private String title;
     private String author;
     private String img;
@@ -11,19 +11,10 @@ public class FavoriteProduct {
     @SerializedName("access_token")
     private String access_token;
 
-    /*
-    public FavoriteProduct(String product_id, String title, String author, String img) {
-        this.product_id = product_id;
-        this.title = title;
-        this.author = author;
-        this.img = img;
-    }
 
-     */
+    public int getProductId() { return product_id; }
 
-    public String getProductId() { return product_id; }
-
-    public void setProductId(String productId) { this.product_id = product_id; }
+    public void setProductId(int product_id) { this.product_id = product_id; }
 
     public String getTitle() { return title; }
 
@@ -35,7 +26,7 @@ public class FavoriteProduct {
 
     public String getImg() { return img; }
 
-    public void setImg(String ImageUrl) { this.img = img; }
+    public void setImg(String img) { this.img = img; }
 
     public String getAccessToken() { return access_token; }
 }

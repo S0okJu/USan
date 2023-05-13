@@ -2,7 +2,6 @@ package com.example.usan_comb1.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -11,28 +10,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
-import com.example.usan_comb1.FavoriteProduct;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.adapter.FavoriteAdapter;
-import com.example.usan_comb1.adapter.HomeAdapter;
+import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.PostList;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.gson.Gson;
+import com.example.usan_comb1.response.RetroProduct;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,16 +36,16 @@ import retrofit2.Response;
 // 관심목록
 public class FavoriteActivity extends AppCompatActivity {
 
+    private static final String TAG = "Favorite_Activity";
+
     private RecyclerView recyclerView;
     private FavoriteAdapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private String userName;
-    private Integer productId;
 
     NestedScrollView nestedScrollView;
     ProgressBar progressBar;
 
-    ArrayList<PostList> dataArrayList = new ArrayList<>();
+    private List<FavoriteProduct> favoriteList;
+    ArrayList<FavoriteProduct> dataArrayList = new ArrayList<>();
 
     private ProductService mProductService;
 
@@ -61,30 +56,60 @@ public class FavoriteActivity extends AppCompatActivity {
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
+        favoriteList = new ArrayList<>();
+
+        recyclerView = findViewById(R.id.recycler_view);
         nestedScrollView = findViewById(R.id.scroll_view);
         recyclerView = findViewById(R.id.recycler_view);
         progressBar = findViewById(R.id.progress_bar);
 
-        adapter = new FavoriteAdapter(FavoriteActivity.this, dataArrayList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new FavoriteAdapter(this, dataArrayList);
         recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Authorization
-        SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
         String accessToken = prefs.getString("access_token", "");
+        String username = prefs.getString("username", "");
 
         // CustomAdapter의 아이템 클릭 리스너를 설정합니다.
         adapter.setOnItemClickListener(new FavoriteAdapter.OnItemClickListener() {
             // 아이템을 클릭했을 때 다른 액티비티로 넘어가는 코드를 추가합니다.
-            public void onItemClick(int position, PostList data) {
+            public void onItemClick(int position, FavoriteProduct data) {
                 Intent intent = new Intent(FavoriteActivity.this, DetailActivity.class);
-                intent.putExtra("product_id", data.getProduct_id()); // 넘어갈 데이터를 인텐트에 추가합니다.
+                intent.putExtra("product_id", data.getProductId()); // 넘어갈 데이터를 인텐트에 추가합니다.
                 startActivity(intent);
             }
         });
 
+        int page = 1;
+        Call<List<FavoriteProduct>> call = mProductService.favorite_list(accessToken, username, page);
+        call.enqueue(new Callback<List<FavoriteProduct>>() {
+            @Override
+            public void onResponse(Call<List<FavoriteProduct>> call, Response<List<FavoriteProduct>> response) {
+                if(response.isSuccessful()) {
+                    List<FavoriteProduct> favoriteProducts = response.body();
+                    System.out.println(favoriteProducts.get(0).toString());
+                    if (favoriteProducts != null) {
+                        Log.d(TAG, "Received " + favoriteProducts.size() + " favoriteProducts from server.");
+                        favoriteList.clear();
+                        favoriteList.addAll(favoriteProducts);
+                        adapter.notifyDataSetChanged();
+                    } else {
+                        Log.d(TAG, "Received null product list from server.");
+                    }
+                } else {
+                    Toast.makeText(FavoriteActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
 
+            @Override
+            public void onFailure(Call<List<FavoriteProduct>> call, Throwable t) {
 
+            }
+        });
+
+/*
         getData(accessToken);
 
         nestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener()
@@ -104,14 +129,13 @@ public class FavoriteActivity extends AppCompatActivity {
 
     private void getData(String accessToken)
     {
-
-
+        int page = 1;
         ProductService productService = RetrofitClient.getProductService();
-        Call<String> call = productService.string_favorite(accessToken, userName);
-        call.enqueue(new Callback<String>()
+        Call<List<FavoriteProduct>> call = productService.string_favorite(accessToken, username, page);
+        call.enqueue(new Callback<List<FavoriteProduct>>()
         {
             @Override
-            public void onResponse(Call<String> call, Response<String> response)
+            public void onResponse(Call<List<FavoriteProduct>> call, Response<List<FavoriteProduct>> response)
             {
                 if (response.isSuccessful() && response.body() != null)
                 {
@@ -129,7 +153,7 @@ public class FavoriteActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t)
+            public void onFailure(Call<List<FavoriteProduct>> call, Throwable t)
             {
                 Log.e("에러 : ", t.getMessage());
             }
@@ -143,11 +167,11 @@ public class FavoriteActivity extends AppCompatActivity {
             try
             {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                PostList data = new PostList();
+                FavoriteProduct data = new FavoriteProduct();
                 data.setImg(jsonObject.getString("img"));
                 data.setTitle(jsonObject.getString("title"));
                 data.setAuthor(jsonObject.getString("author"));
-                data.setProduct_id(jsonObject.getInt("product_id"));
+                data.setProductId(jsonObject.getInt("product_id"));
                 dataArrayList.add(data);
             }
             catch (JSONException e)
@@ -156,5 +180,8 @@ public class FavoriteActivity extends AppCompatActivity {
             }
         }
         adapter.notifyDataSetChanged(); // Adapter에 데이터 변경을 알려줌
+    }
+
+ */
     }
 }

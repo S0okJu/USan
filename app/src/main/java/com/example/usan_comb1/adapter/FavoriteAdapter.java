@@ -14,19 +14,23 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.request.DownImage;
+import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.PostList;
+import com.example.usan_comb1.response.RetroProduct;
 
 import java.util.ArrayList;
+import java.util.List;
 
 // 관심 목록 RecyclerView Adapter
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder>
 {
-    private ArrayList<PostList> dataArrayList;
+    private List<FavoriteProduct> favoriteList;
+    private ArrayList<FavoriteProduct> dataArrayList;
     private Activity activity;
 
     // Interface for item click listener
     public interface OnItemClickListener {
-        void onItemClick(int position, PostList data);
+        void onItemClick(int position, FavoriteProduct data);
     }
 
     private OnItemClickListener listener;
@@ -36,7 +40,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         this.listener = listener;
     }
 
-    public FavoriteAdapter(Activity activity, ArrayList<PostList> dataArrayList)
+    public FavoriteAdapter(Activity activity, ArrayList<FavoriteProduct> dataArrayList)
     {
         this.activity = activity;
         this.dataArrayList = dataArrayList;
@@ -53,7 +57,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull FavoriteAdapter.ViewHolder holder, int position)
     {
-        PostList data = dataArrayList.get(position);
+        FavoriteProduct data = dataArrayList.get(position);
         DownImage downImage = new DownImage();
 
         if (downImage.getFilename() != null) {

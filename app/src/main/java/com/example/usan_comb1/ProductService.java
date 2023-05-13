@@ -4,6 +4,7 @@ import com.example.usan_comb1.request.LoginData;
 import com.example.usan_comb1.request.ProductRequest;
 import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.request.UpdateRequest;
+import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.LoginResponse;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.ProductResponse;
@@ -50,7 +51,7 @@ public interface ProductService {
 
     // 관심 물건 목록
     @GET("/display/{username}/favorite")
-    Call<String> string_favorite(@Header("Authorization") String accessToken,@Path("username") String username);
+    Call<List<FavoriteProduct>> favorite_list(@Header("Authorization") String accessToken, @Path("username") String username, @Query("page") int page);
 
     // 이미지 다운로드
     @GET("imgs/download/{product_id}/{filename}")
