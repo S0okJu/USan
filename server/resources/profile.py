@@ -13,7 +13,6 @@ from init.init_db import rdb
 import utils.color as msg
 from utils.changer import res_msg
 import utils.error.custom_error as error
-from utils.security.check import check_product, check_user 
 
 bp = Blueprint('profile', __name__, url_prefix='/profile')
 

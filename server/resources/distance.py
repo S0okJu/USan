@@ -5,7 +5,7 @@ import json
 from flask import request,Response, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import sqlalchemy.exc
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO, Namespace, emit
 
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -14,32 +14,48 @@ from init.init_db import rdb
 from init.init_socket import socketio
 import utils.error.custom_error as error
 
-bp = Blueprint('location', __name__, url_prefix='/location')
+bp = Blueprint('location', __name__)
 
+
+@bp.route("/<string:username>", methods=["POST"])
+def post_location(username):
+
+    user = UserModel.check_by_username(username)
+    if user == False:
+        raise error.DBNotFound("User")
+    
+    body = request.get_json()
+    if not body:
+        raise error.EmptyJSONError()
+
+    
+@socketio.on("connect")
+def handle_connect():
+    print("Client Conenct!")
+    
 rooms = set()
 
 @bp.route("/<int:product_id>/start", methods=["GET"])
 def make_room(product_id):
     room = product_id
-    socketio.join_room(room)
     rooms.add(room)
     print(f'Make {room} room completely!')    
 
     return jsonify({"msg":"Success"}), 200
 
 @socketio.on('location_data')
-@bp.route("/send",methods=["GET"])
 def handle_location_data(data):
-    room = int(request.args.get('room'))
+    room = int(data['room'])
     username = data['username']
     location = data['location']
-    role = data['role']
+    role = int(data['role'])
 
     # 위치 정보를 합산하고 결과 데이터 생성
     integrated_data = integrate_location_data(room, username, location, role)
 
     # 합산된 데이터를 방에 속한 구매자와 판매자에게 전송
-    emit('integrated_data', integrated_data, room=room)
+    # Room 생략
+    emit('integrated_data', integrated_data, broadcast=True)
 
 def integrate_location_data(room, username, location, role):
     # 위치 정보를 합산하는 로직을 구현

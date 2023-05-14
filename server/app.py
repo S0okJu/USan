@@ -16,6 +16,7 @@ TEST = False
 app = Flask(__name__)
 app.app_context().push()
 
+
 # Error 
 init_custom_error_handler(app=app)
 
@@ -52,6 +53,7 @@ app.register_blueprint(display.bp)
 app.register_blueprint(payment.bp)
 app.register_blueprint(profile.bp)
 app.register_blueprint(distance.bp)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=6000, debug=True)
