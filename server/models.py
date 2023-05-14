@@ -114,6 +114,8 @@ class FavoriteModel(rdb.Model):
     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
     product = rdb.relationship("ProductModel", backref="favorite_product")
     favorite =  rdb.Column(rdb.Boolean, nullable=False, default=False)
+    created_date = rdb.Column(rdb.DateTime(), nullable=False)
+    modified_date = rdb.Column(rdb.DateTime(), nullable=False)
 
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'

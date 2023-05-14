@@ -147,13 +147,15 @@ def check_favorite():
         fav = FavoriteModel.query.filter_by(product_id=product_id, user_id = user_id).first()
         if not fav:
             if check_type == 1:
-                f = FavoriteModel(user_id=user_id, product_id = product_id, favorite=True)
+                f = FavoriteModel(user_id=user_id, product_id = product_id, favorite=True, created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
                 rdb.session.add(f)
         else:
             if check_type == 0:
                 fav.favorite = False
+                fav.modified_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             elif check_type == 1:
                 fav.favorite= True
+                fav.modified_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             else:
                 error.InvalidParams()
         rdb.session.commit()

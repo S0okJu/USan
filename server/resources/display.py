@@ -78,30 +78,28 @@ def get_user_productlist(username):
     
     if not page:
         raise error.InvalidParams()
+    
+    user = UserModel.query.filter_by(username=username).first()
+    if not user:
+        raise error.DBNotFound('User')
 
     result_json = list()
     try:
-        products = ProductModel.query.join(UserModel).filter(UserModel.username == username).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = 5)
+        products = FavoriteModel.query.filter_by(user=user, favorite=True).order_by(FavoriteModel.modified_date.desc()).paginate(page= page, per_page = 5)
         if not products:
             raise error.DBNotFound('Product')
         for product in products.items:
-            product_json = dict()
-            product_json['product_id'] = product.product_id
-            product_json['title'] = product.title
-            product_json['price'] = int(product.price)
-            product_json['status'] = product.status
-            if product.product_imgs:
-                product_json['img'] = product.product_imgs[0].to_dict()['file_name']
-            else:
-                product_json['img']  = None 
-            related ={
-
-                ''
+            product_json = {
+                'product_id': product.product_id,
+                'title': product.title,
+                'price': int(product.price),
+                'status': product.status,
+                'img': product.product_imgs[0].to_dict()['file_name'] if product.product_imgs else None
             }
             result_json.append(product_json)  
         return jsonify(result_json), 200
-    except sqlalchemy.exc.OperationalError:
-        raise error.DBConnectionError()
+    except sqlalchemy.exc.OperationalError as e:
+        print(e)
 
 # 상품 조회 (개수별)
 # @param page_per 한 페이지당 개수, page = page 인덱스 
