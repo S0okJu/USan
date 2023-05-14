@@ -45,7 +45,7 @@ public class FavoriteActivity extends AppCompatActivity {
     ProgressBar progressBar;
 
     private List<FavoriteProduct> favoriteList;
-    ArrayList<FavoriteProduct> dataArrayList = new ArrayList<>();
+    //ArrayList<FavoriteProduct> dataArrayList = new ArrayList<>();
 
     private ProductService mProductService;
 
@@ -63,7 +63,10 @@ public class FavoriteActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         progressBar = findViewById(R.id.progress_bar);
 
-        adapter = new FavoriteAdapter(this, dataArrayList);
+        //adapter = new FavoriteAdapter(this, dataArrayList);
+        //recyclerView.setAdapter(adapter);
+
+        adapter = new FavoriteAdapter(this, favoriteList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -87,7 +90,7 @@ public class FavoriteActivity extends AppCompatActivity {
         call.enqueue(new Callback<List<FavoriteProduct>>() {
             @Override
             public void onResponse(Call<List<FavoriteProduct>> call, Response<List<FavoriteProduct>> response) {
-                if(response.isSuccessful()) {
+                if (response.isSuccessful()) {
                     List<FavoriteProduct> favoriteProducts = response.body();
                     System.out.println(favoriteProducts.get(0).toString());
                     if (favoriteProducts != null) {
@@ -101,6 +104,7 @@ public class FavoriteActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(FavoriteActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                 }
+                progressBar.setVisibility(View.GONE);
             }
 
             @Override
@@ -108,6 +112,10 @@ public class FavoriteActivity extends AppCompatActivity {
 
             }
         });
+
+
+    }
+}
 
 /*
         getData(accessToken);
@@ -182,6 +190,7 @@ public class FavoriteActivity extends AppCompatActivity {
         adapter.notifyDataSetChanged(); // Adapter에 데이터 변경을 알려줌
     }
 
- */
+
     }
 }
+ */

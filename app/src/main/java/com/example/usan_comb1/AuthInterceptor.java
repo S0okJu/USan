@@ -32,7 +32,7 @@ public class AuthInterceptor implements Interceptor {
 }
 
 class Main {
-    private static final String BASE_URL = "http://13.124.53.124:53070/";
+    private static final String BASE_URL = "http://13.124.53.124:55620/";
 
     public static void main(String[] args) {
         String accessToken = "myAccessToken";

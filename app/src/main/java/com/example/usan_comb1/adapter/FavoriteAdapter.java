@@ -25,7 +25,7 @@ import java.util.List;
 public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHolder>
 {
     private List<FavoriteProduct> favoriteList;
-    private ArrayList<FavoriteProduct> dataArrayList;
+    //private ArrayList<FavoriteProduct> dataArrayList;
     private Activity activity;
 
     // Interface for item click listener
@@ -40,10 +40,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         this.listener = listener;
     }
 
-    public FavoriteAdapter(Activity activity, ArrayList<FavoriteProduct> dataArrayList)
+    public FavoriteAdapter(Activity activity, List<FavoriteProduct> favoriteList)
     {
         this.activity = activity;
-        this.dataArrayList = dataArrayList;
+        this.favoriteList = favoriteList;
     }
 
     @NonNull
@@ -57,10 +57,10 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     @Override
     public void onBindViewHolder(@NonNull FavoriteAdapter.ViewHolder holder, int position)
     {
-        FavoriteProduct data = dataArrayList.get(position);
+        FavoriteProduct data = favoriteList.get(position);
         DownImage downImage = new DownImage();
 
-        if (downImage.getFilename() != null) {
+        if (data.getImg() != null) {
             Glide.with(activity)
                     .load(data.getImg())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -87,8 +87,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public int getItemCount()
     {
 
-        if(dataArrayList != null) {
-            return dataArrayList.size();
+        if(favoriteList != null) {
+            return favoriteList.size();
         }
         return 0;
     }
