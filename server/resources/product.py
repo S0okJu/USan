@@ -76,7 +76,7 @@ def post_product():
                 
         product_session = ProductModel(title=obj['title'], author=author_data,
             price=int(obj['price']),address=obj['address'], content=obj['content'],
-            created_date= datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), modified_date=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            created_date= datetime.datetime.now(), modified_date=datetime.datetime.now(),
             status=False)
         fav_session= FavoriteModel(user_id = author_data.user_id, product=product_session,favorite=False)
 
@@ -152,10 +152,10 @@ def check_favorite():
         else:
             if check_type == 0:
                 fav.favorite = False
-                fav.modified_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                fav.modified_date = datetime.datetime.now()
             elif check_type == 1:
                 fav.favorite= True
-                fav.modified_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                fav.modified_date = datetime.datetime.now()
             else:
                 error.InvalidParams()
         rdb.session.commit()

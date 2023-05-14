@@ -10,12 +10,6 @@ class UserModel(rdb.Model): # User -> UserModel로 수정
     username = rdb.Column(rdb.String(80), unique=True, nullable=False)
     email = rdb.Column(rdb.String(120), unique=True, nullable=False)
     password = rdb.Column(rdb.String(256), nullable=False)
-
-    def __init__(self, username, email, password):
-        self.username = username
-        self.email = email
-        self.password = password
-
     def to_dict(self):
         return {
             'user_id': self.user_id,
@@ -114,8 +108,8 @@ class FavoriteModel(rdb.Model):
     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
     product = rdb.relationship("ProductModel", backref="favorite_product")
     favorite =  rdb.Column(rdb.Boolean, nullable=False, default=False)
-    created_date = rdb.Column(rdb.DateTime(), nullable=False)
-    modified_date = rdb.Column(rdb.DateTime(), nullable=False)
+    created_date = rdb.Column(rdb.DateTime, default=datetime.now())
+    modified_date = rdb.Column(rdb.DateTime, default=datetime.now())
 
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'

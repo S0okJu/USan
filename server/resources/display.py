@@ -6,6 +6,7 @@ from flask import request,Response, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import sqlalchemy.exc
 from sqlalchemy import and_
+from sqlalchemy.orm import joinedload
 
 
 # * User defined
@@ -169,29 +170,39 @@ def get_favoritelist(username):
         raise error.DBConnectionError('User')
     
     # Get user_id 
-    user = UserModel(username=username)
+    user = UserModel.query.filter_by(username=username).first()
 
     try:
         result_json = list()
         # 이미지, 제목, 작성자, 가격
-        products = FavoriteModel.query.filter(user_id = user.user_id).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = 5)
+        products = (
+            FavoriteModel.query
+            .join(ProductModel)
+            .filter(FavoriteModel.user == user, FavoriteModel.favorite == True)
+            .order_by(FavoriteModel.modified_date.desc())
+            .paginate(page=page, per_page=5)
+        )
+        
+
         if not products:
             raise error.DBNotFound('product')
         
-        for product in products.items:
+        for p in products.items:
+            product = p.product
             product_json = dict()
             product_json['title'] = product.title
             product_json['author'] = product.author.username if product.author else None
-            product_json['price'] = product.price
+            product_json['price'] = int(product.price)
             if product.product_imgs:
                 product_json['img'] = product.product_imgs[0].to_dict()['file_name']
             else:
                 product_json['img'] = None
+
+            print(product_json)
             
             result_json.append(product_json)
         
         return jsonify(result_json), 200 
     except sqlalchemy.exc.OperationalError as e:
         raise error.DBConnectionError()
-    except Exception as e:
-        print(e)
+    print(2)
