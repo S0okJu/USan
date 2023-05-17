@@ -158,6 +158,7 @@ def get_productlist():
     except Exception as e:
         print(e)
 
+# 관심  목ㅗ 
 @bp.route("/<string:username>/favorite", methods=["GET"])
 @jwt_required()
 def get_favoritelist(username):
@@ -193,6 +194,13 @@ def get_favoritelist(username):
             product_json['title'] = product.title
             product_json['author'] = product.author.username if product.author else None
             product_json['price'] = int(product.price)
+            
+            f = FavoriteModel.query.filter_by(user_id=user, product_id=product.product_id)
+            if f:
+                product_json['favorite'] = f.favorite
+            else:
+                product_json['favorite'] = bool(False)
+                
             if product.product_imgs:
                 product_json['img'] = product.product_imgs[0].to_dict()['file_name']
             else:
