@@ -86,16 +86,16 @@ def get_user_productlist(username):
 
     result_json = list()
     try:
-        products = FavoriteModel.query.filter_by(user=user).order_by(FavoriteModel.modified_date.desc()).paginate(page= page, per_page = 5)
+        products = ProductModel.query.filter_by(author=user).order_by(ProductModel.modified_date.desc()).paginate(page= page, per_page = 5)
         if not products:
             raise error.DBNotFound('Product')
         for p in products.items:
             product_json = {
                 'product_id': p.product_id,
-                'title': p.product.title,
-                'price': int(p.product.price),
-                'status': bool(p.product.status),
-                'img': p.product.product_imgs.file.to_dict()['file_name'] if p.product.product_imgs else None
+                'title': p.title,
+                'price': int(p.price),
+                'status': bool(p.status),
+                'img': p.product_imgs.file.to_dict()['file_name'] if p.product_imgs else None
             }
             result_json.append(product_json)  
         return jsonify(result_json), 200
