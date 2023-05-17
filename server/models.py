@@ -111,6 +111,8 @@ class FavoriteModel(rdb.Model):
     created_date = rdb.Column(rdb.DateTime, default=datetime.now())
     modified_date = rdb.Column(rdb.DateTime, default=datetime.now())
 
+
+
 class UserRefreshToken(rdb.Model):
     __tablename__ = 'UserToken'
     refresh_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True)
