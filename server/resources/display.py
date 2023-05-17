@@ -89,13 +89,13 @@ def get_user_productlist(username):
         products = FavoriteModel.query.filter_by(user=user, favorite=True).order_by(FavoriteModel.modified_date.desc()).paginate(page= page, per_page = 5)
         if not products:
             raise error.DBNotFound('Product')
-        for product in products.items:
+        for p in products.items:
             product_json = {
-                'product_id': product.product_id,
-                'title': product.title,
-                'price': int(product.price),
-                'status': product.status,
-                'img': product.product_imgs[0].to_dict()['file_name'] if product.product_imgs else None
+                'product_id': p.product_id,
+                'title': p.product.title,
+                'price': int(p.product.price),
+                'status': bool(p.product.status),
+                'img': p.product.product_imgs.file.to_dict()['file_name'] if p.product.product_imgs else None
             }
             result_json.append(product_json)  
         return jsonify(result_json), 200
