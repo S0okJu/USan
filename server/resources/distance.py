@@ -1,5 +1,6 @@
 import os, sys
 import json
+from collections import defaultdict
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
@@ -32,13 +33,13 @@ def post_location(username):
 @socketio.on("connect")
 def handle_connect():
     print("Client Conenct!")
-    
-rooms = set()
+r = set()    
+rooms = defaultdict(lambda: {'buyer': None, 'seller': None})
 
 @bp.route("/<int:product_id>/start", methods=["GET"])
 def make_room(product_id):
     room = product_id
-    rooms.add(room)
+    r.add(room)
     print(f'Make {room} room completely!')    
 
     return jsonify({"msg":"Success"}), 200
@@ -50,37 +51,30 @@ def handle_location_data(data):
     location = data['location']
     role = int(data['role'])
 
-    # 위치 정보를 합산하고 결과 데이터 생성
-    integrated_data = integrate_location_data(room, username, location, role)
-
-    # 합산된 데이터를 방에 속한 구매자와 판매자에게 전송
-    # Room 생략
-    emit('integrated_data', integrated_data, broadcast=True)
-
-def integrate_location_data(room, username, location, role):
-    # 위치 정보를 합산하는 로직을 구현
-    # 예시: 구매자와 판매자의 위치 정보를 합산하여 통합 데이터 생성
-    integrated_data = {
-        'room': room,
-        'buyer': None,
-        'seller': None
-    }
-
+    # 위치 정보를 업데이트하고 결과 데이터 생성
     if role == 0:
-        integrated_data['buyer'] = {
+        rooms[room]['buyer'] = {
             'username': username,
             'location': location
         }
     elif role == 1:
-        integrated_data['seller'] = {
+        rooms[room]['seller'] = {
             'username': username,
             'location': location
         }
 
-    return integrated_data
+    # 모든 위치 데이터가 도착하면 통합 데이터를 생성하여 전송
+    if rooms[room]['buyer'] is not None and rooms[room]['seller'] is not None:
+        integrated_data = {
+            'room': room,
+            'buyer': rooms[room]['buyer'],
+            'seller': rooms[room]['seller'],
+        }
+        emit('integrated_data', integrated_data, broadcast=True)
 
 
-@bp.route("/<int:product>/finish",methods=["GET"])
+
+@bp.route("/<int:product_id>/finish",methods=["GET"])
 def finish_room(product_id):
     room_name = product_id
     socketio.leave_room(room_name)

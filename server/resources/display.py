@@ -86,7 +86,7 @@ def get_user_productlist(username):
 
     result_json = list()
     try:
-        products = FavoriteModel.query.filter_by(user=user, favorite=True).order_by(FavoriteModel.modified_date.desc()).paginate(page= page, per_page = 5)
+        products = FavoriteModel.query.filter_by(user=user).order_by(FavoriteModel.modified_date.desc()).paginate(page= page, per_page = 5)
         if not products:
             raise error.DBNotFound('Product')
         for p in products.items:
