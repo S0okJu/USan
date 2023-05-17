@@ -71,7 +71,7 @@ def get_myproduct():
     except Exception as e:
         print(e)
 
-
+# 판매내역
 @bp.route("/<string:username>/productlist", methods=["GET"])
 @jwt_required()
 def get_user_productlist(username):
