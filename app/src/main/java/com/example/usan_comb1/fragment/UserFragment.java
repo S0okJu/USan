@@ -1,13 +1,16 @@
 package com.example.usan_comb1.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
@@ -18,8 +21,13 @@ import com.example.usan_comb1.activity.UserActivity;
 
 public class UserFragment extends Fragment {
 
-    private Button btnviewprf, btnsalelist, btnwishlist;
+    private Button btnviewprf, btnsalelist, btnwishlist, btnimageup;
     private ImageView imageView;
+    private TextView tvname;
+
+    private String username;
+    private String accessToken;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -28,10 +36,26 @@ public class UserFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_user, container, false);
 
 
+        btnimageup = view.findViewById(R.id.btnimageup);
         btnviewprf = view.findViewById(R.id.btnviewprf);
         btnwishlist = view.findViewById(R.id.btnwishlist);
         btnsalelist = view.findViewById(R.id.btnsalelist);
         imageView = view.findViewById(R.id.imageView);
+        tvname = view.findViewById(R.id.name);
+
+        SharedPreferences prefs = getActivity().getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
+        username = prefs.getString("username", "");
+
+        tvname.setText(username);
+
+        btnimageup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent intent = new Intent(getActivity(), UserActivity.class);
+                //startActivity(intent);
+            }
+        });
 
         btnviewprf.setOnClickListener(new View.OnClickListener() {
             @Override
