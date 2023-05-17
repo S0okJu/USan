@@ -7,6 +7,7 @@ public class FavoriteProduct {
     private String title;
     private String author;
     private String img;
+    private boolean favorite;
 
     @SerializedName("access_token")
     private String access_token;
@@ -29,4 +30,8 @@ public class FavoriteProduct {
     public void setImg(String img) { this.img = img; }
 
     public String getAccessToken() { return access_token; }
+
+    public boolean isFavorite() { return favorite; }
+
+    public void setFavorite(boolean favorite) { this.favorite = favorite; }
 }

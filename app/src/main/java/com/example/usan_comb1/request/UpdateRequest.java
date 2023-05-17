@@ -47,5 +47,5 @@ public class UpdateRequest {
     }
 
     // UpdateProduct 객체 생성 (매개변수가 있는 생성자 사용)
-    UpdateRequest updateProduct = new UpdateRequest(0,"", "", "", "");
+    //UpdateRequest updateProduct = new UpdateRequest(0,"", "", "", "");
 }

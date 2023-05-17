@@ -113,8 +113,8 @@ public class FavoriteActivity extends AppCompatActivity {
             }
         });
 
-
     }
+
 }
 
 /*

@@ -23,7 +23,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/title"
+                    android:id="@+id/fav_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="상품 명"
@@ -31,25 +31,23 @@
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.501"
+                    app:layout_constraintHorizontal_bias="0.404"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.393" />
+                    app:layout_constraintVertical_bias="0.294" />
 
                 <TextView
-                    android:id="@+id/status"
-                    android:layout_width="62dp"
-                    android:layout_height="24dp"
-                    android:text="status"
+                    android:id="@+id/fav_author"
+                    android:layout_width="82dp"
+                    android:layout_height="27dp"
+                    android:layout_marginEnd="176dp"
+                    android:layout_marginBottom="68dp"
+                    android:text="작성자"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.456"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.115" />
+                    app:layout_constraintEnd_toEndOf="parent" />
 
                 <TextView
-                    android:id="@+id/price"
+                    android:id="@+id/fav_price"
                     android:layout_width="82dp"
                     android:layout_height="27dp"
                     android:layout_marginEnd="49dp"
@@ -59,7 +57,7 @@
                     app:layout_constraintEnd_toEndOf="parent" />
 
                 <ImageView
-                    android:id="@+id/image"
+                    android:id="@+id/fav_image"
                     android:layout_width="109dp"
                     android:layout_height="103dp"
                     android:scaleType="fitXY"
@@ -76,21 +74,18 @@
                     app:riv_tile_mode="clamp" />
 
                 <ImageButton
-                    android:id="@+id/btn_favorite"
+                    android:id="@+id/fav_btn"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="10dp"
-                    android:layout_marginStart="170dp"
                     android:layout_marginEnd="30dp"
                     android:layout_weight="1"
                     android:background="#00FF0000"
-                    android:src="@drawable/unselect_ic_heart"
+                    android:src="@drawable/select_ic_heart"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.761"
-                    app:layout_constraintStart_toEndOf="@+id/title"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="0.105" />
+                    app:layout_constraintVertical_bias="0.157" />
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

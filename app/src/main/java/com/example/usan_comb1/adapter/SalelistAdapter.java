@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.activity.UpdateActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +65,7 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
 
             // 상품명과 가격, 상태를 출력하는 코드 추가
             holder.tvName.setText(product.getTitle());
-            holder.tvPrice.setText(String.valueOf(product.getPrice())); // 수정된 코드
+            holder.tvPrice.setText(String.valueOf(product.getPrice()) + "원"); // 수정된 코드
             holder.tvStatus.setText(String.valueOf(product.getStatus()));
 
             // 삭제 버튼 클릭 이벤트 처리
@@ -124,12 +125,15 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
             }
         });
 
-        // 업데이트 버튼 클릭 이벤트 처리
+        // 수정 버튼 클릭 이벤트 처리
         holder.btnupdate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 업데이트 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
                 // 예: 데이터 업데이트 작업 수행 및 결과 처리
+
+                Intent intent = new Intent(activity, UpdateActivity.class);
+                activity.startActivity(intent);
             }
         });
 

@@ -57,6 +57,11 @@ public class UploadActivity extends AppCompatActivity {
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
+        // Authorization
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+        String accessToken = prefs.getString("access_token", "");
+        String username = prefs.getString("username", "");
+
         // clickListeners(); 이미지
     }
 
@@ -144,12 +149,6 @@ public class UploadActivity extends AppCompatActivity {
             public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     ProductResponse result = response.body();
-                    // save access token and refresh token to SharedPreferences
-                    // SharedPreferences sharedPrefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
-                    // SharedPreferences.Editor editor = sharedPrefs.edit();
-                    // editor.putString("access_token", result.getAccessToken());
-                    // editor.apply();
-
                     Toast.makeText(UploadActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
                     showProgress(false);
                     finish();

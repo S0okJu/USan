@@ -5,8 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -33,11 +35,10 @@ public class UpdateActivity extends AppCompatActivity {
     private EditText eContent;
     private EditText eAddress;
     private EditText ePrice;
+    private Integer productId;
+    private String username;
 
     private UpdateRequest previousProduct; // 이전에 올린 게시글의 내용을 담을 변수
-    //Authorization
-    private SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
-    private String accessToken = prefs.getString("access_token", "");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,18 +50,32 @@ public class UpdateActivity extends AppCompatActivity {
         eAddress = (EditText) findViewById(R.id.updateAddress);
         ePrice = (EditText) findViewById(R.id.updatePrice);
 
+        productId = getIntent().getIntExtra("product_id", -1);
 
-        // 이전에 올린 게시글의 내용 가져오기
-        int productId = getIntent().getIntExtra("productId", -1);
-        if (productId != -1) {
-            getProduct(productId);
+        Intent intent = getIntent();
+        username = intent.getStringExtra("username");
+
+        if (intent != null) {
+            if (productId != -1) {
+                getProduct(productId);
+            }
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.action_bar_menu, menu);
+        return true;
     }
 
     // 서버에서 이전에 올린 게시글의 내용을 가져오는 메소드
     private void getProduct(int productId) {
+        //Authorization
+        SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
+        String accessToken = prefs.getString("access_token", "");
+
         ProductService productService = RetrofitClient.getProductService();
-        UpdateRequest updateProduct = new UpdateRequest(0,"", "", "", "");  // UpdateProduct 객체 생성
+        UpdateRequest updateProduct = new UpdateRequest(productId,"", "", "", "");  // UpdateProduct 객체 생성
         Call<ResponseBody> call = productService.updateProduct(accessToken, productId, updateProduct);
 
         call.enqueue(new Callback<ResponseBody>() {
@@ -103,53 +118,7 @@ public class UpdateActivity extends AppCompatActivity {
             }
         });
     }
-    // 수정 버튼 클릭 시 호출되는 메소드
-    public void onUpdateButtonClick(View view) {
 
-        if (previousProduct == null) {
-            Toast.makeText(this, "이전에 올린 게시글 정보를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // 수정할 게시글의 ID
-        int productId = previousProduct.getProduct_id();
-
-        // EditText에서 입력한 값 가져오기
-        String productTitle = eTitle.getText().toString();
-        String productContent = eContent.getText().toString();
-        String address = eAddress.getText().toString();
-        String price = ePrice.getText().toString();
-
-        // 수정할 내용을 담은 Product 객체 생성
-        UpdateRequest product = new UpdateRequest(0,"", "", "", "");
-        product.setTitle(productTitle);
-        product.setContent(productContent);
-        product.setAddress(address);
-        product.setPrice(price);
-
-        ProductService productService = RetrofitClient.getProductService();
-
-        Call<ResponseBody> call = productService.updateProduct(accessToken, productId, product);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    // 수정 성공 처리
-                    showUpdateSuccessDialog();
-                } else {
-                    // 서버 오류 처리
-                    Toast.makeText(UpdateActivity.this, "상품 정보를 수정하지 못했습니다.", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // 네트워크 오류 처리
-                Toast.makeText(UpdateActivity.this, "네트워크 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-            }
-
-        });
-    }
 
     private void showUpdateSuccessDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
