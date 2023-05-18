@@ -138,7 +138,7 @@ def delete(product_id):
 @bp.route("/favorite",methods=["GET"])
 @jwt_required()
 def check_favorite():
-    product_id = request.args.get('product_id')
+    product_id = int(request.args.get('product_id'))
     check_type = int(request.args.get('type'))
     user_id = get_jwt_identity()
 
