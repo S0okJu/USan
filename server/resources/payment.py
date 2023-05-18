@@ -22,18 +22,16 @@ REDIRECT_URI = 'http://192.168.50.188:6000/payment/callback'
 URI_BASE = 'https://testapi.openbanking.or.kr/oauth/2.0'
 
 # Sample로 남겨둠
-AUTH_CODE='CNKriKDdTrIM76lzuQqzAKT7qpxPru'
-SAMPLE_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAxMDI3NjYxIiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2OTA1OTgyNzQsImp0aSI6ImYyMzYzMTA5LTQ4OGItNDFmYi1hYjM5LTY5ZDNiMTRjMmQxYyJ9.ldi1RWJaX9FEw8D2WcRBzqGnL0Iwy6-3sKXa2dX0_aQ"
-SAMPLE_REFRESH_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAxMDI3NjYxIiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2OTE0NjIyNzQsImp0aSI6IjQ3NGVkN2QyLTVjZWMtNGQ4NC04NTdjLTg2NWM4MGFkYWI2MSJ9.0-IR_LVpTKYC9lntxkEgUAmy3SPJWvxaL7v6yANYDUM"
-SAMPLE_SEQ = "1101027661"
-BANK_CODE = "M202300646"
+
 
 bp = Blueprint('payment', __name__, url_prefix='/payment')
 
 @bp.route('/auth',methods=["POST"])
 # @jwt_required()
 def authorization():
+    # https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id=1d1099e6-8c17-4ac3-956c-2e9bd6039c19&redirect_uri=http://192.168.50.188:6000/payment/callback&scope=login+inquiry+transfer&state=12345678901234567890124456729112&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N
     auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N'
+    print(auth_url)
     print(auth_url)
     try:
         authorization_redirect = requests.Request('GET', auth_url).prepare()
