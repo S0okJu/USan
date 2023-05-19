@@ -18,18 +18,19 @@ from models import PaymentRefreshToken
 CLIENT_ID = '1d1099e6-8c17-4ac3-956c-2e9bd6039c19'
 CLIENT_PASSWORD = 'e51b7de9-9647-4760-8707-e77e7a53bce6'
 STATE_CODE = '12345678901234567890124456729112'
-REDIRECT_URI = 'http://192.168.50.188:6000/payment/callback'
+REDIRECT_URI = 'http://127.0.0.1:6000/payment/callback'
 URI_BASE = 'https://testapi.openbanking.or.kr/oauth/2.0'
 
 # Sample로 남겨둠
-
+CODE='lLwhSqxQcgS1vMWQLfjBHfa5JyXh8e'
 
 bp = Blueprint('payment', __name__, url_prefix='/payment')
 
 @bp.route('/auth',methods=["POST"])
 # @jwt_required()
 def authorization():
-    # https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id=1d1099e6-8c17-4ac3-956c-2e9bd6039c19&redirect_uri=http://192.168.50.188:6000/payment/callback&scope=login+inquiry+transfer&state=12345678901234567890124456729112&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N
+    # https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id=1d1099e6-8c17-4ac3-956c-2e9bd6039c19&redirect_uri=http://127.0.0.1:6000/payment/callback&scope=login+inquiry+transfer&state=12345678901234567890124456729112&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N
+    
     auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N'
     print(auth_url)
     print(auth_url)
@@ -56,14 +57,14 @@ def callback():
     token_url = f"{URI_BASE}/token"
     data = {
         'grant_type': 'authorization_code',
-        'code': authorization_code,
+        'code': CODE,
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_PASSWORD,
         'redirect_uri': REDIRECT_URI
     }
     token_response = requests.post(token_url, data=data)
     print(token_response)
-
+    return jsonify(token_response.json()),200
 
 
 # 사용자 인증 정보 요청 

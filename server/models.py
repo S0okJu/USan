@@ -36,17 +36,19 @@ class UserModel(rdb.Model): # User -> UserModel로 수정
         else:
             return True
 
-# class UserProfileModel(rdb.Model):
-#     __tablename__ = 'ProfileImage'
-#     profile_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
-#     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'))
-#     profile_image = rdb.Column(rdb.String(255), nullable=False)
+class UserProfileModel(rdb.Model):
+    __tablename__ = 'ProfileImage'
+    profile_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+    user = rdb.relationship("UserModel", backref="user_profile")
+    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'))
+    filename = rdb.Column(rdb.String(255), nullable=False, default = None)
 
-#     def __init__(self, user_id, profile_image):
-#         self.user_id = user_id
-#         self.profile_image = profile_image
-
-
+    def to_dict(self):
+        return {
+            'profile_id': self.profile_id,
+            'filename': self.filename,
+            'user_id': self.user_id
+    }
 #편집 마지막   
 class ProductModel(rdb.Model):
     __tablename__ = 'Product'
