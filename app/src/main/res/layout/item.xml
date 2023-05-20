@@ -48,6 +48,17 @@
             android:paddingTop="65dp"
             android:text="author" />
 
+        <TextView
+            android:id="@+id/adpt_price"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="121dp"
+            android:layout_toRightOf="@+id/adpt_author"
+            android:lines="1"
+            android:paddingTop="65dp"
+            android:text="price" />
+
 
     </RelativeLayout>
 

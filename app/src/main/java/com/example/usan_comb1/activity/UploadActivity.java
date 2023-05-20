@@ -5,11 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -21,6 +24,10 @@ import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.request.ProductRequest;
 import com.example.usan_comb1.response.ProductResponse;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -29,16 +36,16 @@ import retrofit2.Response;
 // 상품 추가 Activity
 public class UploadActivity extends AppCompatActivity {
     //private ImageView mImage;
-    private EditText mTitle;
-    private EditText mAuthor;
-    private EditText mContent;
-    private EditText mAddress;
-    private EditText mPrice;
+    private EditText mTitle, mContent, mAddress, mPrice;
+    private Button btnAddress;
     private ProductService mProductService;
+    private ProductRequest.Address addressObj;
 
     private ProgressBar mProgressView;
 
     private String path;
+
+    private String username;
 
 
     @Override
@@ -48,10 +55,10 @@ public class UploadActivity extends AppCompatActivity {
 
         //mImage = (ImageView) findViewById(R.id.uploadimg);
         mTitle = (EditText) findViewById(R.id.uploadTitle);
-        mAuthor = (EditText) findViewById(R.id.uploadAuthor);
         mContent = (EditText) findViewById(R.id.uploadContent);
         mAddress = (EditText) findViewById(R.id.uploadAddress);
         mPrice = (EditText) findViewById(R.id.uploadPrice);
+        btnAddress = (Button) findViewById(R.id.AddressBtn);
 
         mProgressView = (ProgressBar) findViewById(R.id.product_progress);
 
@@ -60,9 +67,10 @@ public class UploadActivity extends AppCompatActivity {
         // Authorization
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
         String accessToken = prefs.getString("access_token", "");
-        String username = prefs.getString("username", "");
+        username = prefs.getString("username", "");
 
         // clickListeners(); 이미지
+
     }
 
     @Override
@@ -83,16 +91,44 @@ public class UploadActivity extends AppCompatActivity {
 
     private void saveData() {
         mTitle.setError(null);
-        mAuthor.setError(null);
+        //mAuthor.setError(null);
         mContent.setError(null);
         mAddress.setError(null);
         mPrice.setError(null);
 
         String title = mTitle.getText().toString();
-        String author = mAuthor.getText().toString();
+        String author = username;
         String content = mContent.getText().toString();
         String address = mAddress.getText().toString();
         String price = mPrice.getText().toString();
+
+
+        btnAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Geocoder geocoder = new Geocoder(UploadActivity.this, Locale.getDefault());
+                try {
+                    List<Address> addresses = geocoder.getFromLocationName(address, 1);
+                    if (addresses.size() > 0) {
+                        Address locationAddress = addresses.get(0);
+                        String name = address;
+                        double latitude = locationAddress.getLatitude();
+                        double longitude = locationAddress.getLongitude();
+
+                        ProductRequest.Address addressObj = new ProductRequest.Address(name, latitude, longitude); // addressObj 변수를 선언 및 초기화
+                        addressObj.setName(locationAddress.getAddressLine(0));
+                        addressObj.setLatitude(latitude);
+                        addressObj.setLongitude(longitude);
+
+                        showProgress(true);
+                    } else {
+                        showToast("위치를 찾을 수 없습니다.");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
         boolean cancel = false;
         View focusView = null;
@@ -101,13 +137,6 @@ public class UploadActivity extends AppCompatActivity {
         if (title.isEmpty()) {
             mTitle.setError("제목을 입력해주세요.");
             focusView = mTitle;
-            cancel = true;
-        }
-
-        // 작성자의 유효성 검사
-        if (author.isEmpty()) {
-            mAuthor.setError("작성자를 입력해주세요.");
-            focusView = mAuthor;
             cancel = true;
         }
 
@@ -135,8 +164,8 @@ public class UploadActivity extends AppCompatActivity {
         if (cancel) {
             focusView.requestFocus();
         } else {
-            uploadData(new ProductRequest(title, author, content, address, price));
-            showProgress(true);
+                uploadData(new ProductRequest(title, author, content, addressObj, price));
+                showProgress(true);
         }
     }
 
@@ -167,6 +196,12 @@ public class UploadActivity extends AppCompatActivity {
     private void showProgress(boolean show) {
         mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
+
+    // 토스트 메시지를 출력하는 메서드
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
 
 
     /* 이미지 관련

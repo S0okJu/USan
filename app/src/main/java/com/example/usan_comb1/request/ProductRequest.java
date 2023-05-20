@@ -15,7 +15,7 @@ public class ProductRequest {
     private String content;
 
     @SerializedName("address")
-    private String address;
+    private Address address;
 
     @SerializedName("price")
     private String price;
@@ -44,11 +44,9 @@ public class ProductRequest {
         this.content = content;
     }
 
-    public String getAddress() {
-        return address;
-    }
+    public Address getAddress() { return address; }
 
-    public void setAddress(String address) {
+    public void setAddress(Address address) {
         this.address = address;
     }
 
@@ -60,11 +58,40 @@ public class ProductRequest {
         this.price = price;
     }
 
-    public ProductRequest(String title, String author, String content, String address, String price) {
+    public ProductRequest(String title, String author, String content, Address address, String price) {
         this.title = title;
         this.author = author;
         this.content = content;
         this.address = address;
         this.price = price;
+    }
+
+    public static class Address {
+        @SerializedName("name")
+        private String name;
+
+        @SerializedName("latitude")
+        private double latitude;
+
+        @SerializedName("longitude")
+        private double longitude;
+
+        public String getName() { return name; }
+
+        public void setName(String name) { this.name = name; }
+
+        public double getLatitude() { return latitude; }
+
+        public void setLatitude(double latitude) { this.latitude = latitude; }
+
+        public double getLongitude() { return longitude; }
+
+        public void setLongitude(double longitude) { this.longitude = longitude; }
+
+        public Address(String name, double latitude, double longitude) {
+            this.name = name;
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
     }
 }

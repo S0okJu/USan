@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
@@ -35,6 +36,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private TextView tvTitle, tvPrice, tvDetail, tvAuthor;
     private TextView price;
+    CardView profile_cardview;
     private ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
@@ -53,9 +55,10 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         tvTitle = findViewById(R.id.tv_title);
-        tvPrice = findViewById(R.id.tv_price);
+        tvPrice = findViewById(R.id.txtvprice);
         tvDetail = findViewById(R.id.tv_detail);
         tvAuthor = findViewById(R.id.tv_author);
+        profile_cardview = findViewById(R.id.profile_cardView);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
@@ -71,6 +74,14 @@ public class DetailActivity extends AppCompatActivity {
                 checkData(productId);
             }
         }
+
+        profile_cardview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DetailActivity.this, OtherProfileActivity.class);
+                startActivity(intent);
+            }
+        });
 
         int page_per = 10;
         int page = 1;
@@ -92,9 +103,6 @@ public class DetailActivity extends AppCompatActivity {
         });
 
 
-
-        //하단바 가격을 나타내는 뷰 객체
-        price = findViewById(R.id.txtvprice);
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
 
@@ -218,35 +226,35 @@ public class DetailActivity extends AppCompatActivity {
 
         mProductService.getProduct( accessToken, productId)
                 .enqueue(new Callback<PostResult>() {
-            @Override
-            public void onResponse(Call<PostResult> call, Response<PostResult> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    PostResult product = response.body();
+                    @Override
+                    public void onResponse(Call<PostResult> call, Response<PostResult> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            PostResult product = response.body();
 
-                    tvTitle.setText(product.getPost_Title());
-                    tvPrice.setText(product.getPost_Price());
-                    tvDetail.setText(product.getPost_Content());
-                    tvAuthor.setText(product.getPost_Author());
+                            tvTitle.setText(product.getPost_Title());
+                            tvPrice.setText(product.getPost_Price()+"원");
+                            tvDetail.setText(product.getPost_Content());
+                            tvAuthor.setText(product.getPost_Author());
 
-                    ImageView favoriteButton = findViewById(R.id.imgbtn);
+                            ImageView favoriteButton = findViewById(R.id.imgbtn);
 
-                    isFavorite = product.isFavorite();
-                    if (product.isFavorite() == true) {
-                        favoriteButton.setImageResource(R.drawable.select_ic_heart);
-                    } else {
-                        favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
+                            isFavorite = product.isFavorite();
+                            if (product.isFavorite() == true) {
+                                favoriteButton.setImageResource(R.drawable.select_ic_heart);
+                            } else {
+                                favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
+                            }
+
+                        } else {
+                            Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
-                } else {
-                    Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<PostResult> call, Throwable t) {
-                Toast.makeText(DetailActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
-            }
-        });
+                    @Override
+                    public void onFailure(Call<PostResult> call, Throwable t) {
+                        Toast.makeText(DetailActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
 

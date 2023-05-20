@@ -99,14 +99,13 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         holder.btnFavorite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                productId = data.getProductId(); // productId 값을 저장합니다.
 
-                productId = data.getProductId();
-
-                isFavorite = !isFavorite; // isFavorite 값을 반전시킵니다.
-                if (isFavorite) { // 현재 isFavorite 값이 true인 경우 관심상품에서 제거합니다.
+                isFavorite = !isFavorite;
+                if (isFavorite) {
                     holder.btnFavorite.setImageResource(R.drawable.unselect_ic_heart);
                     removeFavorite(productId);
-                } else { // 현재 isFavorite 값이 false인 경우 관심상품으로 다시 추가합니다.
+                } else {
                     holder.btnFavorite.setImageResource(R.drawable.select_ic_heart);
                     addFavorite(productId);
                 }

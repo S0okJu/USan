@@ -34,6 +34,7 @@
 
                 <!-- 새로운 CardView 추가 -->
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/profile_cardView"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
@@ -70,14 +71,6 @@
                     android:gravity="center"
                     android:text="제목"
                     android:textSize="30sp" />
-
-                <TextView
-                    android:id="@+id/tv_price"
-                    android:layout_width="match_parent"
-                    android:layout_height="42dp"
-                    android:gravity="right"
-                    android:text="가격(원)"
-                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tv_detail"

@@ -167,6 +167,7 @@ public class HomeFragment extends Fragment {
                 data.setImg(jsonObject.getString("img"));
                 data.setTitle(jsonObject.getString("title"));
                 data.setAuthor(jsonObject.getString("author"));
+                data.setPrice(jsonObject.getString("price"));
                 data.setProduct_id(jsonObject.getInt("product_id"));
                 dataArrayList.add(data);
             }

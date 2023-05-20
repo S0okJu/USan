@@ -12,7 +12,7 @@ public class PostList implements Serializable {
     @SerializedName("product_id")
     private Integer product_id;
     private String title;
-    //private String price;
+    private String price;
     private String author;
     private boolean status;
     private boolean favorite;
@@ -25,7 +25,7 @@ public class PostList implements Serializable {
 
     public String getTitle() { return title; }
 
-    //public String getPrice() { return price; }
+    public String getPrice() { return price; }
 
     public String getAuthor() { return author; }
 
@@ -41,6 +41,8 @@ public class PostList implements Serializable {
     public void setProduct_id(int product_id) { this.product_id = product_id; }
 
     public void setTitle(String title) { this.title = title; }
+
+    public void setPrice(String price) { this.price = price; }
 
     public void setAuthor(String author) { this.author = author; }
 

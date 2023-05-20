@@ -3,7 +3,7 @@ package com.example.usan_comb1.response;
 import com.google.gson.annotations.SerializedName;
 
 public class FavoriteProduct {
-    private int product_id;
+    private Integer product_id;
     private String title;
     private String author;
     private String img;
@@ -13,9 +13,9 @@ public class FavoriteProduct {
     private String access_token;
 
 
-    public int getProductId() { return product_id; }
+    public Integer getProductId() { return product_id; }
 
-    public void setProductId(int product_id) { this.product_id = product_id; }
+    public void setProductId(Integer product_id) { this.product_id = product_id; }
 
     public String getTitle() { return title; }
 

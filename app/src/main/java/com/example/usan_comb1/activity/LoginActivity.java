@@ -104,11 +104,18 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPreferences sharedPrefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharedPrefs.edit();
 
+                    // Check if the username has changed
+                    String storedUsername = sharedPrefs.getString("username", "");
+                    String newUsername = result.getUsername();
+                    if (!newUsername.equals(storedUsername)) {
+                        // Clear the previous username
+                        editor.remove("username"); }
+
                     // Fix 처음부터 Bearer와 함께 추가
                     editor.putString("access_token", "Bearer " +result.getAccessToken());
 
                     // 사용자 username를 추가한다.
-                    editor.putString("username", result.getUsername());
+                    editor.putString("username", newUsername);
                     editor.apply();
 
                     // Profile Intent에 username 추가
