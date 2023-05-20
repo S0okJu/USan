@@ -22,8 +22,10 @@ REDIRECT_URI = 'http://127.0.0.1:6000/payment/callback'
 URI_BASE = 'https://testapi.openbanking.or.kr/oauth/2.0'
 
 # Sample로 남겨둠
-CODE='lLwhSqxQcgS1vMWQLfjBHfa5JyXh8e'
-
+CODE='sN2jZw9KyttfKTgBAdAPU2lJORJhgv'
+ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAxMDI3NjYxIiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2OTIzNDYyMzIsImp0aSI6ImUxOGMzY2E5LTA4MmMtNDE4YS05NmEzLTU1YjA5MWQzOTYxYSJ9.ZgKJ4duMYQdI19arcc4jYRthaYG4eB5Ai4b9QQuTlrE"
+REFRESH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAxMDI3NjYxIiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2OTMyMTAyMzIsImp0aSI6IjAwNDNjOTQwLThiZGItNDQ2YS04MTBlLTZhZjIxNzAxNGFhNSJ9.f9yfcH5o8V15HQbpwQRKXIYxLDGbb8uYZxTx5QfzENo'
+SEQ_NO = 1101027661
 bp = Blueprint('payment', __name__, url_prefix='/payment')
 
 @bp.route('/auth',methods=["POST"])
@@ -32,7 +34,6 @@ def authorization():
     # https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id=1d1099e6-8c17-4ac3-956c-2e9bd6039c19&redirect_uri=http://127.0.0.1:6000/payment/callback&scope=login+inquiry+transfer&state=12345678901234567890124456729112&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N
     
     auth_url = f'https://testapi.openbanking.or.kr/oauth/2.0/authorize?response_type=code&client_id={CLIENT_ID}&redirect_uri={REDIRECT_URI}&scope=login+inquiry+transfer&state={STATE_CODE}&auth_type=0&cellphone_cert_yn=Y&authorized_cert_yn=N'
-    print(auth_url)
     print(auth_url)
     try:
         authorization_redirect = requests.Request('GET', auth_url).prepare()
@@ -66,26 +67,59 @@ def callback():
     print(token_response)
     return jsonify(token_response.json()),200
 
-
-# 사용자 인증 정보 요청 
-@bp.route("/userme", methods=["GET"])
-# @jwt_required()
-def get_userme():
-
-    refresh_url = f"{URI_BASE}/token"
+@bp.route("/refresh", methods=["GET"])
+def refresh():
     data = {
-        "client_id":CLIENT_ID,
-        "client_secret":CLIENT_PASSWORD,
-        "refresh_token":SAMPLE_REFRESH_TOKEN,
-        "scope":"login inquiry transfer",
-        "grant_type": "refresh_token"  
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_PASSWORD,
+        "refresh_token" : REFRESH_TOKEN,
+        "scope" : "login inquiry transfer",
+        "grant_type":"refresh_token",
     }
-    token_res = requests.post(refresh_url,data=data)
-    access_token = token_res.json()
-    print(access_token)
-    # headers = {'Authorization': f'Bearer {access_token}'}
-    # userme_url = f"{URI_BASE}/user/me?user_seq_no={SAMPLE_SEQ}"
-    # res = requests.Request('GET', userme_url,headers=headers)
-    return jsonify({"mes":"good"}),200
+    res = requests.post("https://testapi.openbanking.or.kr/oauth/2.0/token",data=data)
+    print(res.json())
+    return jsonify(res.json()),200 
+
+
+@bp.route("/transfer",methods=["POST"])
+def transfer():
+    
+    res = request.get_json()
+    headers = {"Authorization":ACCESS_TOKEN}
+    # body = {
+    #             'cntr_account_type' : "N",
+    #             'cntr_account_num' : '995002320103',
+    #             'dps_print_content' : "이용료",
+    #             "fintech_use_num": "120230064688951050013697",
+    #             'tran_amt' : res['price'],
+    #             'tran_dtime' : datetime.datetime.now().strftime('%Y%m%d'),
+    #             'req_client_num' : 'kimkim',
+    #             'req_client_bank_code' : "097",
+    #             'req_client_name' : res['name'],
+    #             'transfer_purpose' : "TR",
+    #             'recv_client_bank_code' : "097",
+    #         }
+
+    body2 = {
+        "bank_tran_id":"M202300646U000000000",         
+        "cntr_account_type":"N",
+        "cntr_account_num":"995002320103",
+        "dps_print_content":"쇼핑몰환불",
+        "fintech_use_num":"123456789012345678901234",
+        "wd_print_content":"오픈뱅킹출금",
+        "tran_amt":"10000",
+        "tran_dtime":datetime.datetime.now().strftime('%Y%m%d'),
+        "req_client_name": "홍길동",
+        "req_client_bank_code":"097",
+        "req_client_account_num": "264001920103",
+        "req_client_num": "hong",
+        "transfer_purpose": "TR",
+  
+        "recv_client_name": "김김김",
+        "recv_client_bank_code": "097",
+        "recv_client_account_num": "264001920103"
+    }
+    res = requests.post('https://testapi.openbanking.or.kr/v2.0/transfer/withdraw/fin_num',data=body2,headers=headers)
+    return jsonify(res.json()), 200
 
 

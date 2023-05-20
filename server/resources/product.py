@@ -75,7 +75,7 @@ def post_product():
             raise error.DBNotFound('User')
                 
         product_session = ProductModel(title=obj['title'], author=author_data,
-            price=int(obj['price']),address=obj['address'], content=obj['content'],
+            price=int(obj['price']),address=obj['address']['name'],latitude=obj['address']['latitude'], longitude=obj['address']['longitude'], content=obj['content'],
             created_date= datetime.datetime.now(), modified_date=datetime.datetime.now(),
             status=False)
         fav_session= FavoriteModel(user_id = author_data.user_id, product=product_session,favorite=False)
@@ -115,7 +115,9 @@ def modify_product():
     # fix title, content, address, price
     p.title = obj['title']
     p.content = obj['content']
-    p.address = obj['address']
+    p.address = obj['address']['name']
+    p.latitude = float(obj['address']['ladtitude'])
+    p.longitude = float(obj['address']['longitude'])
     p.price = obj['price']
     
     p.modified_date = datetime.datetime.now()
