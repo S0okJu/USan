@@ -58,7 +58,7 @@ class ProductModel(rdb.Model):
     price = rdb.Column(rdb.Integer, nullable=False)
     address = rdb.Column(rdb.String(30), nullable=False)
     latitude = rdb.Column(rdb.Float, nullable=False, default = 0.0)
-    longitude = rdb.Column(rdb.Floast, nullable=False, default= 0.0)
+    longitude = rdb.Column(rdb.Float, nullable=False, default= 0.0)
     content = rdb.Column(rdb.String(1000), nullable=False)
     created_date = rdb.Column(rdb.DateTime(), nullable=False)
     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
