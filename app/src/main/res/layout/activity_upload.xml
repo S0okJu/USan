@@ -58,12 +58,12 @@
                 <EditText
                     android:id="@+id/uploadContent"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:background="@drawable/lavender_border"
+                    android:layout_height="match_parent"
                     android:layout_marginTop="20dp"
-                    android:padding="16dp"
-                    android:hint="상품 설명을 입력해주세요"
+                    android:background="@drawable/lavender_border"
                     android:gravity="start|center_vertical"
+                    android:hint="상품 설명을 입력해주세요"
+                    android:padding="16dp"
                     android:textColor="@color/lavender" />
 
                 <LinearLayout
@@ -93,15 +93,16 @@
 
             </LinearLayout>
 
+            <ProgressBar
+                android:id="@+id/product_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone" />
+
         </androidx.cardview.widget.CardView>
 
-        <ProgressBar
-            android:id="@+id/product_progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:visibility="gone" />
-
     </LinearLayout>
+
 
 </ScrollView>

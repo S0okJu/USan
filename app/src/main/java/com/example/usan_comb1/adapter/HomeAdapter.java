@@ -70,6 +70,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
 
         holder.txtTitle.setText(data.getTitle());
         holder.txtAuthor.setText(data.getAuthor());
+        holder.txtPrice.setText(data.getPrice()+"원");
 
         // 아이템 클릭 리스너를 설정합니다.
         holder.itemView.setOnClickListener(v -> {
@@ -92,7 +93,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         ImageView coverImage;
-        TextView txtTitle, txtAuthor;
+        TextView txtTitle, txtAuthor, txtPrice;
 
         public ViewHolder(@NonNull View view)
         {
@@ -101,6 +102,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
             coverImage = view.findViewById(R.id.adpt_coverImage);
             txtTitle = view.findViewById(R.id.adpt_title);
             txtAuthor = view.findViewById(R.id.adpt_author);
+            txtPrice = view.findViewById(R.id.adpt_price);
         }
     }
 }

@@ -120,6 +120,8 @@ public class UploadActivity extends AppCompatActivity {
                         addressObj.setLatitude(latitude);
                         addressObj.setLongitude(longitude);
 
+                        showToast("위도 : " + latitude + " 경도 : " + longitude);
+
                         showProgress(true);
                     } else {
                         showToast("위치를 찾을 수 없습니다.");
