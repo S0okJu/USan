@@ -31,21 +31,13 @@ def user_profile(user_id):
     user = UserModel.query.get(user_id)
     if not user:
         raise error.DBNotFound("User")
-    
-    display_type = request.args.get("type")
-    display_type = int(display_type,10)
-    if not display_type:
-        raise error.MissingParams('type')
-    
-    # 업로드할 수 있는 사진은 5장으로 제한되어 있다. 
-    if display_type > 5:
-        raise error.OutOfBound()
-    
-    if display_type == 0:
-        products = ProductModel.query.filter_by(author_id=user_id).all()
-    else:
-        products = ProductModel.query.filter_by(author_id= user_id).limit(display_type)
-    result = {"user_info": str(user), "products": [str(p) for p in products]}
+
+    profile_session = UserProfileModel.query.filter_by(user=user).first()
+    result ={
+        "username" : user.username,
+        "profile" : profile_session.filename
+    }  
+
     return jsonify(result), 200
 
 # 프로필 이미지 업로드 
@@ -84,8 +76,13 @@ def upload_profile(username):
     res_info = {
         "filename":file_name
     }
+
+    profile_s = UserProfileModel.query.filter_by(user=user)
+    if profile_s:
+        profile_s.filename = file_name
+    else:
     # DB 저장 
-    rdb.session.add(UserProfileModel(user=user, filename=file_name))
+        rdb.session.add(UserProfileModel(user=user, filename=file_name))
     rdb.session.commit()
     return jsonify(res_info), 200 
 

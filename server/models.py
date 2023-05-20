@@ -57,6 +57,8 @@ class ProductModel(rdb.Model):
     author = rdb.relationship('UserModel', backref=rdb.backref('product_set'))
     price = rdb.Column(rdb.Integer, nullable=False)
     address = rdb.Column(rdb.String(30), nullable=False)
+    latitude = rdb.Column(rdb.Float, nullable=False, default = 0.0)
+    longitude = rdb.Column(rdb.Floast, nullable=False, default= 0.0)
     content = rdb.Column(rdb.String(1000), nullable=False)
     created_date = rdb.Column(rdb.DateTime(), nullable=False)
     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
@@ -176,81 +178,32 @@ class PaymentRefreshToken(rdb.Model):
             'expired_at': self.expired_at.strftime('%Y-%m-%d %H:%M:%S')
         }
 
-# class SellerModel(rdb.Model):
-#     __tablename__ = 'Seller'
-    
-#     seller_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
-#     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
-#     items = rdb.relationship('ProductModel', backref='seller', lazy=True)
+# 거래 Model 
+class TransactionModel(rdb.Model):
+    __tablename__ = 'Transaction'
+    transaction_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+    product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
+    buyer_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+    seller_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+    transaction_date = rdb.Column(rdb.DateTime(), nullable=False)
+    transaction_amount = rdb.Column(rdb.Float, nullable=False)
+    transaction_status = rdb.Column(rdb.String(20), nullable=False)
 
-#     def __init__(self, user_id):
-#         self.user_id = user_id
+    product = rdb.relationship('ProductModel', backref='transactions')
+    buyer = rdb.relationship('UserModel', foreign_keys=[buyer_id])
+    seller = rdb.relationship('UserModel', foreign_keys=[seller_id])
 
-#     def to_dict(self):
-#         return {
-#             'seller_id': self.seller_id,
-#             'user_id': self.user_id
-#         }
+    def to_dict(self):
+        return {
+            'transaction_id': self.transaction_id,
+            'product_id': self.product_id,
+            'buyer_id': self.buyer_id,
+            'seller_id': self.seller_id,
+            'transaction_date': self.transaction_date,
+            'transaction_amount': self.transaction_amount,
+            'transaction_status': self.transaction_status
+        }
 
-
-# class BuyerModel(rdb.Model):
-#     __tablename__ = 'Buyer'
-    
-#     buyer_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
-#     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
-#     purchases = rdb.relationship('ProductModel', backref='buyer', lazy=True)
-
-#     def __init__(self, user_id):
-#         self.user_id = user_id
-
-#     def to_dict(self):
-#         return {
-#             'buyer_id': self.buyer_id,
-#             'user_id': self.user_id
-#         }
-
-# class Transaction(rdb.Model):
-#     __tablename__ = 'transactions'
-
-#     id = rdb.Column(rdb.Integer, primary_key=True)
-#     date = rdb.Column(rdb.DateTime, default=datetime.utcnow)
-#     seller_id = rdb.Column(rdb.Integer, rdb.ForeignKey('sellers.id'))
-#     buyer_id = rdb.Column(rdb.Integer, rdb.ForeignKey('buyers.id'))
-#     price = rdb.Column(rdb.Integer)
-#     seller = rdb.relationship('Seller', back_populates='transactions')
-#     buyer = rdb.relationship('Buyer', back_populates='transactions')
-#     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'))
-#     product = rdb.relationship('ProductModel', back_populates='transactions')
-
-#     def to_dict(self):
-#         return {
-#             'id': self.id,
-#             'date': self.date,
-#             'seller_id': self.seller_id,
-#             'buyer_id': self.buyer_id,
-#             'price': self.price
-#         }
-# class PaymentModel(rdb.Model):
-#     __tablename__ = 'Payment'
-#     payment_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
-#     seller_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
-#     buyer_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
-#     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
-#     payment_method = rdb.Column(rdb.String(50), nullable=False)
-#     payment_amount = rdb.Column(rdb.Integer, nullable=False)
-#     payment_status = rdb.Column(rdb.String(50), nullable=False)
-#     created_date = rdb.Column(rdb.DateTime(), nullable=False)
-#     modified_date = rdb.Column(rdb.DateTime(), nullable=False)
-
-#     def to_dict(self):
-#         return {
-#             'payment_id': self.payment_id,
-#             'seller_id': self.seller_id,
-#             'buyer_id': self.buyer_id,
-#             'product_id': self.product_id,
-#             'payment_method': self.payment_method,
-#             'payment_amount': self.payment_amount,
-#             'payment_status': self.payment_status,
-#             'created_date': self.created_date.isoformat(),
-#             'modified_date': self.modified_date.isoformat()
-#         }
+    def save_to_db(self):
+        rdb.session.add(self)
+        rdb.session.commit()

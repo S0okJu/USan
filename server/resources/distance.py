@@ -15,7 +15,7 @@ from init.init_db import rdb
 from init.init_socket import socketio
 import utils.error.custom_error as error
 
-bp = Blueprint('location', __name__)
+bp = Blueprint('location', '/location')
 
 
 @bp.route("/<string:username>", methods=["POST"])
@@ -37,30 +37,38 @@ r = set()
 rooms = defaultdict(lambda: {'buyer': None, 'seller': None})
 
 @bp.route("/<int:product_id>/start", methods=["GET"])
+@jwt_required()
 def make_room(product_id):
     room = product_id
     r.add(room)
     print(f'Make {room} room completely!')    
+    product_s = ProductModel.query.get(int(product_id))
+    if not product_s:
+        return jsonify({"message":"Not found"}), 404
+    dest = {
+        "latitude" : product_s.latitude,
+        "longitude": product_s.longitude
+    }
+    return jsonify(dest), 200
 
-    return jsonify({"msg":"Success"}), 200
-
+# 위치 정보 수집 
 @socketio.on('location_data')
 def handle_location_data(data):
     room = int(data['room'])
     username = data['username']
-    location = data['location']
+    location = data['address']
     role = int(data['role'])
 
     # 위치 정보를 업데이트하고 결과 데이터 생성
     if role == 0:
         rooms[room]['buyer'] = {
             'username': username,
-            'location': location
+            'address': location
         }
     elif role == 1:
         rooms[room]['seller'] = {
             'username': username,
-            'location': location
+            'address': location
         }
 
     # 모든 위치 데이터가 도착하면 통합 데이터를 생성하여 전송
