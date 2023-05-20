@@ -66,6 +66,7 @@ def post_product():
     try:
         # TODO User check using JWT Token 
         body = request.get_json() 
+        print(f"product post : {body}")
         if not body:
             raise error.Empty('Json')
         
