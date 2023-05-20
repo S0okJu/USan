@@ -78,7 +78,7 @@ def handle_location_data(data):
             'buyer': rooms[room]['buyer'],
             'seller': rooms[room]['seller'],
         }
-        emit('integrated_data', integrated_data, broadcast=True)
+        emit('integrated_data', integrated_data, broadcast=True, room=room)
 
 
 
