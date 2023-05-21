@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -71,6 +72,16 @@ public class UploadActivity extends AppCompatActivity {
 
         // clickListeners(); 이미지
 
+        btnAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String address = mAddress.getText().toString();
+                if (!address.isEmpty()) {
+                    new GeocodeAsyncTask().execute(address);
+                }
+            }
+        });
+
     }
 
     @Override
@@ -91,7 +102,6 @@ public class UploadActivity extends AppCompatActivity {
 
     private void saveData() {
         mTitle.setError(null);
-        //mAuthor.setError(null);
         mContent.setError(null);
         mAddress.setError(null);
         mPrice.setError(null);
@@ -102,35 +112,6 @@ public class UploadActivity extends AppCompatActivity {
         String address = mAddress.getText().toString();
         String price = mPrice.getText().toString();
 
-
-        btnAddress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Geocoder geocoder = new Geocoder(UploadActivity.this, Locale.getDefault());
-                try {
-                    List<Address> addresses = geocoder.getFromLocationName(address, 1);
-                    if (addresses.size() > 0) {
-                        Address locationAddress = addresses.get(0);
-                        String name = address;
-                        double latitude = locationAddress.getLatitude();
-                        double longitude = locationAddress.getLongitude();
-
-                        ProductRequest.Address addressObj = new ProductRequest.Address(name, latitude, longitude); // addressObj 변수를 선언 및 초기화
-                        addressObj.setName(locationAddress.getAddressLine(0));
-                        addressObj.setLatitude(latitude);
-                        addressObj.setLongitude(longitude);
-
-                        showToast("위도 : " + latitude + " 경도 : " + longitude);
-
-                        showProgress(true);
-                    } else {
-                        showToast("위치를 찾을 수 없습니다.");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
 
         boolean cancel = false;
         View focusView = null;
@@ -166,13 +147,13 @@ public class UploadActivity extends AppCompatActivity {
         if (cancel) {
             focusView.requestFocus();
         } else {
-                uploadData(new ProductRequest(title, author, content, addressObj, price));
-                showProgress(true);
+            uploadData(new ProductRequest(title, author, content, addressObj, price));
+            showProgress(true);
         }
     }
 
     private void uploadData(ProductRequest data) {
-        SharedPreferences prefs =getSharedPreferences("auth", Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
         String accessToken = prefs.getString("access_token", "");
 
         mProductService.postProduct(accessToken, data).enqueue(new Callback<ProductResponse>() {
@@ -204,6 +185,36 @@ public class UploadActivity extends AppCompatActivity {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
+    private class GeocodeAsyncTask extends AsyncTask<String, Void, Address> {
+        @Override
+        protected Address doInBackground(String... strings) {
+            String address = strings[0];
+            Geocoder geocoder = new Geocoder(UploadActivity.this, Locale.getDefault());
+            try {
+                List<Address> addresses = geocoder.getFromLocationName(address, 1);
+                if (addresses.size() > 0) {
+                    return addresses.get(0);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Address locationAddress) {
+            if (locationAddress != null) {
+                double latitude = locationAddress.getLatitude();
+                double longitude = locationAddress.getLongitude();
+                showToast("위도 : " + latitude + "\n경도 : " + longitude);
+
+                addressObj = new ProductRequest.Address(locationAddress.getAddressLine(0), latitude, longitude);
+            } else {
+                showToast("위치를 찾을 수 없습니다.");
+            }
+        }
+    }
+}
 
 
     /* 이미지 관련
@@ -236,4 +247,3 @@ public class UploadActivity extends AppCompatActivity {
     }
 
      */
-}
