@@ -178,7 +178,7 @@ class PaymentRefreshToken(rdb.Model):
             'expired_at': self.expired_at.strftime('%Y-%m-%d %H:%M:%S')
         }
 
-# 거래 Model 
+# #거래 Model 
 # class TransactionModel(rdb.Model):
 #     __tablename__ = 'Transaction'
 #     transaction_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
@@ -204,6 +204,21 @@ class PaymentRefreshToken(rdb.Model):
 #             'transaction_status': self.transaction_status
 #         }
 
-#     def save_to_db(self):
-#         rdb.session.add(self)
-#         rdb.session.commit()
+
+
+class Account(rdb.Model):
+    id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True)
+    balance = rdb.Column(rdb.Float, default=0.0)
+    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+    user = rdb.relationship("UserModel", backref="payment_account")
+
+    def deposit(self, amount):
+        self.balance += amount
+
+    def withdraw(self, amount):
+        if self.balance < amount:
+            return False
+        self.balance -= amount
+        return True
+    
+

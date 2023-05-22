@@ -114,12 +114,19 @@ def modify_product():
 
 
     # fix title, content, address, price
-    p.title = obj['title']
-    p.content = obj['content']
-    p.address = obj['address']['name']
-    p.latitude = float(obj['address']['ladtitude'])
-    p.longitude = float(obj['address']['longitude'])
-    p.price = obj['price']
+    if p.title != None:
+
+        p.title = obj['title']
+    if p.title !=None:
+        p.content = obj['content']
+    if p.address != None:
+        p.address = obj['address']['name']
+    if p.latitude != None:
+        p.latitude = float(obj['address']['ladtitude'])
+    if p.longitude != None:
+        p.longitude = float(obj['address']['longitude'])
+    if p.price != None:
+        p.price = obj['price']
     
     p.modified_date = datetime.datetime.now()
     rdb.session.commit()

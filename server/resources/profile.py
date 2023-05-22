@@ -33,10 +33,16 @@ def user_profile(username):
         raise error.DBNotFound("User")
 
     profile_session = UserProfileModel.query.filter_by(user=user).first()
-    result ={
-        "username" : user.username,
-        "profile" : profile_session.filename
-    }  
+    if not profile_session:
+        result ={
+            "username": username,
+            "profile": None
+        }
+    else:
+        result ={
+            "username" : username,
+            "profile" : profile_session.filename
+        }  
 
     return jsonify(result), 200
 
