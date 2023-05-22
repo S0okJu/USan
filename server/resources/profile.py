@@ -32,7 +32,7 @@ def user_profile(username):
     if not user:
         raise error.DBNotFound("User")
 
-    profile_session = UserProfileModel.query.filter_by(user=user).first()
+    profile_session = UserProfileModel.query.get(user.user_id).first()
     if not profile_session:
         result ={
             "username": username,
