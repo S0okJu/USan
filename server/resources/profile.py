@@ -25,10 +25,10 @@ PROFILE_FOLDER = os.path.join(ROOT_PATH, 'profile')
 # type=0(default = all)
 # 개수만큼 사진을 보여줄 수 있다. 
 # 사용자 정보와 product를 볼 수 있다. 
-@bp.route("/<int:user_id>", methods=["GET"])
+@bp.route("/<string:username>", methods=["GET"])
 # @jwt_required()
-def user_profile(user_id):
-    user = UserModel.query.get(user_id)
+def user_profile(username):
+    user = UserModel.query.filter_by(username=username)
     if not user:
         raise error.DBNotFound("User")
 
