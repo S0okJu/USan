@@ -95,9 +95,9 @@ def upload_profile(username):
 @bp.route("/<string:username>/modify", methods=["POST"])
 @jwt_required()
 def modify_profile(username):
-    user_id = get_jwt_identity()
+    
     body = request.get_json()
-    user = UserModel.query.get(int(user_id))
+    user = UserModel.query.filter_by(username=username)
     if not user:
         raise error.DBNotFound("User")
     
