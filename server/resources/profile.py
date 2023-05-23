@@ -97,6 +97,7 @@ def upload_profile(username):
 def modify_profile(username):
     
     body = request.get_json()
+    print(body)
     if not body:
         raise error.EmptyJSONError()
         
@@ -104,8 +105,7 @@ def modify_profile(username):
     if not user:
         raise error.DBNotFound("User")
     
-    if not body['username']:
-        raise error.MissingParams('username')
+
     user.username = body['username']
     rdb.session.commit()
     return jsonify({"message":"Success"}), 200 
