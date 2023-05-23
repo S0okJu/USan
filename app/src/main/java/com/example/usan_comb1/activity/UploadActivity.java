@@ -38,7 +38,6 @@ import retrofit2.Response;
 public class UploadActivity extends AppCompatActivity {
     //private ImageView mImage;
     private EditText mTitle, mContent, mAddress, mPrice;
-    private Button btnAddress;
     private ProductService mProductService;
     private ProductRequest.Address addressObj;
 
@@ -59,7 +58,6 @@ public class UploadActivity extends AppCompatActivity {
         mContent = (EditText) findViewById(R.id.uploadContent);
         mAddress = (EditText) findViewById(R.id.uploadAddress);
         mPrice = (EditText) findViewById(R.id.uploadPrice);
-        btnAddress = (Button) findViewById(R.id.AddressBtn);
 
         mProgressView = (ProgressBar) findViewById(R.id.product_progress);
 
@@ -71,16 +69,6 @@ public class UploadActivity extends AppCompatActivity {
         username = prefs.getString("username", "");
 
         // clickListeners(); 이미지
-
-        btnAddress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String address = mAddress.getText().toString();
-                if (!address.isEmpty()) {
-                    new GeocodeAsyncTask().execute(address);
-                }
-            }
-        });
 
     }
 
@@ -147,45 +135,21 @@ public class UploadActivity extends AppCompatActivity {
         if (cancel) {
             focusView.requestFocus();
         } else {
-            uploadData(new ProductRequest(title, author, content, addressObj, price));
+            GeocodeAsyncTask task = new GeocodeAsyncTask();
+            task.setAddressInfo(title, author, content, price);
+            task.execute(address);
             showProgress(true);
         }
     }
 
-    private void uploadData(ProductRequest data) {
-        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
-        String accessToken = prefs.getString("access_token", "");
-
-        mProductService.postProduct(accessToken, data).enqueue(new Callback<ProductResponse>() {
-            @Override
-            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    ProductResponse result = response.body();
-                    Toast.makeText(UploadActivity.this, result.getMessage(), Toast.LENGTH_SHORT).show();
-                    showProgress(false);
-                    finish();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ProductResponse> call, Throwable t) {
-                Toast.makeText(UploadActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
-                Log.e("서버 통신 에러 발생", t.getMessage());
-                showProgress(false);
-            }
-        });
-    }
-
-    private void showProgress(boolean show) {
-        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-    // 토스트 메시지를 출력하는 메서드
-    private void showToast(String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
     private class GeocodeAsyncTask extends AsyncTask<String, Void, Address> {
+
+        private String title;
+        private String author;
+        private String content;
+        private String price;
+
+
         @Override
         protected Address doInBackground(String... strings) {
             String address = strings[0];
@@ -206,14 +170,57 @@ public class UploadActivity extends AppCompatActivity {
             if (locationAddress != null) {
                 double latitude = locationAddress.getLatitude();
                 double longitude = locationAddress.getLongitude();
-                showToast("위도 : " + latitude + "\n경도 : " + longitude);
+                //showToast("위도 : " + latitude + "\n경도 : " + longitude);
 
                 addressObj = new ProductRequest.Address(locationAddress.getAddressLine(0), latitude, longitude);
+                uploadData(new ProductRequest(title, author, content, addressObj, price));
             } else {
                 showToast("위치를 찾을 수 없습니다.");
             }
         }
+
+        public void setAddressInfo(String title, String author, String content, String price) {
+            this.title = title;
+            this.author = author;
+            this.content = content;
+            this.price = price;
+        }
     }
+
+    private void uploadData(ProductRequest data) {
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+        String accessToken = prefs.getString("access_token", "");
+
+        mProductService.postProduct(accessToken, data).enqueue(new Callback<ProductResponse>() {
+            @Override
+            public void onResponse(Call<ProductResponse> call, Response<ProductResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    ProductResponse result = response.body();
+                    showToast("게시글이 등록되었습니다.");
+                    showProgress(false);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ProductResponse> call, Throwable t) {
+                showToast("게시글 등록이 정상적으로 진행되지 않았습니다.");
+                Log.e("서버 통신 에러 발생", t.getMessage());
+                showProgress(false);
+            }
+        });
+    }
+
+    private void showProgress(boolean show) {
+        mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    // 토스트 메시지를 출력하는 메서드
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+
 }
 
 

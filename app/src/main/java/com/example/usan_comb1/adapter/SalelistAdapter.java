@@ -21,6 +21,8 @@ import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.activity.UpdateActivity;
+import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.response.SaleResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +60,7 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
     public void onBindViewHolder(@NonNull CustomViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (position >= 0 && position < productList.size()) {
             //...
-            com.example.usan_comb1.response.RetroProduct product = productList.get(position);
+            RetroProduct product = productList.get(position);
             Log.d("SalelistAdapter", "onBindViewHolder: position=" + position + ", title=" + product.getTitle());
 
             mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
@@ -110,32 +112,36 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
                 }
             });
 
+            holder.btnstate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // 상태 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
+                    // 예: 상태 변경 작업 수행 및 결과 처리
+                }
+            });
+
+            // 수정 버튼 클릭 이벤트 처리
+            holder.btnupdate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // 업데이트 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
+                    // 예: 데이터 업데이트 작업 수행 및 결과 처리
+
+                    productId = product.getProductId();
+
+                    Intent intent = new Intent(activity, UpdateActivity.class);
+                    intent.putExtra("productId", productId);
+                    activity.startActivity(intent);
+                }
+            });
+
             //...
         } else {
             Log.e("SalelistAdapter", "Invalid position: " + position);
         }
 
 
-        // 상태 버튼 클릭 이벤트 처리
-        holder.btnstate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 상태 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
-                // 예: 상태 변경 작업 수행 및 결과 처리
-            }
-        });
 
-        // 수정 버튼 클릭 이벤트 처리
-        holder.btnupdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 업데이트 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
-                // 예: 데이터 업데이트 작업 수행 및 결과 처리
-
-                Intent intent = new Intent(activity, UpdateActivity.class);
-                activity.startActivity(intent);
-            }
-        });
 
 
         /*

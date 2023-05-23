@@ -31,6 +31,7 @@ public class AuthInterceptor implements Interceptor {
     }
 }
 
+/*
 class Main {
     private static final String BASE_URL = "http://13.124.53.124:53143/";
 
@@ -52,4 +53,4 @@ class Main {
         // Call API methods on 'service' object
     }
 }
-
+ */

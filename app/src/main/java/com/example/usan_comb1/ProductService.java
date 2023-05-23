@@ -10,6 +10,7 @@ import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.ProductResponse;
 import com.example.usan_comb1.response.RegisterResponse;
 import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.response.UpdateResponse;
 
 import java.util.List;
 
@@ -62,16 +63,20 @@ public interface ProductService {
     Call<String> string_call(@Header("Authorization") String accessToken);
 
     // 특정 상품 표시
-    @GET("product/{id}")
+    @GET("product/{id}?type=0")
     Call<PostResult> getProduct(@Header("Authorization") String accessToken, @Path("id") Integer product_id);
 
     // 상품 추가
     @POST("product/post")
     Call<ProductResponse> postProduct(@Header("Authorization") String accessToken, @Body ProductRequest request);
 
+    // 수정할 상품 표시
+    @GET("product/{id}?type=1")
+    Call<UpdateResponse> getupdateProduct(@Header("Authorization") String accessToken, @Path("id") Integer product_id);
+
     // 상품 수정
-    @POST("/product/modify")
-    Call<ResponseBody> updateProduct(@Header("Authorization") String accessToken, @Query("id") Integer productId, @Body UpdateRequest updateProduct);
+    @POST("product/modify")
+    Call<UpdateRequest> updateProduct(@Header("Authorization") String accessToken, @Query("id") Integer productId, @Body UpdateRequest updateProduct);
 
     // 상품 삭제
     // @query -> path
