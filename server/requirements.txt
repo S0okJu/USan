@@ -13,3 +13,4 @@ Flask-Migrate==4.0.4
 Flask-SocketIO==5.3.4
 Flask-SQLAlchemy==3.0.3
 cryptography
+stream-chat
