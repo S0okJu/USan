@@ -28,11 +28,11 @@ PROFILE_FOLDER = os.path.join(ROOT_PATH, 'profile')
 @bp.route("/<string:username>", methods=["GET"])
 @jwt_required()
 def user_profile(username):
-    user = UserModel.query.filter_by(username=username)
+    user = UserModel.query.filter_by(username=username).first()
     if not user:
         raise error.DBNotFound("User")
 
-    profile_session = UserProfileModel.query.filter_by(user=user)
+    profile_session = UserProfileModel.query.filter_by(user=user).first()
     if not profile_session:
         result ={
             "username": username,
