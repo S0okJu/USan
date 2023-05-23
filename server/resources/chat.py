@@ -19,20 +19,18 @@ api_secret = 's7cb46tuzbtj7ew5xt5msancg6rsevgfyrft27yvdusrzuxqygdpd8a3gqr29r65'
 
 client = StreamChat(api_key, api_secret)
 
-@bp.route('/start_chat', methods=['POST'])
-def start_chat():
-    user_id = request.json['user_id']
-    channel_id = request.json['channel_id']
+@bp.route('/start_chat/<string:username>', methods=['POST'])
+def start_chat(username):
 
     # Stream Chat API와 연결 및 토큰 발급
-    token = client.create_token(user_id)
+    token = client.create_token(username)
 
     # 채널 생성 및 사용자 추가
     channel_type = 'messaging'
-    channel = client.channel(channel_type, channel_id=channel_id)
-    channel.create(user_id)
+    channel = client.channel(channel_type, channel_id=1)
+    channel.create(username)
 
-    return jsonify({'user_id': user_id, 'channel_id': channel_id, 'token': token})
+    return jsonify({ 'channel_id': '1', 'token': token})
 
 @bp.route('/send_message', methods=['POST'])
 def send_message():
