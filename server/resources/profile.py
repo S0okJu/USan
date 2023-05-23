@@ -97,7 +97,7 @@ def upload_profile(username):
 def modify_profile(username):
     
     body = request.get_json()
-    user = UserModel.query.filter_by(username=username)
+    user = UserModel.query.filter_by(username=username).first()
     if not user:
         raise error.DBNotFound("User")
     
