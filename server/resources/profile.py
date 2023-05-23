@@ -48,7 +48,7 @@ def user_profile(username):
 
 # 프로필 이미지 업로드 
 @bp.route("/<string:username>/upload", methods=["POST"])
-# @jwt_required()
+@jwt_required()
 def upload_profile(username):
     # user_id = get_jwt_identity()
     if not request.files:
