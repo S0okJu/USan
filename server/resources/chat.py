@@ -30,7 +30,7 @@ def start_chat(username):
     channel = client.channel(channel_type, channel_id=1)
     channel.create(username)
 
-    return jsonify({ 'channel_id': '1', 'token': token})
+    return jsonify({ 'channel_id': '1', 'chat_token': token})
 
 @bp.route('/send_message', methods=['POST'])
 def send_message():
