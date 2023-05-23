@@ -21,6 +21,10 @@ bp = Blueprint('product', __name__, url_prefix='/product')
 @bp.route('/<int:product_id>', methods=["GET"])
 @jwt_required()
 def get_product(product_id):
+    check_type = int(request.args.get('type'))
+    if check_type != 0 and check_type != 1:
+        raise error.InvalidParams()
+    
     try:
         question = ProductModel.query.get(product_id)
         user_id = get_jwt_identity()
@@ -31,29 +35,35 @@ def get_product(product_id):
 
         author = question.author.to_dict()['username']
         res_dict ={}
+        
         res_dict['title'] = q_dict['title']
         res_dict['author'] = author
         res_dict['content'] = q_dict['content']
         res_dict['price'] = q_dict['price']
-        res_dict['status'] = q_dict['status']
-        res_dict['modified_date'] = q_dict['modified_date']
-        fav = FavoriteModel.query.filter_by(product_id=int(product_id),user_id=int(user_id)).first()
-        if fav: 
-            res_dict['favorite'] =  fav.favorite
-        else:
-            res_dict['favorite'] = False
+        res_dict['address'] = q_dict['address']
+        if check_type == 0:
+            res_dict['status'] = q_dict['status']
+            res_dict['modified_date'] = q_dict['modified_date']
+            fav = FavoriteModel.query.filter_by(product_id=int(product_id),user_id=int(user_id)).first()
+            if fav: 
+                res_dict['favorite'] =  fav.favorite
+            else:
+                res_dict['favorite'] = False
+            
+            related_product = ProductModel.query.filter(ProductModel.author_id == int(user_id), ProductModel.product_id != int(product_id)).order_by(ProductModel.modified_date.desc()).limit(2).all()
+            realted_list = []
+            for related in related_product:
+                rproduct = dict()
+                rproduct['product_id'] = related.product_id 
+                rproduct['title'] = related.title
+                rproduct['price'] = related.price
+                realted_list.append(rproduct)
+
+            res_dict['related'] = realted_list
+        elif check_type == 1:
+            res_dict['latitude'] = q_dict['latitude']
+            res_dict['longitude'] = q_dict['longitude']
         
-        # related
-        related_product = ProductModel.query.filter(ProductModel.author_id == int(user_id), ProductModel.product_id != int(product_id)).order_by(ProductModel.modified_date.desc()).limit(2).all()
-        realted_list = []
-        for related in related_product:
-            rproduct = dict()
-            rproduct['product_id'] = related.product_id 
-            rproduct['title'] = related.title
-            rproduct['price'] = related.price
-            realted_list.append(rproduct)
-        
-        res_dict['related'] = realted_list
         # print(res_dict)
         return jsonify(res_dict),200
     
