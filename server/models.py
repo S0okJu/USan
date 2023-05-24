@@ -114,7 +114,7 @@ class FavoriteModel(rdb.Model):
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
     user = rdb.relationship("UserModel", backref="user_favorite")
     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
-    product = rdb.relationship("ProductModel", backref="favorite_product")
+    product = rdb.relationship("ProductModel", backref="favorite_product" cascade="all, delete")
     favorite =  rdb.Column(rdb.Boolean, nullable=False, default=False)
     created_date = rdb.Column(rdb.DateTime, default=datetime.now())
     modified_date = rdb.Column(rdb.DateTime, default=datetime.now())
