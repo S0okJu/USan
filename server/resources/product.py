@@ -40,8 +40,8 @@ def get_product(product_id):
         res_dict['author'] = author
         res_dict['content'] = q_dict['content']
         res_dict['price'] = q_dict['price']
-        res_dict['address'] = q_dict['address']
         if check_type == 0:
+            res_dict['address'] = question.address
             res_dict['status'] = q_dict['status']
             res_dict['modified_date'] = q_dict['modified_date']
             fav = FavoriteModel.query.filter_by(product_id=int(product_id),user_id=int(user_id)).first()
@@ -61,8 +61,9 @@ def get_product(product_id):
 
             res_dict['related'] = realted_list
         elif check_type == 1:
-            res_dict['latitude'] = q_dict['latitude']
-            res_dict['longitude'] = q_dict['longitude']
+            res_dict['address']['name']= question.address 
+            res_dict['address']['latitude'] = question.latitude
+            res_dict['address']['longitude'] = question.longitude
         
         # print(res_dict)
         return jsonify(res_dict),200
@@ -145,7 +146,6 @@ def modify_product():
 @bp.route('/delete/<int:product_id>',methods=["GET"])
 @jwt_required()
 def delete(product_id):
-    # TODO User check using JWT Token 
     
     p = ProductModel.query.get(int(product_id))
     if not p:
