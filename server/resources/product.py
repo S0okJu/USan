@@ -146,8 +146,8 @@ def modify_product():
 @bp.route('/delete/<int:product_id>',methods=["GET"])
 @jwt_required()
 def delete(product_id):
-    
-    p = ProductModel.query.get(int(product_id))
+    user_id = get_jwt_identity()
+    p = ProductModel.query.filter_by(author_id = int(user_id), product_id = int(product_id)).first()
     if not p:
         raise error.DBNotFound('Product')
     rdb.session.delete(p)
