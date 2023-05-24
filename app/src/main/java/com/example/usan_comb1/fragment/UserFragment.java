@@ -16,12 +16,14 @@ import androidx.fragment.app.Fragment;
 
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.activity.FavoriteActivity;
+import com.example.usan_comb1.activity.GpsActivity;
 import com.example.usan_comb1.activity.SalelistActivity;
 import com.example.usan_comb1.activity.UserActivity;
 
 public class UserFragment extends Fragment {
 
     private Button btnviewprf, btnsalelist, btnwishlist, btnimageup;
+    private Button btngps;
     private ImageView imageView;
     private TextView tvname;
 
@@ -42,6 +44,8 @@ public class UserFragment extends Fragment {
         btnsalelist = view.findViewById(R.id.btnsalelist);
         imageView = view.findViewById(R.id.imageView);
         tvname = view.findViewById(R.id.name);
+
+        btngps = view.findViewById(R.id.btngps);
 
         SharedPreferences prefs = getActivity().getSharedPreferences("auth", Context.MODE_PRIVATE);
         accessToken = prefs.getString("access_token", "");
@@ -92,7 +96,18 @@ public class UserFragment extends Fragment {
                 startActivity(salelistIntent);
             }
         });
+
+        btngps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), GpsActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
+
+
 
 }

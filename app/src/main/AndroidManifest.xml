@@ -20,6 +20,17 @@
         android:theme="@style/Theme.USAN_comb1"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDZcFq86EmIyYitzFCPhJq-1t06GTMqnC0"/>
+        <activity
+            android:name=".activity.GpsActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
         <activity
             android:name=".activity.OtherProfileActivity"
             android:exported="false">

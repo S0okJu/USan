@@ -47,7 +47,7 @@ public class UpdateActivity extends AppCompatActivity {
     private ProductService mProductService;
     private UpdateRequest.Address addressObj;
 
-    private UpdateRequest previousProduct; // 이전에 올린 게시글의 내용을 담을 변수
+    private UpdateResponse previousProduct; // 이전에 올린 게시글의 내용을 담을 변수
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,13 +142,6 @@ public class UpdateActivity extends AppCompatActivity {
             //price = "None";
         }
 
-        if (cancel) {
-            focusView.requestFocus();
-        } else {
-            GeocodeAsyncTask task = new GeocodeAsyncTask();
-            task.execute(address);
-            showProgress(true);
-        }
 
         // 이전 게시글의 내용을 업데이트하기 위해 UpdateRequest 객체 생성
         UpdateRequest updateRequest = new UpdateRequest();
@@ -166,6 +159,7 @@ public class UpdateActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<UpdateRequest> call, Response<UpdateRequest> response) {
                 if (response.isSuccessful()) {
+
                     // 성공적으로 업데이트된 경우
                     showUpdateSuccessDialog();
                 } else {
@@ -180,6 +174,14 @@ public class UpdateActivity extends AppCompatActivity {
                 Toast.makeText(UpdateActivity.this, "네트워크 오류: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        if (cancel) {
+            focusView.requestFocus();
+        } else {
+            GeocodeAsyncTask task = new GeocodeAsyncTask();
+            task.execute(address);
+            showProgress(true);
+        }
     }
 
 
@@ -192,20 +194,11 @@ public class UpdateActivity extends AppCompatActivity {
                     UpdateResponse product = response.body();
                     if (product != null) {
                         // 이전에 올린 게시글의 내용을 변수에 저장
-                        previousProduct = new UpdateRequest();
+                        previousProduct = new UpdateResponse();
                         previousProduct.setProduct_id(product.getProduct_id());
                         previousProduct.setTitle(product.getTitle());
                         previousProduct.setContent(product.getContent());
-
-                        // UpdateResponse.Address를 UpdateRequest.Address로 변환
-                        UpdateResponse.Address responseAddress = product.getAddress();
-                        UpdateRequest.Address requestAddress = new UpdateRequest.Address(
-                                responseAddress.getName(),
-                                responseAddress.getLatitude(),
-                                responseAddress.getLongitude()
-                        );
-
-                        previousProduct.setAddress(requestAddress);
+                        previousProduct.setAddress(product.getAddress());
                         previousProduct.setPrice(product.getPrice());
 
                         // 이전 게시글의 내용을 화면에 표시
