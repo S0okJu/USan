@@ -153,7 +153,7 @@ def delete(product_id):
     rdb.session.delete(p)
     rdb.session.commit()
 
-    return jsonify({"status_code" : 200, "message":"Success"})
+    return jsonify({"status_code" : 200, "message":"Success"}), 200
 
 @bp.route("/favorite",methods=["GET"])
 @jwt_required()
