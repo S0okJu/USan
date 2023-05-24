@@ -147,6 +147,7 @@ def modify_product():
 @jwt_required()
 def delete(product_id):
     user_id = get_jwt_identity()
+    print(f"user_id : {user_id}, product_id : {product_id}")
     p = ProductModel.query.filter_by(author_id = int(user_id), product_id = int(product_id)).first()
     if not p:
         raise error.DBNotFound('Product')
