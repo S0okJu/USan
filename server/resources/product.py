@@ -90,7 +90,7 @@ def post_product():
             price=int(obj['price']),address=obj['address']['name'],latitude=obj['address']['latitude'], longitude=obj['address']['longitude'], content=obj['content'],
             created_date= datetime.datetime.now(), modified_date=datetime.datetime.now(),
             status=False)
-        fav_session= FavoriteModel(user_id = author_data.user_id, product=product_session,favorite=False)
+        fav_session= FavoriteModel(user_id = author_data.user_id, product=product_session, favorite=False)
 
         rdb.session.add(fav_session)
         rdb.session.add(product_session)
@@ -149,9 +149,12 @@ def delete(product_id):
     user_id = get_jwt_identity()
     print(f"user_id : {user_id}, product_id : {product_id}")
     p = ProductModel.query.filter_by(author_id = int(user_id), product_id = int(product_id)).first()
-    if not p:
-        raise error.DBNotFound('Product')
+    
+    favorites = FavoriteModel.query.filter_by(product_id=product_id).all()
+    for favorite in favorites:
+        rdb.session.delete(favorite)
     rdb.session.delete(p)
+    
     rdb.session.commit()
 
     return jsonify({"status_code" : 200, "message":"Success"}), 200
