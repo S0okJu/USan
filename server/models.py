@@ -72,7 +72,11 @@ class ProductModel(rdb.Model):
             'product_id': self.product_id,
             'title': self.title,
             'price': self.price,
-            'address': self.address,
+            'address': {
+                "name" : self.address,
+                "latitude" : self.latitude,
+                "longitude" : self.longitude
+            },
             'content': self.content,
             'created_date': self.created_date,
             'modified_date': self.modified_date,

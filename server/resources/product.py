@@ -61,9 +61,9 @@ def get_product(product_id):
 
             res_dict['related'] = realted_list
         elif check_type == 1:
-            res_dict['address']['name']= question.address 
-            res_dict['address']['latitude'] = question.latitude
-            res_dict['address']['longitude'] = question.longitude
+            print ("address" + question.address)
+            
+            res_dict['address'] = q_dict['address']
         
         # print(res_dict)
         return jsonify(res_dict),200
