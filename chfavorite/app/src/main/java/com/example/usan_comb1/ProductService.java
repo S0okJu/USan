@@ -2,12 +2,14 @@ package com.example.usan_comb1;
 
 import com.example.usan_comb1.request.LoginData;
 import com.example.usan_comb1.request.ProductRequest;
+import com.example.usan_comb1.request.ProfileUpRequest;
 import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.request.UpdateRequest;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.LoginResponse;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.ProductResponse;
+import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.RegisterResponse;
 import com.example.usan_comb1.response.RetroProduct;
 
@@ -62,7 +64,7 @@ public interface ProductService {
     Call<String> string_call(@Header("Authorization") String accessToken);
 
     // 특정 상품 표시
-    @GET("product/{id}")
+    @GET("product/{id}?type=0")
     Call<PostResult> getProduct(@Header("Authorization") String accessToken, @Path("id") Integer product_id);
 
     // 상품 추가
@@ -85,6 +87,16 @@ public interface ProductService {
     // 사용자 회원가입
     @POST("/users/register")
     Call<RegisterResponse> userRegister(@Body RegisterData data);
+
+    // 사용자 프로필 가져오기
+    @GET("/profile/{username}")
+    Call<ProfileResponse> getProfile(@Header("Authorization") String authorization, @Path("username") String username);
+
+    @POST("/profile/{username}/modify")
+    Call<Void> modifyProfile(@Header("Authorization") String accessToken, @Path("username") String username, @Body ProfileUpRequest profileUpRequest);
+
+
+
 
 
     /*

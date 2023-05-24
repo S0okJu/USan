@@ -31,7 +31,8 @@ public class AuthInterceptor implements Interceptor {
     }
 }
 
-class Main {
+/* class Main {
+
     private static final String BASE_URL = "http://43.200.6.34:58221/";
 
     public static void main(String[] args) {
@@ -51,5 +52,8 @@ class Main {
 
         // Call API methods on 'service' object
     }
+
 }
+
+ */
 
