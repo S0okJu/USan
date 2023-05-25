@@ -72,7 +72,11 @@ class ProductModel(rdb.Model):
             'product_id': self.product_id,
             'title': self.title,
             'price': self.price,
-            'address': self.address,
+            'address': {
+                "name" : self.address,
+                "latitude" : self.latitude,
+                "longitude" : self.longitude
+            },
             'content': self.content,
             'created_date': self.created_date,
             'modified_date': self.modified_date,
@@ -188,8 +192,6 @@ class TransactionModel(rdb.Model):
     transaction_date = rdb.Column(rdb.DateTime(), nullable=False)
     transaction_amount = rdb.Column(rdb.Float, nullable=False)
     transaction_status = rdb.Column(rdb.String(20), nullable=False)
-    
-
     product = rdb.relationship('ProductModel', backref='transactions')
     buyer = rdb.relationship('UserModel', foreign_keys=[buyer_id])
     seller = rdb.relationship('UserModel', foreign_keys=[seller_id])

@@ -28,11 +28,11 @@ PROFILE_FOLDER = os.path.join(ROOT_PATH, 'profile')
 @bp.route("/<string:username>", methods=["GET"])
 @jwt_required()
 def user_profile(username):
-    user = UserModel.query.filter_by(username=username)
+    user = UserModel.query.filter_by(username=username).first()
     if not user:
         raise error.DBNotFound("User")
 
-    profile_session = UserProfileModel.query.get(user.user_id).first()
+    profile_session = UserProfileModel.query.filter_by(user=user).first()
     if not profile_session:
         result ={
             "username": username,
@@ -48,7 +48,7 @@ def user_profile(username):
 
 # 프로필 이미지 업로드 
 @bp.route("/<string:username>/upload", methods=["POST"])
-# @jwt_required()
+@jwt_required()
 def upload_profile(username):
     # user_id = get_jwt_identity()
     if not request.files:
@@ -95,13 +95,17 @@ def upload_profile(username):
 @bp.route("/<string:username>/modify", methods=["POST"])
 @jwt_required()
 def modify_profile(username):
-    user_id = get_jwt_identity()
+    
     body = request.get_json()
-    user = UserModel.query.get(int(user_id))
+    print(body)
+    if not body:
+        raise error.EmptyJSONError()
+        
+    user = UserModel.query.filter_by(username=username).first()
     if not user:
         raise error.DBNotFound("User")
     
-    if not body['username']:
-        raise error.MissingParams('username')
+
     user.username = body['username']
+    rdb.session.commit()
     return jsonify({"message":"Success"}), 200 

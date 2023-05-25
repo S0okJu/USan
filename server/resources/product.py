@@ -21,6 +21,10 @@ bp = Blueprint('product', __name__, url_prefix='/product')
 @bp.route('/<int:product_id>', methods=["GET"])
 @jwt_required()
 def get_product(product_id):
+    check_type = int(request.args.get('type'))
+    if check_type != 0 and check_type != 1:
+        raise error.InvalidParams()
+    
     try:
         question = ProductModel.query.get(product_id)
         user_id = get_jwt_identity()
@@ -31,29 +35,36 @@ def get_product(product_id):
 
         author = question.author.to_dict()['username']
         res_dict ={}
+        
         res_dict['title'] = q_dict['title']
         res_dict['author'] = author
         res_dict['content'] = q_dict['content']
         res_dict['price'] = q_dict['price']
-        res_dict['status'] = q_dict['status']
-        res_dict['modified_date'] = q_dict['modified_date']
-        fav = FavoriteModel.query.filter_by(product_id=int(product_id),user_id=int(user_id)).first()
-        if fav: 
-            res_dict['favorite'] =  fav.favorite
-        else:
-            res_dict['favorite'] = False
+        if check_type == 0:
+            res_dict['address'] = question.address
+            res_dict['status'] = q_dict['status']
+            res_dict['modified_date'] = q_dict['modified_date']
+            fav = FavoriteModel.query.filter_by(product_id=int(product_id),user_id=int(user_id)).first()
+            if fav: 
+                res_dict['favorite'] =  fav.favorite
+            else:
+                res_dict['favorite'] = False
+            
+            related_product = ProductModel.query.filter(ProductModel.author_id == int(user_id), ProductModel.product_id != int(product_id)).order_by(ProductModel.modified_date.desc()).limit(2).all()
+            realted_list = []
+            for related in related_product:
+                rproduct = dict()
+                rproduct['product_id'] = related.product_id 
+                rproduct['title'] = related.title
+                rproduct['price'] = related.price
+                realted_list.append(rproduct)
+
+            res_dict['related'] = realted_list
+        elif check_type == 1:
+            print ("address" + question.address)
+            
+            res_dict['address'] = q_dict['address']
         
-        # related
-        related_product = ProductModel.query.filter(ProductModel.author_id == int(user_id), ProductModel.product_id != int(product_id)).order_by(ProductModel.modified_date.desc()).limit(2).all()
-        realted_list = []
-        for related in related_product:
-            rproduct = dict()
-            rproduct['product_id'] = related.product_id 
-            rproduct['title'] = related.title
-            rproduct['price'] = related.price
-            realted_list.append(rproduct)
-        
-        res_dict['related'] = realted_list
         # print(res_dict)
         return jsonify(res_dict),200
     
@@ -79,7 +90,7 @@ def post_product():
             price=int(obj['price']),address=obj['address']['name'],latitude=obj['address']['latitude'], longitude=obj['address']['longitude'], content=obj['content'],
             created_date= datetime.datetime.now(), modified_date=datetime.datetime.now(),
             status=False)
-        fav_session= FavoriteModel(user_id = author_data.user_id, product=product_session,favorite=False)
+        fav_session= FavoriteModel(user_id = author_data.user_id, product=product_session, favorite=False)
 
         rdb.session.add(fav_session)
         rdb.session.add(product_session)
@@ -135,15 +146,20 @@ def modify_product():
 @bp.route('/delete/<int:product_id>',methods=["GET"])
 @jwt_required()
 def delete(product_id):
-    # TODO User check using JWT Token 
-    
-    p = ProductModel.query.get(int(product_id))
+    user_id = get_jwt_identity()
+    print(f"user_id : {user_id}, product_id : {product_id}")
+    p = ProductModel.query.filter_by(author_id = int(user_id), product_id = int(product_id)).first()
     if not p:
         raise error.DBNotFound('Product')
+    
+    favorites = FavoriteModel.query.filter_by(product_id=product_id).all()
+    for favorite in favorites:
+        rdb.session.delete(favorite)
+        
     rdb.session.delete(p)
     rdb.session.commit()
 
-    return jsonify({"status_code" : 200, "message":"Success"})
+    return jsonify({"status_code" : 200, "message":"Success"}), 200
 
 @bp.route("/favorite",methods=["GET"])
 @jwt_required()
