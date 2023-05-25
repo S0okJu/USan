@@ -126,14 +126,13 @@ def modify_product():
 
     # fix title, content, address, price
     if p.title != None:
-
         p.title = obj['title']
     if p.title !=None:
         p.content = obj['content']
     if p.address != None:
         p.address = obj['address']['name']
     if p.latitude != None:
-        p.latitude = float(obj['address']['ladtitude'])
+        p.latitude = float(obj['address']['latitude'])
     if p.longitude != None:
         p.longitude = float(obj['address']['longitude'])
     if p.price != None:

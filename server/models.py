@@ -1,7 +1,7 @@
 from init.init_db import rdb
 
 from datetime import datetime, timedelta
-
+import uuid
 class UserModel(rdb.Model): # User -> UserModel로 수정 
     __tablename__ = 'User' # 
 
@@ -195,6 +195,8 @@ class TransactionModel(rdb.Model):
     product = rdb.relationship('ProductModel', backref='transactions')
     buyer = rdb.relationship('UserModel', foreign_keys=[buyer_id])
     seller = rdb.relationship('UserModel', foreign_keys=[seller_id])
+    # channel_id
+    channel_id = rdb.Column(rdb.String(32), nullable=False, default=uuid.uuid4())
 
     def to_dict(self):
         return {
@@ -204,7 +206,8 @@ class TransactionModel(rdb.Model):
             'seller_id': self.seller_id,
             'transaction_date': self.transaction_date,
             'transaction_amount': self.transaction_amount,
-            'transaction_status': self.transaction_status
+            'transaction_status': self.transaction_status,
+            'channel_id':self.channel_id
         }
 
 
