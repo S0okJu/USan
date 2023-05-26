@@ -1,7 +1,7 @@
 from init.init_db import rdb
 
 from datetime import datetime, timedelta
-
+import uuid 
 class UserModel(rdb.Model): # User -> UserModel로 수정 
     __tablename__ = 'User' # 
 
@@ -182,47 +182,32 @@ class PaymentRefreshToken(rdb.Model):
             'expired_at': self.expired_at.strftime('%Y-%m-%d %H:%M:%S')
         }
 
-# #거래 Model 
-# class TransactionModel(rdb.Model):
-#     __tablename__ = 'Transaction'
-#     transaction_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
-#     product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
-#     buyer_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
-#     seller_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
-#     transaction_date = rdb.Column(rdb.DateTime(), nullable=False)
-#     transaction_amount = rdb.Column(rdb.Float, nullable=False)
-#     transaction_status = rdb.Column(rdb.String(20), nullable=False)
-
-#     product = rdb.relationship('ProductModel', backref='transactions')
-#     buyer = rdb.relationship('UserModel', foreign_keys=[buyer_id])
-#     seller = rdb.relationship('UserModel', foreign_keys=[seller_id])
-
-#     def to_dict(self):
-#         return {
-#             'transaction_id': self.transaction_id,
-#             'product_id': self.product_id,
-#             'buyer_id': self.buyer_id,
-#             'seller_id': self.seller_id,
-#             'transaction_date': self.transaction_date,
-#             'transaction_amount': self.transaction_amount,
-#             'transaction_status': self.transaction_status
-#         }
-
-
-
-class Account(rdb.Model):
-    id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True, unique=True)
-    balance = rdb.Column(rdb.Float, default=0.0)
-    user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
-    user = rdb.relationship("UserModel", backref="payment_account")
-
-    def deposit(self, amount):
-        self.balance += amount
-
-    def withdraw(self, amount):
-        if self.balance < amount:
-            return False
-        self.balance -= amount
-        return True
+#거래 Model 
+class TransactionModel(rdb.Model):
+    __tablename__ = 'Transaction'
+    transaction_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
+    product_id = rdb.Column(rdb.Integer, rdb.ForeignKey('Product.product_id'), nullable=False)
+    buyer_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+    seller_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'), nullable=False)
+    transaction_date = rdb.Column(rdb.DateTime(), nullable=False)
+    transaction_amount = rdb.Column(rdb.Float, nullable=False)
+    transaction_status = rdb.Column(rdb.String(20), nullable=False)
+    channel_id = rdb.Column(rdb.String(32),nullable=False)
     
+    product = rdb.relationship('ProductModel', backref='transactions')
+    buyer = rdb.relationship('UserModel', foreign_keys=[buyer_id])
+    seller = rdb.relationship('UserModel', foreign_keys=[seller_id])
+
+    def to_dict(self):
+        return {
+            'transaction_id': self.transaction_id,
+            'product_id': self.product_id,
+            'buyer_id': self.buyer_id,
+            'seller_id': self.seller_id,
+            'transaction_date': self.transaction_date,
+            'transaction_amount': self.transaction_amount,
+            'transaction_status': self.transaction_status
+        }
+
+
 
