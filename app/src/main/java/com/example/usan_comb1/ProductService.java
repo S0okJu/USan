@@ -1,6 +1,7 @@
 package com.example.usan_comb1;
 
 import com.example.usan_comb1.request.LoginData;
+import com.example.usan_comb1.request.MyLocationRequest;
 import com.example.usan_comb1.request.ProductRequest;
 import com.example.usan_comb1.request.ProfileUpRequest;
 import com.example.usan_comb1.request.RegisterData;
@@ -17,6 +18,7 @@ import com.example.usan_comb1.response.UpdateResponse;
 import java.util.List;
 
 import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -32,6 +34,10 @@ import retrofit2.http.Query;
 public interface ProductService {
     //@통신 방식("통신 API명")
 
+    // GPS 사용자 현재 위치 보내기 - 임시
+    @POST("/api/endpoint")
+    Call<Void> sendData(@Header("Authorization") String accessToken, @Body MyLocationRequest location);
+
     //사용자별 판매 물품
     @GET("/display/{username}/productlist")
     Call<List<RetroProduct>> getProductList(@Header("Authorization") String accessToken, @Path("username") String username, @Query("page_per") Integer page_per, @Query("page") Integer page);
@@ -41,7 +47,7 @@ public interface ProductService {
     Call<List<PostResult>> getProductsByAuthor(@Header("Authorization") String accessToken,@Path("author_id") Integer authorId);
 
     // 판매 완료 해제
-    @GET("product/status&type=0")
+    @GET("product/status?type=0")
     Call<Void> unStatus(@Header("Authorization") String accessToken, @Query("product_id") Integer productId);
 
     // 판매 완료

@@ -7,8 +7,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -22,7 +24,10 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
+import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.request.MyLocationRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -40,9 +45,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class GpsActivity extends AppCompatActivity
@@ -50,6 +64,8 @@ public class GpsActivity extends AppCompatActivity
         ActivityCompat.OnRequestPermissionsResultCallback{
 
     private Button btnLocation;
+    private ProductService mProductService;
+    private String accessToken;
 
     private GoogleMap mMap;
     private Marker currentMarker = null;
@@ -90,7 +106,12 @@ public class GpsActivity extends AppCompatActivity
 
         setContentView(R.layout.activity_gps);
 
-        mLayout = findViewById(R.id.layout_gps);
+        mLayout = findViewById(R.id.layout_map);
+
+        mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
+
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
 
         locationRequest = new LocationRequest()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -114,9 +135,43 @@ public class GpsActivity extends AppCompatActivity
         btnLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
+                // 사용자의 현재 위치를 서버에 보내는 코드 작성
+                if (currentPosition != null) {
+                    double latitude = currentPosition.latitude;
+                    double longitude = currentPosition.longitude;
+
+                    // 위치 정보를 서버에 전송하는 메소드 호출
+                    sendLocationToServer(latitude, longitude);
+                }
             }
         });
+    }
+
+    private void sendLocationToServer(double latitude, double longitude) {
+        // 위치 정보를 서버에 전송하는 코드 작성
+
+        MyLocationRequest location = new MyLocationRequest(latitude, longitude);
+
+        Call<Void> call = mProductService.sendData(accessToken, location);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                // 통신 성공 시 처리
+                if (response.isSuccessful()) {
+                    showToast("현재 위치 설정이 완료되었습니다.");
+                    finish();
+                } else {
+                    showToast("위치 설정이 되지 않았습니다.\n다시 시도해주세요.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                // 통신 실패 시 처리
+                showToast("서버 연결이 실패하였습니다.");
+            }
+
+    });
     }
 
     @Override
@@ -128,7 +183,6 @@ public class GpsActivity extends AppCompatActivity
         //런타임 퍼미션 요청 대화상자나 GPS 활성 요청 대화상자 보이기전에
         //지도의 초기위치를 서울로 이동
         setDefaultLocation();
-
 
 
         //런타임 퍼미션 처리
@@ -178,8 +232,6 @@ public class GpsActivity extends AppCompatActivity
 
         }
 
-
-
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         // 현재 오동작을 해서 주석처리
         //mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
@@ -226,8 +278,6 @@ public class GpsActivity extends AppCompatActivity
 
     };
 
-
-
     private void startLocationUpdates() {
 
         if (!checkLocationServicesStatus()) {
@@ -262,7 +312,6 @@ public class GpsActivity extends AppCompatActivity
 
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -282,7 +331,6 @@ public class GpsActivity extends AppCompatActivity
 
     }
 
-
     @Override
     protected void onStop() {
 
@@ -294,8 +342,6 @@ public class GpsActivity extends AppCompatActivity
             mFusedLocationClient.removeLocationUpdates(locationCallback);
         }
     }
-
-
 
 
     public String getCurrentAddress(LatLng latlng) {
@@ -371,7 +417,7 @@ public class GpsActivity extends AppCompatActivity
         //디폴트 위치, Seoul
         LatLng DEFAULT_LOCATION = new LatLng(37.56, 126.97);
         String markerTitle = "위치정보 가져올 수 없음";
-        String markerSnippet = "위치 퍼미션과 GPS 활성 요부 확인하세요";
+        String markerSnippet = "위치 퍼미션과 GPS 활성 여부 확인하세요";
 
 
         if (currentMarker != null) currentMarker.remove();
@@ -480,13 +526,13 @@ public class GpsActivity extends AppCompatActivity
     }
 
 
-    //여기부터는 GPS 활성화를 위한 메소드들
+    // GPS 활성화를 위한 메소드들
     private void showDialogForLocationServiceSetting() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(GpsActivity.this);
         builder.setTitle("위치 서비스 비활성화");
         builder.setMessage("앱을 사용하기 위해서는 위치 서비스가 필요합니다.\n"
-                + "위치 설정을 수정하실래요?");
+                + "위치 설정을 수정하시겠습니까?");
         builder.setCancelable(true);
         builder.setPositiveButton("설정", new DialogInterface.OnClickListener() {
             @Override
@@ -529,6 +575,11 @@ public class GpsActivity extends AppCompatActivity
 
                 break;
         }
+    }
+
+    // 토스트 메시지를 출력하는 메서드
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
 }

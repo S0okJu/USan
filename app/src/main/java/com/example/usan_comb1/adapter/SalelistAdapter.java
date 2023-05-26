@@ -3,6 +3,7 @@ package com.example.usan_comb1.adapter;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.usan_comb1.ProductService;
@@ -112,11 +114,87 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
                 }
             });
 
+            // 상태 버튼 클릭 이벤트 처리
             holder.btnstate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // 상태 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
-                    // 예: 상태 변경 작업 수행 및 결과 처리
+                    productId =  product.getProductId();
+
+                    AlertDialog.Builder dialog = new AlertDialog.Builder(activity);
+                    dialog.setTitle("판매 현황 설정"); //제목
+
+                    dialog.setNegativeButton("판매 완료", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            // 변경 요청을 보낼 때 필요한 인증 토큰 (accessToken)을 가져옴
+                            SharedPreferences prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE);
+                            String accessToken = prefs.getString("access_token", "");
+
+                            Call<Void> call = mProductService.setStatus(accessToken, productId);
+                            call.enqueue(new Callback<Void>() {
+                                @Override
+                                public void onResponse(Call<Void> call, Response<Void> response) {
+                                    if (response.isSuccessful()) {
+                                        // 상태 변경 성공 처리
+                                        // 예: Toast 메시지를 통한 사용자에게 알림
+                                        Toast.makeText(context, "상태가 변경되었습니다.", Toast.LENGTH_SHORT).show();
+                                        holder.tvStatus.setText("판매 완료");
+                                        // 변경 후에는 필요한 작업을 수행하도록 구현
+                                        // 예: UI 업데이트 등
+                                    } else {
+                                        // 상태 변경 실패 처리
+                                        // 예: 서버 응답에 따른 오류 처리
+                                        Toast.makeText(context, "상태 변경 실패: " + response.message(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Void> call, Throwable t) {
+                                    // 통신 실패 처리
+                                    // 예: 네트워크 연결 오류 등
+                                    Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    });
+
+                    dialog.setPositiveButton("판매 중", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            SharedPreferences prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE);
+                            String accessToken = prefs.getString("access_token", "");
+
+                            Call<Void> call = mProductService.unStatus(accessToken, productId);
+                            call.enqueue(new Callback<Void>() {
+                                @Override
+                                public void onResponse(Call<Void> call, Response<Void> response) {
+                                    if (response.isSuccessful()) {
+                                        // 상태 변경 성공 처리
+                                        // 예: Toast 메시지를 통한 사용자에게 알림
+                                        Toast.makeText(context, "상태가 변경되었습니다.", Toast.LENGTH_SHORT).show();
+                                        holder.tvStatus.setText("판매 중");
+                                        // 변경 후에는 필요한 작업을 수행하도록 구현
+                                        // 예: UI 업데이트 등
+                                    } else {
+                                        // 상태 변경 실패 처리
+                                        // 예: 서버 응답에 따른 오류 처리
+                                        Toast.makeText(context, "상태 변경 실패: " + response.message(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<Void> call, Throwable t) {
+                                    // 통신 실패 처리
+                                    // 예: 네트워크 연결 오류 등
+                                    Toast.makeText(context, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                        }
+                    });
+
+                    dialog.show();
                 }
             });
 
