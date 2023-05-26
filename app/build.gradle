@@ -64,9 +64,11 @@ dependencies {
 
     implementation "androidx.multidex:multidex:2.0.1"
 
-
     // Google Play Services
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    // Socket IO
+    implementation 'io.socket:socket.io-client:1.0.0'
 
 }

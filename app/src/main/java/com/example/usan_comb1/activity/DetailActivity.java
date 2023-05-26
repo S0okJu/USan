@@ -236,6 +236,9 @@ public class DetailActivity extends AppCompatActivity {
                             tvDetail.setText(product.getPost_Content());
                             tvAuthor.setText(product.getPost_Author());
 
+                            // tvAuthor 텍스트 설정 후에 호출
+                            loadUserPosts(product.getPost_Author());
+
                             ImageView favoriteButton = findViewById(R.id.imgbtn);
 
                             isFavorite = product.isFavorite();
@@ -271,6 +274,28 @@ public class DetailActivity extends AppCompatActivity {
     public void onBackPressed() {
         super.onBackPressed();
     }
+
+    private void loadUserPosts(String username) {
+        int page_per = 10;
+        int page = 1;
+        Call<List<RetroProduct>> call = mProductService.getProductList(accessToken, username, page_per, page);
+        call.enqueue(new Callback<List<RetroProduct>>() {
+            @Override
+            public void onResponse(Call<List<RetroProduct>> call, Response<List<RetroProduct>> response) {
+                if (response.isSuccessful()) {
+                    generateDataList(response.body());
+                } else {
+                    Toast.makeText(DetailActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<RetroProduct>> call, Throwable t) {
+                Toast.makeText(DetailActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
 
     private static class ImagePagerAdapter extends PagerAdapter {
@@ -316,5 +341,6 @@ public class DetailActivity extends AppCompatActivity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(cardadapter);
+
     }
 }

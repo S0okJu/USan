@@ -2,24 +2,30 @@ package com.example.usan_comb1;
 
 import com.example.usan_comb1.request.LoginData;
 import com.example.usan_comb1.request.ProductRequest;
+import com.example.usan_comb1.request.ProfileUpRequest;
 import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.request.UpdateRequest;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.LoginResponse;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.ProductResponse;
+import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.RegisterResponse;
 import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.response.UpdateResponse;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -90,6 +96,20 @@ public interface ProductService {
     // 사용자 회원가입
     @POST("/users/register")
     Call<RegisterResponse> userRegister(@Body RegisterData data);
+
+    // 사용자 프로필 가져오기
+    @GET("/profile/{username}")
+    Call<ProfileResponse> getProfile(@Header("Authorization") String authorization, @Path("username") String username);
+
+    // 사용자 닉네임 수정
+    @POST("/profile/{username}/modify")
+    Call<Void> modifyProfile(@Header("Authorization") String accessToken, @Path("username") String username, @Body ProfileUpRequest profileUpRequest);
+
+    // 사용자 프로필 이미지
+    @Headers("Content-Type: multipart/form-data")
+    @Multipart
+    @POST("/profile/{username}/upload")
+    Call<ResponseBody> uploadImage(@Header("Authorization") String accessToken, @Path("username") String username, @Part MultipartBody.Part imagePart);
 
 
     /*

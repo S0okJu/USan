@@ -18,7 +18,7 @@ import com.example.usan_comb1.R;
 import com.example.usan_comb1.activity.FavoriteActivity;
 import com.example.usan_comb1.activity.GpsActivity;
 import com.example.usan_comb1.activity.SalelistActivity;
-import com.example.usan_comb1.activity.UserActivity;
+import com.example.usan_comb1.activity.UserUpdateActivity;
 
 public class UserFragment extends Fragment {
 
@@ -38,7 +38,6 @@ public class UserFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_user, container, false);
 
 
-        btnimageup = view.findViewById(R.id.btnimageup);
         btnviewprf = view.findViewById(R.id.btnviewprf);
         btnwishlist = view.findViewById(R.id.btnwishlist);
         btnsalelist = view.findViewById(R.id.btnsalelist);
@@ -53,18 +52,11 @@ public class UserFragment extends Fragment {
 
         tvname.setText(username);
 
-        btnimageup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Intent intent = new Intent(getActivity(), UserActivity.class);
-                //startActivity(intent);
-            }
-        });
 
         btnviewprf.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), UserActivity.class);
+                Intent intent = new Intent(getActivity(), UserUpdateActivity.class);
                 startActivity(intent);
             }
         });

@@ -23,7 +23,17 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDZcFq86EmIyYitzFCPhJq-1t06GTMqnC0"/>
+            android:value="AIzaSyDZcFq86EmIyYitzFCPhJq-1t06GTMqnC0" />
+
+
+        <activity
+            android:name=".activity.DestinationActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
         <activity
             android:name=".activity.GpsActivity"
             android:exported="false">
@@ -53,7 +63,7 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.UserActivity"
+            android:name=".activity.UserUpdateActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
