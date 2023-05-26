@@ -4,15 +4,14 @@ import com.google.gson.annotations.SerializedName;
 
 // 프로필 이미지 업로드
 public class UploadResponse {
-    @SerializedName("filename")
-    String filename;
+    @SerializedName("file_name")
+    String fileName;
 
-    public String getFilename() {
-        return filename;
+    public String getFileName() {
+        return fileName;
     }
 
-    public void setFilename(String filename) {
-        this.filename = filename;
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
-
 }

@@ -12,15 +12,20 @@ import com.example.usan_comb1.response.ProductResponse;
 import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.RegisterResponse;
 import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.response.UploadResponse;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Headers;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -92,9 +97,15 @@ public interface ProductService {
     @GET("/profile/{username}")
     Call<ProfileResponse> getProfile(@Header("Authorization") String authorization, @Path("username") String username);
 
+    // 사용자 닉네임 수정
     @POST("/profile/{username}/modify")
     Call<Void> modifyProfile(@Header("Authorization") String accessToken, @Path("username") String username, @Body ProfileUpRequest profileUpRequest);
 
+    // 사용자 프로필 이미지
+    @Headers("Content-Type: multipart/form-data")
+    @Multipart
+    @POST("/profile/{username}/upload")
+    Call<ResponseBody> uploadImage(@Header("Authorization") String accessToken, @Path("username") String username, @Part MultipartBody.Part imagePart);
 
 
 

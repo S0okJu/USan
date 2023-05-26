@@ -6,18 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".activity.UserUpdateActivity">
 
-    <ImageView
-        android:id="@+id/imgprofileimg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.097"
-        tools:srcCompat="@tools:sample/avatars" />
-
     <Button
         android:id="@+id/btnselect"
         android:layout_width="wrap_content"
@@ -35,6 +23,7 @@
         android:layout_width="211dp"
         android:layout_height="45dp"
         android:text="닉네임"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.51"
@@ -79,4 +68,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/imgprofile"
+        android:layout_width="142dp"
+        android:layout_height="128dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.092"
+        app:srcCompat="@drawable/ic_profile" />
 </androidx.constraintlayout.widget.ConstraintLayout>

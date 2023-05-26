@@ -22,7 +22,7 @@ import com.example.usan_comb1.activity.UserUpdateActivity;
 
 public class UserFragment extends Fragment {
 
-    private Button btnviewprf, btnsalelist, btnwishlist, btnimageup;
+    private Button btnviewprf, btnsalelist, btnwishlist;
     private ImageView imageView;
     private TextView tvname;
 
@@ -36,8 +36,6 @@ public class UserFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user, container, false);
 
-
-        btnimageup = view.findViewById(R.id.btnimageup);
         btnviewprf = view.findViewById(R.id.btnviewprf);
         btnwishlist = view.findViewById(R.id.btnwishlist);
         btnsalelist = view.findViewById(R.id.btnsalelist);
@@ -50,13 +48,6 @@ public class UserFragment extends Fragment {
 
         tvname.setText(username);
 
-        btnimageup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Intent intent = new Intent(getActivity(), UserActivity.class);
-                //startActivity(intent);
-            }
-        });
 
         btnviewprf.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -112,40 +112,6 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }
         });
-
-        /*
-        // 카드뷰 객체 생성
-
-        CardView cardView1 = findViewById(R.id.card1);
-        CardView cardView2= findViewById(R.id.card2);
-
-
-        // 카드뷰1 클릭 이벤트 처리
-        cardView1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 클릭 이벤트 발생 시 실행될 코드 작성
-                Intent intent = new Intent(getApplicationContext(), AuthorSellProductDetailActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // 카드뷰2 클릭 이벤트 처리
-        cardView2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 클릭 이벤트 발생 시 실행될 코드 작성
-                Intent intent = new Intent(getApplicationContext(), AuthorSellProductDetailActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
-        });
-
-
-         */
-
     }
 
     // 토스트 메시지를 출력하는 메서드
