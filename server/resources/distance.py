@@ -7,6 +7,7 @@ from flask import request,Response, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import sqlalchemy.exc
 from flask_socketio import SocketIO, Namespace, emit
+from geopy.distance import geodesic
 
 # * User defined
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
@@ -45,13 +46,14 @@ def make_room(product_id):
     product_s = ProductModel.query.get(int(product_id))
     if not product_s:
         return jsonify({"message":"Not found"}), 404
+    # get destination data 
     dest = {
         "latitude" : product_s.latitude,
         "longitude": product_s.longitude
     }
     return jsonify(dest), 200
 
-# 위치 정보 수집 
+
 @socketio.on('location_data')
 def handle_location_data(data):
     room = int(data['room'])
@@ -70,16 +72,26 @@ def handle_location_data(data):
             'username': username,
             'address': location
         }
-
+    
     # 모든 위치 데이터가 도착하면 통합 데이터를 생성하여 전송
     if rooms[room]['buyer'] is not None and rooms[room]['seller'] is not None:
-        integrated_data = {
-            'room': room,
-            'buyer': rooms[room]['buyer'],
-            'seller': rooms[room]['seller'],
-        }
-        emit('integrated_data', integrated_data, broadcast=True, room=room)
+        buyer_location = rooms[room]['buyer']['address']
+        seller_location = rooms[room]['seller']['address']
 
+        # 거리를 계산합니다.
+        distance = geodesic(buyer_location, seller_location).miles
+
+        # 거리 차가 5 이상이면 방을 삭제하고 끝났음을 알립니다.
+        if abs(distance) >= 5:
+            del rooms[room]
+            emit('end', {'message': 'The distance difference is greater than or equal to 5. The room has been deleted.'}, room=room)
+        else:
+            integrated_data = {
+                'room': room,
+                'buyer': rooms[room]['buyer'],
+                'seller': rooms[room]['seller'],
+            }
+            emit('integrated_data', integrated_data, broadcast=True, room=room)
 
 
 @bp.route("/<int:product_id>/finish",methods=["GET"])
