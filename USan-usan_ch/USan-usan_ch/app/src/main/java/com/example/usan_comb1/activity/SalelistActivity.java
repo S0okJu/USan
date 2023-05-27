@@ -1,6 +1,7 @@
 package com.example.usan_comb1.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.adapter.FavoriteAdapter;
 import com.example.usan_comb1.adapter.SalelistAdapter;
+import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.RetroProduct;
 
 import java.util.ArrayList;
@@ -51,6 +54,15 @@ public class SalelistActivity extends AppCompatActivity {
         String accessToken = prefs.getString("access_token", "");
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
+
+        adapter.setOnItemClickListener(new SalelistAdapter.OnItemClickListener() {
+            // 아이템을 클릭했을 때 다른 액티비티로 넘어가는 코드를 추가합니다.
+            public void onItemClick(int position, RetroProduct data) {
+                Intent intent = new Intent(SalelistActivity.this, DetailActivity.class);
+                intent.putExtra("product_id", data.getProductId()); // 넘어갈 데이터를 인텐트에 추가합니다.
+                startActivity(intent);
+            }
+        });
 
         // Intent로부터 값을 가져옴
         //Intent intent = getIntent();

@@ -40,6 +40,7 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
     private String mProductName;
     private int mProductPrice;
     private TextView tvTitle, tvDetail, tvAuthor, price;
+    private ImageView profile;
     private ImageButton imgButton;
     private boolean isFavorite = false;
     private ViewPager viewPager;
@@ -73,6 +74,7 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
         tvAuthor = findViewById(R.id.nickname);
         //하단바 가격을 나타내는 뷰 객체
         price = findViewById(R.id.tvprice);
+        profile = findViewById(R.id.profile);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
@@ -88,6 +90,24 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
                 checkData(accessToken, productId);
             }
         }
+
+        tvAuthor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent otherProfileIntent = new Intent(AuthorSellProductDetailActivity.this, OtherProfileActivity.class);
+                otherProfileIntent.putExtra("username", tvAuthor.getText().toString());
+                startActivity(otherProfileIntent);
+            }
+        });
+
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent otherProfileIntent = new Intent(AuthorSellProductDetailActivity.this, OtherProfileActivity.class);
+                otherProfileIntent.putExtra("username", tvAuthor.getText().toString());
+                startActivity(otherProfileIntent);
+            }
+        });
 
         // 제목, 가격, 설명 설정
         tvTitle.setText("상품 제목");

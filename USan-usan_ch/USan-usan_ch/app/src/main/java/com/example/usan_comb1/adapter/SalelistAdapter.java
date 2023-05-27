@@ -23,6 +23,8 @@ import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.activity.UpdateActivity;
+import com.example.usan_comb1.response.FavoriteProduct;
+import com.example.usan_comb1.response.RetroProduct;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +42,17 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
     private List<com.example.usan_comb1.response.RetroProduct> productList;
     private ArrayList<com.example.usan_comb1.response.RetroProduct> dataArrayList;
 
+    // Interface for item click listener
+    public interface OnItemClickListener {
+        void onItemClick(int position, RetroProduct data);
+    }
 
+    private SalelistAdapter.OnItemClickListener listener;
+
+    // Set item click listener
+    public void setOnItemClickListener(SalelistAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public SalelistAdapter(Activity activity, List<com.example.usan_comb1.response.RetroProduct> productList) {
         this.activity = activity;
@@ -67,8 +79,14 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
 
             // 상품명과 가격, 상태를 출력하는 코드 추가
             holder.tvName.setText(product.getTitle());
-            holder.tvPrice.setText(String.valueOf(product.getPrice())); // 수정된 코드
+            holder.tvPrice.setText(String.valueOf(product.getPrice()) + "원");  // 수정된 코드
             holder.tvStatus.setText(String.valueOf(product.getStatus()));
+
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemClick(position, product);
+                }
+            });
 
             // 삭제 버튼 클릭 이벤트 처리
             holder.btndelete.setOnClickListener(new View.OnClickListener() {

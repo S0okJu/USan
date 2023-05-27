@@ -35,6 +35,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private TextView tvTitle, tvDetail, tvAuthor;
     private TextView price;
+    private ImageView profile;
     private ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
@@ -55,6 +56,7 @@ public class DetailActivity extends AppCompatActivity {
         tvTitle = findViewById(R.id.tv_title);
         tvDetail = findViewById(R.id.tv_detail);
         tvAuthor = findViewById(R.id.nickname);
+        profile = findViewById(R.id.profile);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
@@ -70,6 +72,25 @@ public class DetailActivity extends AppCompatActivity {
                 checkData(productId);
             }
         }
+
+        tvAuthor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent otherProfileIntent = new Intent(DetailActivity.this, OtherProfileActivity.class);
+                otherProfileIntent.putExtra("username", tvAuthor.getText().toString());
+                startActivity(otherProfileIntent);
+            }
+        });
+
+        profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent otherProfileIntent = new Intent(DetailActivity.this, OtherProfileActivity.class);
+                otherProfileIntent.putExtra("username", tvAuthor.getText().toString());
+                startActivity(otherProfileIntent);
+            }
+        });
+
 
         //하단바 가격을 나타내는 뷰 객체
         price = findViewById(R.id.txtvprice);
