@@ -42,7 +42,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     private ProductService mProductService;
     private Integer productId;
 
-
     // Interface for item click listener
     public interface OnItemClickListener {
         void onItemClick(int position, FavoriteProduct data);
@@ -90,6 +89,8 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
                     .into(holder.coverImage);
         }
 
+
+
         holder.txtTitle.setText(data.getTitle());
         holder.txtAuthor.setText(data.getAuthor());
         //holder.txtPrice.setText(data.getPrice() + "원");
@@ -125,17 +126,17 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     @Override
     public int getItemCount()
     {
-
         if(favoriteList != null) {
             return favoriteList.size();
+        } else {
+            return 1;
         }
-        return 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder
     {
         ImageView coverImage, btnFavorite;
-        TextView txtTitle, txtAuthor, txtPrice;
+        TextView txtTitle, txtAuthor, txtPrice, emptyView;
 
         public ViewHolder(@NonNull View view)
         {
