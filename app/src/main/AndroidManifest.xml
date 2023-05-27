@@ -21,11 +21,25 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
+        <!--
+             TODO: Before you run your application, you need a Google Maps API key.
+
+             To get one, follow the directions here:
+
+                https://developers.google.com/maps/documentation/android-sdk/get-api-key
+
+             Once you have your API key (it starts with "AIza"), define a new property in your
+             project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
+             "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
+        -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDZcFq86EmIyYitzFCPhJq-1t06GTMqnC0" />
+            android:value="AIzaSyCKSa_amO5jXqhnqmdCY5s9y17S1aoV4EY" />
 
-
+        <activity
+            android:name=".MapTracking"
+            android:exported="false"
+            android:label="@string/title_activity_map_tracking" />
         <activity
             android:name=".activity.DestinationActivity"
             android:exported="false">
@@ -33,9 +47,8 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-
         <activity
-            android:name=".activity.GpsActivity"
+            android:name=".activity.ListOnline"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

@@ -7,6 +7,7 @@ import com.example.usan_comb1.request.ProfileUpRequest;
 import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.request.UpdateRequest;
 import com.example.usan_comb1.response.FavoriteProduct;
+import com.example.usan_comb1.response.GpsResponse;
 import com.example.usan_comb1.response.LoginResponse;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.ProductResponse;
@@ -33,6 +34,13 @@ import retrofit2.http.Query;
 
 public interface ProductService {
     //@통신 방식("통신 API명")
+
+    @GET("location/<int:product_id>/finish")
+    Call<Void> finishGps(@Header("Authorization") String accessToken, @Path("product_id") int product_id);
+
+    // Socket 통신 시작
+    @GET("location/<int:product_id>/start")
+    Call<GpsResponse> getGps(@Header("Authorization") String accessToken, @Path("product_id") int product_id);
 
     // GPS 사용자 현재 위치 보내기 - 임시
     @POST("/api/endpoint")

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">USAN_comb1</string>
+    <string name="title_activity_map_tracking">MapTracking</string>
 </resources>

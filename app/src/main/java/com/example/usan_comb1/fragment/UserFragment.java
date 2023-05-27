@@ -16,7 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.activity.FavoriteActivity;
-import com.example.usan_comb1.activity.GpsActivity;
+import com.example.usan_comb1.activity.ListOnline;
 import com.example.usan_comb1.activity.SalelistActivity;
 import com.example.usan_comb1.activity.UserUpdateActivity;
 
@@ -92,7 +92,7 @@ public class UserFragment extends Fragment {
         btngps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), GpsActivity.class);
+                Intent intent = new Intent(getActivity(), ListOnline.class);
                 startActivity(intent);
             }
         });
