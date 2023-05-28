@@ -19,6 +19,7 @@ import com.example.usan_comb1.activity.FavoriteActivity;
 import com.example.usan_comb1.map.ListOnline;
 import com.example.usan_comb1.activity.SalelistActivity;
 import com.example.usan_comb1.activity.UserUpdateActivity;
+import com.example.usan_comb1.map.MapActivity;
 
 public class UserFragment extends Fragment {
 
@@ -92,7 +93,7 @@ public class UserFragment extends Fragment {
         btngps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), ListOnline.class);
+                Intent intent = new Intent(getActivity(), MapActivity.class);
                 startActivity(intent);
             }
         });

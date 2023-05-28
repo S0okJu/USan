@@ -6,6 +6,10 @@ import android.location.Location;
 import android.location.LocationListener;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -24,7 +28,6 @@ import com.example.usan_comb1.R;
 
 import com.example.usan_comb1.map.Tracking;
 import com.example.usan_comb1.response.LoginResponse;
-import com.firebase.ui.auth.ui.User;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.common.ConnectionResult;
@@ -76,12 +79,12 @@ public class ListOnline extends AppCompatActivity  implements GoogleApiClient.Co
 
         //Set toolbar and Logout / Join menu
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
-        toolbar.setTitle("EDMT Presence System");
+        toolbar.setTitle("사용자 위치 공유");
         setSupportActionBar(toolbar);
 
         //Firebase
         locations = FirebaseDatabase.getInstance().getReference("Locations");
-        onlineRef = FirebaseDatabase.getInstance().getReference().child("./info/connected");
+        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
         counterRef = FirebaseDatabase.getInstance().getReference("lastOnline");
         currentUserRef = FirebaseDatabase.getInstance().getReference("lastOnline")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -219,6 +222,10 @@ public class ListOnline extends AppCompatActivity  implements GoogleApiClient.Co
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.getValue(Boolean.class)) {
                     currentUserRef.onDisconnect().removeValue();
+                    // Set Online user in list
+                    counterRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .setValue(new User(FirebaseAuth.getInstance().getCurrentUser().getEmail(), "Online"));
+                    adapter.notifyDataSetChanged();
                 }
             }
 
@@ -227,6 +234,43 @@ public class ListOnline extends AppCompatActivity  implements GoogleApiClient.Co
 
             }
         });
+        counterRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    User user = postSnapshot.getValue(User.class);
+                    Log.d("LOG", "" + user.getEmail() + " is " + user.getStatus());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.map_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_join:
+                counterRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                        .setValue(new User(FirebaseAuth.getInstance().getCurrentUser().getEmail(), "Online"));
+                break;
+
+            case R.id.action_logout:
+                currentUserRef.removeValue();
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

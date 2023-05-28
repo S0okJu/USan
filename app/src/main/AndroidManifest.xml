@@ -38,6 +38,13 @@
             android:value="AIzaSyCKSa_amO5jXqhnqmdCY5s9y17S1aoV4EY" />
 
         <activity
+            android:name=".map.MapActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".map.MapTracking"
             android:exported="false"
             android:label="@string/title_activity_map_tracking" />

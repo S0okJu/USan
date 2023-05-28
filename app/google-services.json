@@ -8,6 +8,43 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:185495583610:android:555e478c90119b424974c3",
+        "android_client_info": {
+          "package_name": "com.example.androidpresencesystem"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185495583610-m4grqvotsa7bdrlacf8b6not9gh77f2h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.androidpresencesystem",
+            "certificate_hash": "9085574a704aaddc64f0b4192422e13716113f9e"
+          }
+        },
+        {
+          "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpzhdKoWXmbHVJ9bI3q0Djr2DKYJizpnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:185495583610:android:16b717b6d59c372d4974c3",
         "android_client_info": {
           "package_name": "com.example.storedatarealtime"
