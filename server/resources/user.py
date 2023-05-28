@@ -1,22 +1,23 @@
 import os, sys
 import datetime
-import json 
+import json
 import hashlib
 
-from flask import request,Blueprint, Response, jsonify
-from flask_jwt_extended import  jwt_required,  get_jwt_identity,create_access_token,create_refresh_token
+from flask import request, Blueprint, Response, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity, create_access_token, create_refresh_token
 from flask_jwt_extended import get_jwt
 
 # custom 
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
-from models import UserModel, TokenBlocklist,UserRefreshToken
+from models import UserModel, TokenBlocklist, UserRefreshToken
 from init.init_db import rdb
 # 웬만한 jwt 객체 설정에 대한 것들은 jwt.utility에 있다. 
-from init.init_jwt import jwt, SECRET_KEY 
+from init.init_jwt import jwt, SECRET_KEY
 
 bp = Blueprint('users', __name__, url_prefix='/users')
 
 blacklist = set()
+
 
 @jwt.token_in_blocklist_loader
 def check_if_token_in_blocklist(jwt_header, jwt_payload):
@@ -28,19 +29,22 @@ def check_if_token_in_blocklist(jwt_header, jwt_payload):
 def register():
     user_info = request.get_json()
     if user_info:
-        pass 
+        pass
 
     pw_receive = str(user_info['password'])
     nickname_receive = str(user_info['nickname'])
     email_receive = user_info['email']
+
+    # Check if username is taken
+    if is_username_taken(nickname_receive):
+        return jsonify({"status_code": 409, "message": "Username is already taken"}), 409
 
     pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest()
     user = UserModel(username=nickname_receive, email=email_receive, password=pw_hash)
     rdb.session.add(user)
     rdb.session.commit()
 
-    return jsonify({"status_code":200 ,"message":"Success"}), 200 
-
+    return jsonify({"status_code": 200, "message": "Success"}), 200
 
 @bp.route('/login', methods=["POST"])
 def login():
@@ -49,7 +53,7 @@ def login():
     pw_receive = user_info['password']
 
     pw_hash = hashlib.sha256(pw_receive.encode()).hexdigest()
-    result = UserModel.query.filter(UserModel.email==email_receive, UserModel.password==pw_hash).first()
+    result = UserModel.query.filter(UserModel.email == email_receive, UserModel.password == pw_hash).first()
 
     if result:
         UserRefreshToken.query.filter_by(user_id=result.user_id).delete()
@@ -64,7 +68,7 @@ def login():
         rdb.session.add(token)
         rdb.session.commit()
 
-        return jsonify({'msg': 'Login in successfully', 'access_token': access_token, 'username':result.username}),200
+        return jsonify({'msg': 'Login in successfully', 'access_token': access_token, 'username': result.username}), 200
     else:
         return jsonify({'result': 'fail', 'message': '아이디/비밀번호가 일치하지 않습니다.'}), 401
 
@@ -79,11 +83,12 @@ def logout():
     rdb.session.commit()
     return jsonify({'msg': 'Successfully logged out'}), 200
 
+
 @bp.route('/refresh', methods=["GET"])
 @jwt_required()
 def refresh():
     current_user_id = get_jwt_identity()
-    
+
     # Get the user's refresh token from the database
     token = UserRefreshToken.query.filter_by(user_id=current_user_id).first()
 
@@ -95,8 +100,9 @@ def refresh():
 
     return jsonify({"access_token": access_token}), 200
 
+
 @bp.route('/protected', methods=["GET"])
-@jwt_required() 
+@jwt_required()
 def protected():
     user_id = get_jwt_identity()
     # user = UserModel.query.filter_by(email=user_email).first()
