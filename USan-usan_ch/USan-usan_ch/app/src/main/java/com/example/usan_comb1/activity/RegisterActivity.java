@@ -45,6 +45,13 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+    // 이메일 형식 확인
+    private boolean isEmailValid(String email) {
+        String emailPattern = "[a-zA-Z0-9._-]+@[a-z]+\\.+[a-z]+";
+        return email.matches(emailPattern);
+    }
+
+
     private void attemptRegister() {
         EtPwd.setError(null);
         EtName.setError(null);
@@ -68,6 +75,10 @@ public class RegisterActivity extends AppCompatActivity {
             EtEmail.setError("이메일을 입력해 주세요.");
             focusView = EtEmail;
             cancel = true;
+        }  else if (!isEmailValid(email)) {
+            EtEmail.setError("유효한 이메일을 입력해 주세요.");
+            focusView = EtEmail;
+            cancel = true;
         }
 
         // 패스워드의 유효성 검사
@@ -88,22 +99,30 @@ public class RegisterActivity extends AppCompatActivity {
         }
     }
 
+
+
     private void startRegister(RegisterData data) {
         service.userRegister(data).enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 RegisterResponse result = response.body();
                 if (result != null && response.isSuccessful()) {
-                    Toast.makeText(RegisterActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
-                    finish();
+                    int status_code = result.getStatus_code(); // status_code 가져오기
+                    if (status_code == 409) {
+                        Toast.makeText(RegisterActivity.this, "동일한 이름이 이미 존재합니다.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(RegisterActivity.this, "우산에 오신 것을 환영합니다!", Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
                 } else {
-                    Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegisterActivity.this, "회원가입에 실패했습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
 
+
             @Override
             public void onFailure(Call<RegisterResponse> call, Throwable t) {
-                Toast.makeText(RegisterActivity.this, "회원가입 에러 발생", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterActivity.this, "네트워크 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
             }
         });
     }
