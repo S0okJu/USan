@@ -1,6 +1,7 @@
 import os, sys
 import json 
 import datetime
+import random
 
 # * lib
 from flask import request, jsonify, Blueprint, redirect
@@ -29,7 +30,20 @@ SEQ_NO = 1101027661
 bp = Blueprint('payment', __name__, url_prefix='/payment')
 
 
+@bp.route('/list',methods=['POST'])
+@jwt_required()
+def userme():
+    user_id = get_jwt_identity()
 
+@bp.route('/withdraw',methods=['POST'])
+def withdraw():
+    user = request.decoded
+    fin_use_num = request.form['fin_use_num']
+    to_fin_use_num = request.form['to_fin_use_num']
+    amount = request.form['amount']
+    countnum = random.randint(1, 1000000000)
+    transId = companyId + str(countnum)
+    transdtime = datetime.now().strftime('%Y%m%d%H%M%S')
 
 
 

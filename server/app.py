@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 # custom 
 from init.init_db import init_db
 from init.init_socket import init_socket, socketio
-from resources import product, user,imgs, chat,display,payment, profile, distance
+from resources import product, user,imgs,display,payment, profile, distance
 from init.init_jwt import init_jwt
 from utils.error.custom_error import init_custom_error_handler
 
@@ -53,7 +53,7 @@ app.register_blueprint(display.bp)
 app.register_blueprint(payment.bp)
 app.register_blueprint(profile.bp)
 app.register_blueprint(distance.bp)
-app.register_blueprint(chat.bp)
+
 
 
 if __name__ == '__main__':
