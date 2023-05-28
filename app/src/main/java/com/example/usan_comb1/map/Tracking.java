@@ -1,4 +1,4 @@
-package com.example.usan_comb1;
+package com.example.usan_comb1.map;
 
 public class Tracking {
     private String email, uid, lat, lng;

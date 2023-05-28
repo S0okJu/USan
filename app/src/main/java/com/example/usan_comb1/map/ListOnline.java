@@ -1,12 +1,17 @@
-package com.example.usan_comb1.activity;
+package com.example.usan_comb1.map;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationRequest;
+
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 import android.widget.Toolbar;
+
+import android.Manifest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,13 +20,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.usan_comb1.Manifest;
 import com.example.usan_comb1.R;
-import com.example.usan_comb1.Tracking;
+
+import com.example.usan_comb1.map.Tracking;
+import com.example.usan_comb1.response.LoginResponse;
 import com.firebase.ui.auth.ui.User;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -31,13 +40,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 
-public class ListOnline extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+public class ListOnline extends AppCompatActivity  implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
     //Firebase
     DatabaseReference onlineRef, currentUserRef, counterRef, locations;
-    FirebaseRecyclerAdapter<User, ListOnlineViewHolder> adapter;
+    FirebaseRecyclerAdapter<LoginResponse, ListOnlineViewHolder> adapter;
 
     //View
     RecyclerView listOnline;
@@ -59,14 +68,14 @@ public class ListOnline extends AppCompatActivity implements GoogleApiClient.Con
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_online);
 
-        //Init view
+        //Init views
         listOnline = (RecyclerView) findViewById(R.id.listOnline);
         listOnline.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         listOnline.setLayoutManager(layoutManager);
 
         //Set toolbar and Logout / Join menu
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
         toolbar.setTitle("EDMT Presence System");
         setSupportActionBar(toolbar);
 
@@ -97,13 +106,15 @@ public class ListOnline extends AppCompatActivity implements GoogleApiClient.Con
         updateList();
     }
 
+    private void setSupportActionBar(Toolbar toolbar) {
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
-            case MY_PERMISSION_REQUEST_CODE:
-            {
-                if(grantResults.length >0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
+            case MY_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (checkPlayServices()) {
                         buildGoogleApiClient();
                         createLocationRequest();
@@ -127,7 +138,7 @@ public class ListOnline extends AppCompatActivity implements GoogleApiClient.Con
                     .setValue(new Tracking(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
                             FirebaseAuth.getInstance().getCurrentUser().getUid(),
                             String.valueOf(mLastLocation.getLatitude()),
-                            String.valueOf(mLastLocation.getLongitude())))
+                            String.valueOf(mLastLocation.getLongitude())));
         }
         else {
             Toast.makeText(this, "위치를 얻을 수 없습니다.", Toast.LENGTH_SHORT).show();
@@ -166,7 +177,40 @@ public class ListOnline extends AppCompatActivity implements GoogleApiClient.Con
     }
 
     private void updateList() {
+        FirebaseRecyclerOptions<LoginResponse> options =
+                new FirebaseRecyclerOptions.Builder<LoginResponse>()
+                        .setQuery(counterRef, LoginResponse.class)
+                        .build();
 
+
+        adapter = new FirebaseRecyclerAdapter<LoginResponse,ListOnlineViewHolder>(options){
+            @NonNull
+            @Override
+            public ListOnlineViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                return null;
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull ListOnlineViewHolder viewHolder, int position, @NonNull LoginResponse model) {
+                viewHolder.txtEmail.setText(model.getEmail());
+
+                viewHolder.itemClickListener = new ItemClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        // If model is current user, note set click event
+                        if(!model.getEmail().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())){
+                            Intent map = new Intent(ListOnline.this, MapTracking.class);
+                            map.putExtra("email", model.getEmail());
+                            map.putExtra("lat",mLastLocation.getLatitude());
+                            map.putExtra("lng",mLastLocation.getLongitude());
+                            startActivity(map);
+                        }
+                    }
+                };
+            }
+        };
+        adapter.notifyDataSetChanged();
+        listOnline.setAdapter(adapter);
     }
 
     private void setupSystem() {
@@ -203,7 +247,7 @@ public class ListOnline extends AppCompatActivity implements GoogleApiClient.Con
         {
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
     }
 
     @Override

@@ -5,8 +5,22 @@
     android:id="@+id/layout_map"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.ListOnline">
+    tools:context=".map.ListOnline">
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolBar"
+        android:minHeight="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></android.support.v7.widget.Toolbar>
+    
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/listOnline"
+        android:layout_below="@id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </android.support.v7.widget.RecyclerView>
     <fragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"

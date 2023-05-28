@@ -1,0 +1,172 @@
+{
+  "project_info": {
+    "project_number": "185495583610",
+    "firebase_url": "https://usan-team-default-rtdb.firebaseio.com",
+    "project_id": "usan-team",
+    "storage_bucket": "usan-team.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185495583610:android:16b717b6d59c372d4974c3",
+        "android_client_info": {
+          "package_name": "com.example.storedatarealtime"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpzhdKoWXmbHVJ9bI3q0Djr2DKYJizpnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185495583610:android:72049439a5ba096e4974c3",
+        "android_client_info": {
+          "package_name": "com.example.usan"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpzhdKoWXmbHVJ9bI3q0Djr2DKYJizpnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185495583610:android:8f71ba505ade27984974c3",
+        "android_client_info": {
+          "package_name": "com.example.usan1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185495583610-1uior0fbkst4c0cbp600hugod2s4ja07.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.usan1",
+            "certificate_hash": "9f35e5e9c095c6d3676cdd6f4c7f8cba241566e8"
+          }
+        },
+        {
+          "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpzhdKoWXmbHVJ9bI3q0Djr2DKYJizpnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185495583610:android:4450b22f7d860c5f4974c3",
+        "android_client_info": {
+          "package_name": "com.example.usan_comb1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpzhdKoWXmbHVJ9bI3q0Djr2DKYJizpnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185495583610:android:f4e53fce1af242384974c3",
+        "android_client_info": {
+          "package_name": "usan.team"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "185495583610-h2so36dfri3d03gig7i18thi639hc1bp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "usan.team",
+            "certificate_hash": "9f35e5e9c095c6d3676cdd6f4c7f8cba241566e8"
+          }
+        },
+        {
+          "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBpzhdKoWXmbHVJ9bI3q0Djr2DKYJizpnw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "185495583610-cfaijg3dtsqj2mdag0svsh0n1m3oi301.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

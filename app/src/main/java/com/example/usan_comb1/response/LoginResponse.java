@@ -13,6 +13,9 @@ public class LoginResponse {
     @SerializedName("username")
     private String username;
 
+    @SerializedName("email")
+    private String email;
+
     public String getMessage() {
         return message;
     }
@@ -23,5 +26,8 @@ public class LoginResponse {
 
     // Username 추가
     public String getUsername(){return username;}
+
+    public String getEmail(){return email;}
+
 }
 
