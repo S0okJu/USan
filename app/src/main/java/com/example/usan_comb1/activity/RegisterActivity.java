@@ -1,9 +1,11 @@
 package com.example.usan_comb1.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,9 +17,13 @@ import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.models.User;
 import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.response.RegisterResponse;
+import com.example.usan_comb1.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.core.Constants;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -31,6 +37,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText EtPwd, EtName, EtEmail;
     private Button Btnreg;
     private ProductService service;
+    private PreferenceManager preferenceManager;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -43,7 +50,7 @@ public class RegisterActivity extends AppCompatActivity {
         EtEmail = findViewById(R.id.et_email);
 
         service = RetrofitClient.getRetrofitInstance().create(ProductService.class);
-
+        preferenceManager = new PreferenceManager(getApplicationContext());
         Btnreg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,9 +109,8 @@ public class RegisterActivity extends AppCompatActivity {
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 RegisterResponse result = response.body();
                 if (result != null && response.isSuccessful()) {
+                    setFirebase(data);
                     Toast.makeText(RegisterActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
-
-
                     finish();
                 } else {
                     Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show();
@@ -118,7 +124,27 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+    private void setFirebase(RegisterData data){
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        HashMap<String, Object> user = new HashMap<>();
+        user.put("email",data.getEmail());
+        user.put("username",data.getNickname());
+        database.collection("users").
+                add(user)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Log.d("FIRE","Add user");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("FIRE", "Fail to add");
+                    }
+                });
 
+    }
 
     private boolean isPasswordValid(String password) {
         return password.length() >= 6;
