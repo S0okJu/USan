@@ -12,8 +12,15 @@ import android.widget.Toast;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.models.User;
 import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.response.RegisterResponse;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.core.Constants;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -89,12 +96,15 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void startRegister(RegisterData data) {
+
         service.userRegister(data).enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 RegisterResponse result = response.body();
                 if (result != null && response.isSuccessful()) {
                     Toast.makeText(RegisterActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
+
+
                     finish();
                 } else {
                     Toast.makeText(RegisterActivity.this, "회원가입 실패", Toast.LENGTH_SHORT).show();
@@ -107,6 +117,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     private boolean isPasswordValid(String password) {
         return password.length() >= 6;
