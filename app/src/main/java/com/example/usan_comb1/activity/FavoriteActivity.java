@@ -12,12 +12,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.adapter.FavoriteAdapter;
+import com.example.usan_comb1.adapter.RecyclerViewEmptySupport;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.response.RetroProduct;
@@ -38,8 +40,10 @@ public class FavoriteActivity extends AppCompatActivity {
 
     private static final String TAG = "Favorite_Activity";
 
-    private RecyclerView recyclerView;
+    private RecyclerViewEmptySupport recyclerView;
     private FavoriteAdapter adapter;
+    private TextView empty;
+
 
     NestedScrollView nestedScrollView;
     ProgressBar progressBar;
@@ -62,6 +66,7 @@ public class FavoriteActivity extends AppCompatActivity {
         nestedScrollView = findViewById(R.id.scroll_view);
         recyclerView = findViewById(R.id.recycler_view);
         progressBar = findViewById(R.id.progress_bar);
+        empty = findViewById(R.id.empty_view);
 
         //adapter = new FavoriteAdapter(this, dataArrayList);
         //recyclerView.setAdapter(adapter);
@@ -69,6 +74,7 @@ public class FavoriteActivity extends AppCompatActivity {
         adapter = new FavoriteAdapter(this, favoriteList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setEmptyView(empty);
 
         // Authorization
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
@@ -92,7 +98,6 @@ public class FavoriteActivity extends AppCompatActivity {
             public void onResponse(Call<List<FavoriteProduct>> call, Response<List<FavoriteProduct>> response) {
                 if (response.isSuccessful()) {
                     List<FavoriteProduct> favoriteProducts = response.body();
-                    System.out.println(favoriteProducts.get(0).toString());
                     if (favoriteProducts != null) {
                         Log.d(TAG, "Received " + favoriteProducts.size() + " favoriteProducts from server.");
                         favoriteList.clear();

@@ -12,6 +12,7 @@
         android:layout_height="30dp"
         android:background="@drawable/home"
         android:text="Button"
+        android:backgroundTint="@color/color3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.044"
@@ -23,15 +24,17 @@
 
     <TextView
         android:id="@+id/name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="129dp"
+        android:layout_height="71dp"
+        android:fontFamily="@font/noto_bold"
         android:text="name"
         android:textSize="25dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.524"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.199" />
+        app:layout_constraintVertical_bias="0.183" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -51,6 +54,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="68dp"
         android:text="프로필 수정"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.914"
@@ -75,6 +80,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="판매 내역"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.189"
@@ -93,7 +100,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.562"
         app:srcCompat="@drawable/star"
-        app:tint="@color/red" />
+        app:tint="@color/color3" />
 
     <ImageView
         android:id="@+id/imageView3"
@@ -106,7 +113,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.459"
         app:srcCompat="@drawable/star"
-        app:tint="@color/red" />
+        app:tint="@color/color3" />
 
     <View
         android:id="@+id/view3"
@@ -126,6 +133,7 @@
         android:layout_height="wrap_content"
         android:text="나의 거래"
         android:textSize="17dp"
+        android:fontFamily="@font/noto_bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.043"
@@ -150,6 +158,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="관심 목록"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.189"
@@ -162,6 +172,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="GPS"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.185"

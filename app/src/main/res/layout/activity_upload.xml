@@ -32,10 +32,10 @@
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint= "제목을 입력해주세요"
+                android:hint= "제목을 입력해 주세요"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/lavender"/>
-            
+                android:textColor="@color/color3"/>
+
 
             <EditText
                 android:layout_width="match_parent"
@@ -45,9 +45,9 @@
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint= "가격을 입력해주세요"
+                android:hint= "가격을 입력해 주세요"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/lavender"/>
+                android:textColor="@color/color3"/>
 
             <EditText
                 android:layout_width="match_parent"
@@ -56,9 +56,9 @@
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint= "상품 설명을 입력해주세요"
+                android:hint= "상품 설명을 입력해 주세요"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/lavender"/>
+                android:textColor="@color/color3"/>
 
             <EditText
                 android:layout_width="match_parent"
@@ -67,9 +67,9 @@
                 android:background="@drawable/lavender_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
-                android:hint= "주소를 입력해주세요"
+                android:hint= "주소를 입력해 주세요"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/lavender"/>
+                android:textColor="@color/color3"/>
 
             <ProgressBar
                 android:id="@+id/product_progress"

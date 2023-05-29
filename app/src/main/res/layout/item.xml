@@ -13,6 +13,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         >
 
         <ImageView
@@ -26,6 +27,7 @@
 
         <TextView
             android:id="@+id/adpt_title"
+            android:fontFamily="@font/noto"
             style="@style/TextAppearance.AppCompat.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -42,8 +44,9 @@
             style="@style/TextAppearance.AppCompat.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="11dp"
             android:layout_toRightOf="@+id/adpt_coverImage"
+            android:fontFamily="@font/noto"
             android:lines="1"
             android:paddingTop="65dp"
             android:text="author" />
@@ -55,6 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="121dp"
             android:layout_toRightOf="@+id/adpt_author"
+            android:fontFamily="@font/noto"
             android:lines="1"
             android:paddingTop="65dp"
             android:text="price" />

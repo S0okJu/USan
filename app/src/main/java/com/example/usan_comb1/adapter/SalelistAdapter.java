@@ -2,6 +2,7 @@ package com.example.usan_comb1.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -16,15 +17,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.activity.UpdateActivity;
+import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.RetroProduct;
-import com.example.usan_comb1.response.SaleResponse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +42,17 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
     private List<com.example.usan_comb1.response.RetroProduct> productList;
     private ArrayList<com.example.usan_comb1.response.RetroProduct> dataArrayList;
 
+    // Interface for item click listener
+    public interface OnItemClickListener {
+        void onItemClick(int position, RetroProduct data);
+    }
 
+    private SalelistAdapter.OnItemClickListener listener;
+
+    // Set item click listener
+    public void setOnItemClickListener(SalelistAdapter.OnItemClickListener listener) {
+        this.listener = listener;
+    }
 
     public SalelistAdapter(Activity activity, List<com.example.usan_comb1.response.RetroProduct> productList) {
         this.activity = activity;
@@ -62,15 +72,21 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
     public void onBindViewHolder(@NonNull CustomViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (position >= 0 && position < productList.size()) {
             //...
-            RetroProduct product = productList.get(position);
+            com.example.usan_comb1.response.RetroProduct product = productList.get(position);
             Log.d("SalelistAdapter", "onBindViewHolder: position=" + position + ", title=" + product.getTitle());
 
             mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
             // 상품명과 가격, 상태를 출력하는 코드 추가
             holder.tvName.setText(product.getTitle());
-            holder.tvPrice.setText(String.valueOf(product.getPrice()) + "원"); // 수정된 코드
+            holder.tvPrice.setText(String.valueOf(product.getPrice()) + "원");  // 수정된 코드
             holder.tvStatus.setText(String.valueOf(product.getStatus()));
+
+            holder.itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onItemClick(position, product);
+                }
+            });
 
             // 삭제 버튼 클릭 이벤트 처리
             holder.btndelete.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +95,6 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
                     // 삭제 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
                     // 해당 게시물의 ID를 가져옴 (예시로 "product_id"라고 가정)
                     productId = product.getProductId();
-                    System.out.println(productId);
 
                     // 삭제 요청을 보낼 때 필요한 인증 토큰 (accessToken)을 가져옴
                     SharedPreferences prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE);
@@ -198,10 +213,14 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
                 }
             });
 
-            // 수정 버튼 클릭 이벤트 처리
+
+
+            // 업데이트 버튼 클릭 이벤트 처리
             holder.btnupdate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    // 업데이트 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
+                    // 예: 데이터 업데이트 작업 수행 및 결과 처리
                     // 업데이트 버튼 클릭 시 처리할 내용을 여기에 작성하세요.
                     // 예: 데이터 업데이트 작업 수행 및 결과 처리
 
@@ -214,9 +233,11 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
             });
 
             //...
-        } else {
+        }
+        else {
             Log.e("SalelistAdapter", "Invalid position: " + position);
         }
+
 
 
 
@@ -265,7 +286,7 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
             tvName = itemView.findViewById(R.id.title);
             tvPrice = itemView.findViewById(R.id.price);
             tvStatus = itemView.findViewById(R.id.status);
-            btnstate = itemView.findViewById(R.id.btnstatechange);
+            btnstate = itemView.findViewById(R.id.btnstate);
             btnupdate = itemView.findViewById(R.id.btnupdate);
             btndelete = itemView.findViewById(R.id.btndelete);
         }

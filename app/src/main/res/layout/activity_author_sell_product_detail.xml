@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/white"
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
@@ -53,18 +54,19 @@
                     <!-- CardView 안에 TextView 추가 -->
                     <ImageView
                         android:id="@+id/profile"
-                        android:layout_width ="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="62dp"
+                        android:layout_height="68dp"
                         android:layout_margin="10dp"
                         android:src="@drawable/ic_profile"
                         />
 
                     <TextView
                         android:id="@+id/nickname"
-                        android:layout_width="250dp"
+                        android:layout_width="309dp"
                         android:layout_height="wrap_content"
-                        android:gravity="center"
                         android:layout_gravity="center_vertical"
+                        android:fontFamily="@font/noto"
+                        android:gravity="center"
                         android:padding="16dp"
                         android:paddingStart="8dp"
                         android:text="닉네임"
@@ -79,21 +81,15 @@
                     android:layout_height="63dp"
                     android:gravity="center"
                     android:text="제목"
+                    android:fontFamily="@font/noto_bold"
                     android:textSize="30sp" />
-
-                <TextView
-                    android:id="@+id/tv_price"
-                    android:layout_width="match_parent"
-                    android:layout_height="42dp"
-                    android:gravity="right"
-                    android:text="가격(원)"
-                    android:textSize="18sp" />
 
                 <TextView
                     android:id="@+id/tv_detail"
                     android:layout_width="match_parent"
                     android:layout_height="224dp"
                     android:gravity="center"
+                    android:fontFamily="@font/noto_light"
                     android:text="설명"
                     android:textSize="18sp" />
 
@@ -102,11 +98,18 @@
                     android:id="@+id/author_sell"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="left"
+                    android:gravity="center"
                     android:layout_margin="10dp"
-                    android:text="작성자 판매상품"
+                    android:text="작성자 판매 상품"
+                    android:fontFamily="@font/noto_bold"
                     android:textSize="20sp"
                     android:textStyle="bold"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
 
             </LinearLayout>
         </ScrollView>
@@ -114,16 +117,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/color2"
             android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/imgbtn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/unselect_ic_heart"
+                android:layout_width="10dp"
+                android:layout_height="64dp"
                 android:layout_margin="10dp"
-                android:background = "#00FF0000"/>
+                android:layout_weight="1"
+                android:background="#00FF0000"
+                android:src="@drawable/unselect_ic_heart" />
 
             <TextView
                 android:id="@+id/tvprice"
@@ -131,6 +135,7 @@
                 android:layout_height="wrap_content"
                 android:text="가격(원)"
                 android:textSize="20sp"
+                android:fontFamily="@font/noto_light"
                 android:gravity="center"
                 android:layout_weight="1"
                 android:layout_margin="10dp"/>
@@ -141,6 +146,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_margin="10dp"
+                android:background="@color/color1"
+                android:fontFamily="@font/noto"
                 android:text="채팅하기" />
 
         </LinearLayout>

@@ -42,7 +42,7 @@ public class DestinationActivity extends AppCompatActivity {
 
     {
         try {
-            mSocket = IO.socket("http://13.124.53.124:56336");
+            mSocket = IO.socket("http://3.36.126.20:50574");
             mSocket.connect();
         } catch (URISyntaxException e) {
             e.printStackTrace();

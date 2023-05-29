@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
@@ -34,9 +33,9 @@ import retrofit2.Response;
 // 상세페이지
 public class DetailActivity extends AppCompatActivity {
 
-    private TextView tvTitle, tvPrice, tvDetail, tvAuthor;
+    private TextView tvTitle, tvDetail, tvAuthor;
     private TextView price;
-    CardView profile_cardview;
+    private ImageView profile;
     private ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
@@ -55,10 +54,9 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         tvTitle = findViewById(R.id.tv_title);
-        tvPrice = findViewById(R.id.txtvprice);
         tvDetail = findViewById(R.id.tv_detail);
-        tvAuthor = findViewById(R.id.tv_author);
-        profile_cardview = findViewById(R.id.profile_cardView);
+        tvAuthor = findViewById(R.id.nickname);
+        profile = findViewById(R.id.profile);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
@@ -75,40 +73,32 @@ public class DetailActivity extends AppCompatActivity {
             }
         }
 
-        profile_cardview.setOnClickListener(new View.OnClickListener() {
+        tvAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(DetailActivity.this, OtherProfileActivity.class);
-                startActivity(intent);
+                Intent otherProfileIntent = new Intent(DetailActivity.this, OtherProfileActivity.class);
+                otherProfileIntent.putExtra("username", tvAuthor.getText().toString());
+                startActivity(otherProfileIntent);
             }
         });
 
-        int page_per = 10;
-        int page = 1;
-        Call<List<RetroProduct>> call = mProductService.getProductList(accessToken, username, page_per, page);
-        call.enqueue(new Callback<List<RetroProduct>>() {
+        profile.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onResponse(Call<List<RetroProduct>> call, Response<List<RetroProduct>> response) {
-                if (response.isSuccessful()) {
-                    generateDataList(response.body());
-                } else {
-                    Toast.makeText(DetailActivity.this, response.message(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<RetroProduct>> call, Throwable t) {
-                Toast.makeText(DetailActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onClick(View v) {
+                Intent otherProfileIntent = new Intent(DetailActivity.this, OtherProfileActivity.class);
+                otherProfileIntent.putExtra("username", tvAuthor.getText().toString());
+                startActivity(otherProfileIntent);
             }
         });
 
 
+        //하단바 가격을 나타내는 뷰 객체
+        price = findViewById(R.id.txtvprice);
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
 
         // 제목, 가격, 설명 설정
         tvTitle.setText("상품 제목");
-        tvPrice.setText("100,000원");
         tvDetail.setText("상품 설명입니다.");
 
         viewPager = findViewById(R.id.viewPager);
@@ -141,35 +131,6 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }
         });
-
-        /*
-        // 카드뷰 객체 생성
-
-        CardView cardView1 = findViewById(R.id.card1);
-        CardView cardView2= findViewById(R.id.card2);
-
-
-        // 카드뷰1 클릭 이벤트 처리
-        cardView1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 클릭 이벤트 발생 시 실행될 코드 작성
-                Intent intent = new Intent(getApplicationContext(), AuthorSellProductDetailActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        // 카드뷰2 클릭 이벤트 처리
-        cardView2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // 클릭 이벤트 발생 시 실행될 코드 작성
-                Intent intent = new Intent(getApplicationContext(), AuthorSellProductDetailActivity.class);
-                startActivity(intent);
-            }
-        });
-         */
-
     }
 
     // 토스트 메시지를 출력하는 메서드
@@ -224,40 +185,38 @@ public class DetailActivity extends AppCompatActivity {
     // 상세페이지로 데이터 불러오기
     public void checkData(Integer productId) {
 
-        mProductService.getProduct( accessToken, productId)
-                .enqueue(new Callback<PostResult>() {
-                    @Override
-                    public void onResponse(Call<PostResult> call, Response<PostResult> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            PostResult product = response.body();
+        mProductService.getProduct(accessToken, productId).enqueue(new Callback<PostResult>() {
+            @Override
+            public void onResponse(Call<PostResult> call, Response<PostResult> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    PostResult product = response.body();
 
-                            tvTitle.setText(product.getPost_Title());
-                            tvPrice.setText(product.getPost_Price()+"원");
-                            tvDetail.setText(product.getPost_Content());
-                            tvAuthor.setText(product.getPost_Author());
+                    tvTitle.setText(product.getPost_Title());
+                    tvDetail.setText(product.getPost_Content());
+                    tvAuthor.setText(product.getPost_Author());
+                    price.setText(product.getPost_Price());
+                    // tvAuthor 텍스트 설정 후에 호출
+                    loadUserPosts(product.getPost_Author());
 
-                            // tvAuthor 텍스트 설정 후에 호출
-                            loadUserPosts(product.getPost_Author());
+                    ImageView favoriteButton = findViewById(R.id.imgbtn);
 
-                            ImageView favoriteButton = findViewById(R.id.imgbtn);
-
-                            isFavorite = product.isFavorite();
-                            if (product.isFavorite() == true) {
-                                favoriteButton.setImageResource(R.drawable.select_ic_heart);
-                            } else {
-                                favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
-                            }
-
-                        } else {
-                            Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
-                        }
+                    isFavorite = product.isFavorite();
+                    if (product.isFavorite() == true) {
+                        favoriteButton.setImageResource(R.drawable.select_ic_heart);
+                    } else {
+                        favoriteButton.setImageResource(R.drawable.unselect_ic_heart);
                     }
 
-                    @Override
-                    public void onFailure(Call<PostResult> call, Throwable t) {
-                        Toast.makeText(DetailActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                } else {
+                    Toast.makeText(DetailActivity.this, "데이터 가져오기 실패", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PostResult> call, Throwable t) {
+                Toast.makeText(DetailActivity.this, "서버 통신 에러 발생", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
