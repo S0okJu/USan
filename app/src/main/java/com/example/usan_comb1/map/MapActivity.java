@@ -23,46 +23,16 @@ import java.util.Arrays;
 
 public class MapActivity extends AppCompatActivity {
 
-    Button btnLogin;
-
-    private final static int LOGIN_PERMISSION = 1000;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
 
-        btnLogin = findViewById(R.id.btnSignIn);
+        // Skip login code
 
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(
-                        AuthUI.getInstance().createSignInIntentBuilder()
-                                .setAvailableProviders(Arrays.asList(new AuthUI.IdpConfig.EmailBuilder().build()))
-                                .build(),
-                        LOGIN_PERMISSION
-                );
-            }
-        });
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == LOGIN_PERMISSION) {
-            startNewActivity(resultCode, data);
-        }
-    }
-
-    private void startNewActivity(int resultCode, Intent data) {
-        if (resultCode == RESULT_OK) {
-            Intent intent = new Intent(MapActivity.this, ListOnline.class);
-            startActivity(intent);
-            finish();
-        } else {
-            Toast.makeText(this, "로그인 실패", Toast.LENGTH_SHORT).show();
-        }
+        Intent intent = new Intent(MapActivity.this, ListOnline.class);
+        startActivity(intent);
+        finish();
     }
 }
 

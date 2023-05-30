@@ -1,32 +1,23 @@
 package com.example.usan_comb1.map;
 
 public class Tracking {
-    private String email, uid, lat, lng;
+    private String username, lat, lng;
 
     public Tracking() {
     }
 
-    public Tracking(String email, String uid, String lat, String lng) {
-        this.email = email;
-        this.uid = uid;
+    public Tracking(String username, String lat, String lng) {
+        this.username = username;
         this.lat = lat;
         this.lng = lng;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUid() {
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getLat() {

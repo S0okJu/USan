@@ -1,20 +1,20 @@
 package com.example.usan_comb1.map;
 
 public class User {
-    private String email, status;
+    private String username, status;
 
     public User() {}
-    public User(String email, String status) {
-        this.email = email;
+    public User(String username, String status) {
+        this.username = username;
         this.status = status;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUsername() {
+        return username;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getStatus() {
