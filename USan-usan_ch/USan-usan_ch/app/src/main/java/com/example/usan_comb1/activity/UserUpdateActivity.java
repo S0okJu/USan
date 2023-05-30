@@ -29,6 +29,7 @@ import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.request.ProfileUpRequest;
 import com.example.usan_comb1.response.ProfileResponse;
+import com.example.usan_comb1.response.UploadResponse;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -172,62 +173,78 @@ public class UserUpdateActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SELECT_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri imageUri = data.getData();
-            uploadImage(username, imageUri, accessToken);
+            uploadImage(username, imageUri, "Bearer" + accessToken);
         }
     }
 
 
-    public void uploadImage(String username, Uri imageUri, String accessToken) {
-        // 이미지를 MultipartBody.Part로 변환
-        try {
-            InputStream inputStream = getContentResolver().openInputStream(imageUri);
-            File imageFile = createImageFileFromInputStream(inputStream);
-            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageFile);
-            MultipartBody.Part body = MultipartBody.Part.createFormData("imgs", imageFile.getName(), requestFile);
-            //이미지 업로드 요청
-            Call<ResponseBody> call = mProductService.uploadImage("Bearer " + accessToken, username, body);
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        // 이미지 업로드 성공 처리
-                        Toast.makeText(UserUpdateActivity.this, "사진을 업로드했습니다.", Toast.LENGTH_SHORT).show();
-                        Log.i("Upload success", "Successfully uploaded image");
-                    } else {
-                        // 이미지 업로드 실패 처리
-                        Toast.makeText(UserUpdateActivity.this, "사진 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                        Log.e("Upload error", "Upload failed: " + response.message());
-                        return;
-                    }
-                }
+     public void uploadImage(String username, Uri imageUri, String accessToken) {
+         // 이미지를 MultipartBody.Part로 변환
+         try {
+             InputStream inputStream = getContentResolver().openInputStream(imageUri);
+             File imageFile = createImageFileFromInputStream(inputStream);
+             RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageFile);
+             MultipartBody.Part body = MultipartBody.Part.createFormData("img", imageFile.getName(), requestFile);
+             // 이미지 업로드 요청
+             Call<UploadResponse> call = mProductService.uploadImage("Bearer " + accessToken, username, body);
+             call.enqueue(new Callback<UploadResponse>() {
+                 @Override
+                 public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
+                     if (response.isSuccessful()) {
+                         // 이미지 업로드 성공 처리
+                         Toast.makeText(UserUpdateActivity.this, "사진을 업로드했습니다.", Toast.LENGTH_SHORT).show();
+                         Log.i("Upload success", "Successfully uploaded image");
+                     } else {
+                         // 이미지 업로드 실패 처리
+                         Toast.makeText(UserUpdateActivity.this, "사진 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                         Log.e("Upload error", "Upload failed: " + response.message());
+                         return;
+                     }
+                 }
 
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    // 네트워크 오류 처리
-                    Toast.makeText(UserUpdateActivity.this, "네트워크 오류", Toast.LENGTH_SHORT).show();
-                    Log.e("Upload error", t.getMessage());
-                }
-            });
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+                 @Override
+                 public void onFailure(Call<UploadResponse> call, Throwable t) {
+                     // 네트워크 오류 처리
+                     Toast.makeText(UserUpdateActivity.this, "네트워크 오류", Toast.LENGTH_SHORT).show();
+                     Log.e("Upload error", t.getMessage());
+                 }
+             });
+         } catch (FileNotFoundException e) {
+             e.printStackTrace();
+         }
+     }
 
-    private File createImageFileFromInputStream(InputStream inputStream) {
-        try {
-            File file = new File(getCacheDir(), "temp_image.jpg");
-            OutputStream outputStream = new FileOutputStream(file);
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
-            }
-            outputStream.close();
-            inputStream.close();
-            return file;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-}
+
+     private File createImageFileFromInputStream(InputStream inputStream) {
+         OutputStream outputStream = null;
+         try {
+             File file = new File(getFilesDir(), generateUniqueFileName()); // 다른 디렉토리 및 유니크한 파일 이름 사용
+             outputStream = new FileOutputStream(file);
+             byte[] buffer = new byte[1024];
+             int bytesRead;
+             while ((bytesRead = inputStream.read(buffer)) != -1) {
+                 outputStream.write(buffer, 0, bytesRead);
+             }
+             return file;
+         } catch (IOException e) {
+             e.printStackTrace();
+             return null;
+         } finally {
+             try {
+                 if (outputStream != null) {
+                     outputStream.close();
+                 }
+                 inputStream.close();
+             } catch (IOException e) {
+                 e.printStackTrace();
+             }
+         }
+     }
+
+     private String generateUniqueFileName() {
+         // 유니크한 파일 이름 생성 로직을 구현하세요
+         // 예: 현재 타임스탬프를 기반으로 파일 이름 생성
+         return "image_" + System.currentTimeMillis() + ".jpg";
+     }
+
+ }

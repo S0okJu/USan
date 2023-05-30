@@ -13,6 +13,7 @@ import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.RegisterResponse;
 import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.response.UpdateResponse;
+import com.example.usan_comb1.response.UploadResponse;
 
 import java.util.List;
 
@@ -109,7 +110,10 @@ public interface ProductService {
     @Headers("Content-Type: multipart/form-data")
     @Multipart
     @POST("/profile/{username}/upload")
-    Call<ResponseBody> uploadImage(@Header("Authorization") String accessToken, @Path("username") String username, @Part MultipartBody.Part imagePart);
+    Call<UploadResponse> uploadImage(@Header("Authorization") String accessToken, @Path("username") String username, @Part MultipartBody.Part imagePart);
+
+    @GET("/users/register")
+    Call<RegisterResponse> checkDuplicateEmail(@Query("email") String email);
 
 
     /*
