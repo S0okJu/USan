@@ -43,7 +43,6 @@ public class RegisterActivity extends AppCompatActivity {
     private Button Btnreg, Btnidchk;
     private ProductService service;
     private PreferenceManager preferenceManager;
-    private int status_code;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -140,25 +139,29 @@ public class RegisterActivity extends AppCompatActivity {
         service.userRegister(data).enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
-                RegisterResponse result = response.body();
-                System.out.println(result);
-                if (result != null && response.isSuccessful()) {
-
-                    setFirebase(data);
-
-                    int status_code = result.getStatus_code();// status_code 가져오기
-                    Log.d("TAG", "Status Code: " + status_code);
-                    if (status_code == 409) {
-                        Log.d("TAG", "Status Code: " + status_code);
-                        Toast.makeText(RegisterActivity.this, "동일한 이름이 이미 존재합니다.", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Log.d("TAG", "Status Code: " + status_code);
-                        Toast.makeText(RegisterActivity.this, "우산에 오신 것을 환영합니다!", Toast.LENGTH_SHORT).show();
-                        finish();
+                if (response.isSuccessful()) {
+                    RegisterResponse result = response.body();
+                    if (result != null) {
+                        int statusCode = result.getStatus_code();
+                        System.out.println(statusCode);
+                        if (statusCode == 200) {
+                            setFirebase(data);
+                            Log.d("TAG", "Status Code: " + statusCode);
+                            Toast.makeText(RegisterActivity.this, "우산에 오신 것을 환영합니다!", Toast.LENGTH_SHORT).show();
+                            finish();
+                        } else if (statusCode == 409) {
+                            Toast.makeText(RegisterActivity.this, "동일한 이름이 있습니다.", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 } else {
-                    Log.d("TAG", "Status Code: " + status_code);
-                    Toast.makeText(RegisterActivity.this, "회원가입에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                    switch (response.code()) {
+                        case 409:
+                            Toast.makeText(RegisterActivity.this, "동일한 이름이 있습니다.", Toast.LENGTH_SHORT).show();
+                            break;
+                        default:
+                            Toast.makeText(RegisterActivity.this, "서버 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
                 }
             }
 
@@ -169,6 +172,8 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+
+
     private void checkEmailAvailability(EmailCheckRequest request) {
         service.checkEmailAvailability(request).enqueue(new Callback<EmailCheckResponse>() {
             @Override
@@ -176,22 +181,25 @@ public class RegisterActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     EmailCheckResponse result = response.body();
                     if (result != null) {
-                        int status_code = result.getStatus_code();
-
-                        // 상태 코드에 따라 처리
-                        if (status_code == 200) {
-                            // 이메일 사용 가능
-                            Log.d("TAG", "Status Code: " + status_code);
+                        int statusCode = result.getStatus_code();
+                        System.out.println(statusCode);
+                        if (statusCode == 200) {
+                            Log.d("TAG", "Status Code: " + statusCode);
                             Toast.makeText(RegisterActivity.this, "사용 가능한 이메일입니다.", Toast.LENGTH_SHORT).show();
-                        } else if (status_code == 409) {
-                            // 이메일 중복
-                            Log.d("TAG", "Status Code: " + status_code);
+                            finish();
+                        } else if (statusCode == 409) {
                             Toast.makeText(RegisterActivity.this, "동일한 이메일이 있습니다.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 } else {
-                    Log.d("TAG", "Status Code: " + status_code);
-                    Toast.makeText(RegisterActivity.this, "이메일 중복 확인에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                    switch (response.code()) {
+                        case 409:
+                            Toast.makeText(RegisterActivity.this, "동일한 이메일이 있습니다.", Toast.LENGTH_SHORT).show();
+                            break;
+                        default:
+                            Toast.makeText(RegisterActivity.this, "서버 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
                 }
             }
 
