@@ -1,6 +1,7 @@
 package com.example.usan_comb1.map;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -53,12 +54,14 @@ public class ListOnline extends AppCompatActivity implements
     private static int FASTEST_INTERVAL = 3000; // 3 seconds
     private static int DISPLACEMENT = 10; // 10 meters
 
+    private static final int REQUEST_CODE_MAP_TRACKING = 200;
+
     private String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_list_online);
 
         // Firebase
         locations = FirebaseDatabase.getInstance().getReference("locations");
@@ -81,14 +84,13 @@ public class ListOnline extends AppCompatActivity implements
             if (checkPlayServices()) {
                 buildGoogleApiClient();
                 createLocationRequest();
-                displayLocation();
             }
         }
 
-        // Intent to MapTracking activity
+        // MapTracking으로 이동하는 부분
         Intent intent = new Intent(ListOnline.this, MapTracking.class);
         intent.putExtra("username", username);
-        startActivity(intent);
+        startActivityForResult(intent, REQUEST_CODE_MAP_TRACKING);
     }
 
     private void displayLocation() {
@@ -105,8 +107,8 @@ public class ListOnline extends AppCompatActivity implements
                     // Update location to Firebase
                     locations.child(username)
                             .setValue(new Tracking(username,
-                                    String.valueOf(mLastLocation.getLatitude()),
-                                    String.valueOf(mLastLocation.getLongitude())));
+                                    mLastLocation.getLatitude(),
+                                    mLastLocation.getLongitude()));
                 } else {
                     Toast.makeText(ListOnline.this, "Cannot get your location", Toast.LENGTH_SHORT).show();
                 }
@@ -159,8 +161,8 @@ public class ListOnline extends AppCompatActivity implements
                     // Update location to Firebase
                     locations.child(username)
                             .setValue(new Tracking(username,
-                                    String.valueOf(mLastLocation.getLatitude()),
-                                    String.valueOf(mLastLocation.getLongitude())));
+                                    mLastLocation.getLatitude(),
+                                    mLastLocation.getLongitude()));
 
                     // Update marker on the map
                     if (MapTracking.isActive()) {
@@ -235,6 +237,33 @@ public class ListOnline extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        checkPlayServices();
+        if (checkPlayServices()) {
+            buildGoogleApiClient();
+            createLocationRequest();
+            startLocationUpdates();
+        }
     }
+
+    @Override
+    protected void onPause() {
+        stopLocationUpdates();
+        super.onPause();
+    }
+
+    private void stopLocationUpdates() {
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == REQUEST_CODE_MAP_TRACKING && resultCode == Activity.RESULT_OK) {
+            // MapTracking 액티비티에서 UserFragment로 돌아온 경우
+            finish(); // ListOnline 액티비티 종료
+        }
+    }
+
 }

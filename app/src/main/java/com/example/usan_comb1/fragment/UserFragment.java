@@ -91,10 +91,15 @@ public class UserFragment extends Fragment {
         });
 
         btngps.setOnClickListener(new View.OnClickListener() {
+
+            private static final int REQUEST_CODE_LIST_ONLINE = 100;
+
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), MapActivity.class);
-                startActivity(intent);
+                // ListOnline으로 이동하는 부분
+                Intent intent = new Intent(getActivity(), ListOnline.class);
+                intent.putExtra("username", username);
+                startActivityForResult(intent, REQUEST_CODE_LIST_ONLINE);
             }
         });
 

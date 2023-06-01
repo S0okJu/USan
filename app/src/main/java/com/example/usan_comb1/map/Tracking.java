@@ -1,12 +1,13 @@
 package com.example.usan_comb1.map;
 
 public class Tracking {
-    private String username, lat, lng;
+    private String username;
+    double lat, lng;
 
     public Tracking() {
     }
 
-    public Tracking(String username, String lat, String lng) {
+    public Tracking(String username, double lat, double lng) {
         this.username = username;
         this.lat = lat;
         this.lng = lng;
@@ -20,19 +21,19 @@ public class Tracking {
         this.username = username;
     }
 
-    public String getLat() {
+    public double getLat() {
         return lat;
     }
 
-    public void setLat(String lat) {
+    public void setLat(double lat) {
         this.lat = lat;
     }
 
-    public String getLng() {
+    public double getLng() {
         return lng;
     }
 
-    public void setLng(String lng) {
+    public void setLng(double lng) {
         this.lng = lng;
     }
 }

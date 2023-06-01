@@ -3,6 +3,7 @@ package com.example.usan_comb1.map;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 
+import android.app.Activity;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -39,11 +40,12 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
     private static MapTracking instance;
     private GoogleMap mMap;
 
-    private HashMap<String, Marker> markers = new HashMap<>(); // markers 변수 추가
+    private HashMap<String, Marker> markers = new HashMap<>();
 
     private String username;
+    private String other_username;
     DatabaseReference locations;
-    Double lat, lng;
+    double lat, lng;
 
     public static MapTracking getInstance() {
         return instance;
@@ -68,17 +70,24 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
         if (getIntent() != null) {
             username = getIntent().getStringExtra("username");
         }
+        other_username = "testdy";
+
         if (!TextUtils.isEmpty(username)) {
-            loadLocationForThisUser(username);
+
+            locationMarking(username, other_username);
         }
     }
 
+
     // 지도에 정보를 marking하는 함수
-    private void loadLocationForThisUser(String username) {
+    private void locationMarking(String username, String other_username) {
         Query user_location = locations.orderByChild("username").equalTo(username);
+        Query other_user_location = locations.orderByChild("username").equalTo(other_username);
+
+        Location currentUser = new Location(""); // Declare currentUser variable outside the ValueEventListener
+        Location friend = new Location(""); // Declare friend variable outside the ValueEventListener
 
         user_location.addValueEventListener(new ValueEventListener() {
-
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mMap.clear(); // Clear old markers
@@ -87,38 +96,68 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
                     Tracking tracking = postSnapShot.getValue(Tracking.class);
 
                     if (tracking != null) {
-                        String latString = tracking.getLat();
-                        String lngString = tracking.getLng();
-                        if (latString != null && lngString != null) {
-                            lat = Double.valueOf(latString);
-                            lng = Double.valueOf(lngString);
-                            LatLng friendLocation = new LatLng(lat, lng);
+                        double user_lat = tracking.getLat();
+                        double user_lng = tracking.getLng();
 
-                            if (lat != null && lng != null) {
-                                // Add marker for friend location
-                                // Create location from user coordinates
-                                Location currentUser = new Location("");
-                                currentUser.setLatitude(lat);
-                                currentUser.setLongitude(lng);
+                        LatLng currentUserLocation = new LatLng(user_lat, user_lng);
 
-                                Location friend = new Location("");
-                                friend.setLatitude(lat);
-                                friend.setLongitude(lng);
+                        currentUser.setLatitude(user_lat);
+                        currentUser.setLongitude(user_lng);
 
-                                if (lat != null && lng != null) {
-                                    // Add friend Marker
-                                    Marker friendMarker = mMap.addMarker(new MarkerOptions().position(friendLocation).title(tracking.getUsername()).snippet("Distance " + new DecimalFormat("#.#").format(distance(currentUser, friend))).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-                                    markers.put(tracking.getUsername(), friendMarker);
-                                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 12.0f));
-                                }
-                            }
-                        }
+                        Marker currentUserMarker = mMap.addMarker(new MarkerOptions()
+                                .position(currentUserLocation)
+                                .title(username)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+                        markers.put(username, currentUserMarker);
                     }
                 }
-                // Create marker for current user
-                if (lat != null && lng != null) {
-                    LatLng current = new LatLng(lat, lng);
-                    mMap.addMarker(new MarkerOptions().position(current).title(username));
+
+                // Call distance calculation after updating currentUser and friend locations
+                if (friend.getLatitude() != 0.0 && friend.getLongitude() != 0.0) {
+                    updateDistance(currentUser, friend);
+                }
+
+                // Zoom to current user's location
+                if (currentUser.getLatitude() != 0.0 && currentUser.getLongitude() != 0.0) {
+                    LatLng current = new LatLng(currentUser.getLatitude(), currentUser.getLongitude());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 12.0f));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("MapTracking", "Failed to read value.", error.toException());
+            }
+        });
+
+        other_user_location.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapShot : dataSnapshot.getChildren()) {
+                    Tracking tracking = postSnapShot.getValue(Tracking.class);
+
+                    if (tracking != null) {
+                        double other_lat = tracking.getLat();
+                        double other_lng = tracking.getLng();
+
+                        LatLng otherLocation = new LatLng(other_lat, other_lng);
+
+                        friend.setLatitude(other_lat);
+                        friend.setLongitude(other_lng);
+
+                        Marker friendMarker = mMap.addMarker(new MarkerOptions()
+                                .position(otherLocation)
+                                .title(other_username)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+                        markers.put(other_username, friendMarker);
+                    }
+                }
+
+                // Call distance calculation after updating currentUser and friend locations
+                if (currentUser.getLatitude() != 0.0 && currentUser.getLongitude() != 0.0) {
+                    updateDistance(currentUser, friend);
                 }
             }
 
@@ -129,7 +168,31 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
         });
     }
 
+    private void updateDistance(Location currentUser, Location friend) {
+        // Calculate the distance between currentUser and friend
+        double distance = distance(currentUser, friend);
+        String distanceString = new DecimalFormat("#.#").format(distance);
+
+        // Update the distance value in the markers' snippets
+        Marker currentUserMarker = markers.get(username);
+        if (currentUserMarker != null) {
+            currentUserMarker.setSnippet("Distance: " + distanceString);
+        }
+
+        Marker friendMarker = markers.get(other_username);
+        if (friendMarker != null) {
+            friendMarker.setSnippet("Distance: " + distanceString);
+        }
+    }
+
+
+
     public void updateMarker(String username, double latitude, double longitude) {
+
+        if (mMap == null) {
+            // mMap이 초기화되지 않았으므로 아무 작업도 수행하지 않음
+            return;
+        }
         // Update marker for friend location
         LatLng friendLocation = new LatLng(latitude, longitude);
 
@@ -140,24 +203,36 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
             friendMarker.setPosition(friendLocation);
         } else {
             // Marker doesn't exist, create a new marker
-            Marker friendMarker = mMap.addMarker(new MarkerOptions().position(friendLocation).title(username).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+            Marker friendMarker = mMap.addMarker(new MarkerOptions()
+                    .position(friendLocation)
+                    .title(username)
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
             markers.put(username, friendMarker);
         }
 
         mMap.clear(); // Clear old markers
 
         // Create marker for current user
-        if (lat != null && lng != null) {
+        if (lat != 0.0 && lng != 0.0) {
             LatLng current = new LatLng(lat, lng);
             mMap.addMarker(new MarkerOptions().position(current).title(username));
         }
     }
 
     public double distance(Location currentUser, Location friend) {
-        double theta = currentUser.getLongitude() - friend.getLongitude();
-        double dist = Math.sin(deg2rad(currentUser.getLatitude())) * Math.sin(deg2rad(friend.getLatitude()))
-                * Math.cos(deg2rad(currentUser.getLongitude())) * Math.cos(deg2rad(friend.getLongitude()))
-                * Math.cos(deg2rad(theta));
+        double lat1 = currentUser.getLatitude();
+        double lon1 = currentUser.getLongitude();
+        double lat2 = friend.getLatitude();
+        double lon2 = friend.getLongitude();
+
+        if (lat1 == lat2 && lon1 == lon2) {
+            return 0.0; // Same coordinates, distance is 0
+        }
+
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2))
+                + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
         dist = Math.acos(dist);
         dist = rad2deg(dist);
         dist = dist * 60 * 1.1515 * 1.609344;
@@ -177,5 +252,11 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(Activity.RESULT_OK);
+        finish();
     }
 }
