@@ -76,6 +76,18 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
 
             locationMarking(username, other_username);
         }
+
+        /*
+        dealButton = findViewById(R.id.deal_button);
+        dealButton.setVisibility(View.GONE);
+
+        dealButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAlertDialog();
+            }
+        });
+         */
     }
 
 
@@ -171,7 +183,7 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
     private void updateDistance(Location currentUser, Location friend) {
         // Calculate the distance between currentUser and friend
         double distance = distance(currentUser, friend);
-        String distanceString = new DecimalFormat("#.#").format(distance);
+        String distanceString = new DecimalFormat("#.#m").format(distance);
 
         // Update the distance value in the markers' snippets
         Marker currentUserMarker = markers.get(username);
@@ -183,6 +195,15 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
         if (friendMarker != null) {
             friendMarker.setSnippet("Distance: " + distanceString);
         }
+
+        /*
+        // Check if the distance is within 5 meters
+        if (distance <= 5 && !isDealButtonVisible) {
+            showDealButton();
+        } else if (distance > 5 && isDealButtonVisible) {
+            hideDealButton();
+        }
+         */
     }
 
 
@@ -254,9 +275,48 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
         mMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
+    /*
+    private void showDealButton() {
+        isDealButtonVisible = true;
+        dealButton.setVisibility(View.VISIBLE);
+    }
+
+    private void hideDealButton() {
+        isDealButtonVisible = false;
+        dealButton.setVisibility(View.GONE);
+    }
+
+    private void showAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("거래 상대가 근처에 있습니다.")
+                .setMessage("결제창으로 넘어가시겠습니까?")
+                .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // TODO: 결제 Activity로 이동하는 코드 작성
+                    }
+                })
+                .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+     */
+
     @Override
     public void onBackPressed() {
-        setResult(Activity.RESULT_OK);
-        finish();
+        /*
+        if (isDealButtonVisible) {
+            hideDealButton();
+        } else {
+                }
+         */
+            setResult(Activity.RESULT_OK);
+            finish();
     }
+
 }

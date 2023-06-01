@@ -87,6 +87,7 @@ public class ListOnline extends AppCompatActivity implements
             }
         }
 
+
         // MapTracking으로 이동하는 부분
         Intent intent = new Intent(ListOnline.this, MapTracking.class);
         intent.putExtra("username", username);
@@ -242,6 +243,8 @@ public class ListOnline extends AppCompatActivity implements
             createLocationRequest();
             startLocationUpdates();
         }
+        // 위치 업데이트 코드를 onResume 메서드로 이동합니다.
+        updateLocation();
     }
 
     @Override

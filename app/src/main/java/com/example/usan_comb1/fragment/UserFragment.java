@@ -20,6 +20,7 @@ import com.example.usan_comb1.map.ListOnline;
 import com.example.usan_comb1.activity.SalelistActivity;
 import com.example.usan_comb1.activity.UserUpdateActivity;
 import com.example.usan_comb1.map.MapActivity;
+import com.example.usan_comb1.map.MapTracking;
 
 public class UserFragment extends Fragment {
 
@@ -97,7 +98,7 @@ public class UserFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // ListOnline으로 이동하는 부분
-                Intent intent = new Intent(getActivity(), ListOnline.class);
+                Intent intent = new Intent(getActivity(), MapTracking.class);
                 intent.putExtra("username", username);
                 startActivityForResult(intent, REQUEST_CODE_LIST_ONLINE);
             }
