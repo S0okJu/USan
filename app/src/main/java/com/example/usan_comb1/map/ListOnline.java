@@ -39,7 +39,7 @@ public class ListOnline extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     // Firebase
-    DatabaseReference locations;
+    DatabaseReference locationRef; // 변수명이 헷갈려서 수정합니다. - DAMEKZ
 
     // Location
     private static final int MY_PERMISSION_REQUEST_CODE = 7171;
@@ -58,13 +58,18 @@ public class ListOnline extends AppCompatActivity implements
 
     private String username;
 
+    private String chatId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_online);
 
+        // ChatId
+        chatId = getIntent().getStringExtra("chatId");
+
         // Firebase
-        locations = FirebaseDatabase.getInstance().getReference("locations");
+        locationRef = FirebaseDatabase.getInstance().getReference("locations");
 
         // SharedPreferences
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
@@ -89,8 +94,10 @@ public class ListOnline extends AppCompatActivity implements
 
 
         // MapTracking으로 이동하는 부분
+        //
         Intent intent = new Intent(ListOnline.this, MapTracking.class);
         intent.putExtra("username", username);
+        intent.putExtra("chatId", chatId);
         startActivityForResult(intent, REQUEST_CODE_MAP_TRACKING);
     }
 
@@ -106,7 +113,7 @@ public class ListOnline extends AppCompatActivity implements
                 mLastLocation = location;
                 if (mLastLocation != null) {
                     // Update location to Firebase
-                    locations.child(username)
+                    locationRef.child(chatId).child(username)
                             .setValue(new Tracking(username,
                                     mLastLocation.getLatitude(),
                                     mLastLocation.getLongitude()));
@@ -160,7 +167,7 @@ public class ListOnline extends AppCompatActivity implements
                 mLastLocation = location;
                 if (mLastLocation != null) {
                     // Update location to Firebase
-                    locations.child(username)
+                    locationRef.child(chatId).child(username)
                             .setValue(new Tracking(username,
                                     mLastLocation.getLatitude(),
                                     mLastLocation.getLongitude()));

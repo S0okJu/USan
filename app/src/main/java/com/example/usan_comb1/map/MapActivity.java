@@ -31,6 +31,10 @@ public class MapActivity extends AppCompatActivity {
         // Skip login code
 
         Intent intent = new Intent(MapActivity.this, ListOnline.class);
+
+        // TODO Chat으로부터 chatId를 가져오세요.
+        String sampleId = "chat_50"; // Sample
+        intent.putExtra("chatId", sampleId);
         startActivity(intent);
         finish();
     }

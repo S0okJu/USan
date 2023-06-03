@@ -1,6 +1,9 @@
 package com.example.usan_comb1.map;
 
+import static com.google.android.material.color.utilities.MaterialDynamicColors.error;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.app.Activity;
@@ -15,14 +18,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.example.usan_comb1.databinding.ActivityMapTrackingBinding;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,9 +33,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
-import io.reactivex.rxjava3.internal.operators.maybe.MaybeHide;
-
-public class MapTracking extends FragmentActivity implements OnMapReadyCallback {
+public class MapTracking extends AppCompatActivity implements OnMapReadyCallback {
 
     private static MapTracking instance;
     private GoogleMap mMap;
@@ -43,9 +41,10 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
     private HashMap<String, Marker> markers = new HashMap<>();
 
     private String username;
-    private String other_username;
-    DatabaseReference locations;
+    private String otherUser;
+    DatabaseReference locationRef; // 이름이 헷갈려서 ref로 변경합니다. - D7MEKZ
     double lat, lng;
+    String TAG = "MapTracking";
 
     public static MapTracking getInstance() {
         return instance;
@@ -65,16 +64,20 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
         mapFragment.getMapAsync(this);
 
         // Ref to firebase first
-        locations = FirebaseDatabase.getInstance().getReference("locations");
+        locationRef = FirebaseDatabase.getInstance().getReference("locations");
 
         if (getIntent() != null) {
             username = getIntent().getStringExtra("username");
         }
-        other_username = "testdy";
+
+//        String chatId = getIntent().getStringExtra("chatId");
+        String chatId = "chat_50";
+        Log.d(TAG,chatId);
+        getOtherUser(chatId);
 
         if (!TextUtils.isEmpty(username)) {
 
-            locationMarking(username, other_username);
+            locationMarking(chatId, username, otherUser);
         }
 
         /*
@@ -92,14 +95,13 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
 
 
     // 지도에 정보를 marking하는 함수
-    private void locationMarking(String username, String other_username) {
-        Query user_location = locations.orderByChild("username").equalTo(username);
-        Query other_user_location = locations.orderByChild("username").equalTo(other_username);
+    private void locationMarking(String chatId, String username, String other_username) {
+        // Query user_location = locationRef.child(chatId).orderByKey().equalTo(username);
 
         Location currentUser = new Location(""); // Declare currentUser variable outside the ValueEventListener
         Location friend = new Location(""); // Declare friend variable outside the ValueEventListener
 
-        user_location.addValueEventListener(new ValueEventListener() {
+        locationRef.child(chatId).child(username).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 mMap.clear(); // Clear old markers
@@ -143,7 +145,7 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
             }
         });
 
-        other_user_location.addValueEventListener(new ValueEventListener() {
+        locationRef.child(chatId).child(other_username).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapShot : dataSnapshot.getChildren()) {
@@ -191,7 +193,7 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
             currentUserMarker.setSnippet("Distance: " + distanceString);
         }
 
-        Marker friendMarker = markers.get(other_username);
+        Marker friendMarker = markers.get(otherUser);
         if (friendMarker != null) {
             friendMarker.setSnippet("Distance: " + distanceString);
         }
@@ -206,7 +208,28 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
          */
     }
 
+    private void getOtherUser(String chatId){
+        DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction");
+        transRef.child(chatId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot childShot : snapshot.getChildren()){
+                    String sellerName = childShot.child("sellerName").getValue(String.class);
+                    String buyerName = childShot.child("buyerName").getValue(String.class);
+                    if(sellerName.equals(username)) {
+                        otherUser = buyerName;
+                    }else{
+                        otherUser = sellerName;
+                    }
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                otherUser = "ErrorUser";
+            }
+        });
+    }
 
     public void updateMarker(String username, double latitude, double longitude) {
 
@@ -214,6 +237,8 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
             // mMap이 초기화되지 않았으므로 아무 작업도 수행하지 않음
             return;
         }
+
+
         // Update marker for friend location
         LatLng friendLocation = new LatLng(latitude, longitude);
 
@@ -239,6 +264,7 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
             LatLng current = new LatLng(lat, lng);
             mMap.addMarker(new MarkerOptions().position(current).title(username));
         }
+
     }
 
     public double distance(Location currentUser, Location friend) {
