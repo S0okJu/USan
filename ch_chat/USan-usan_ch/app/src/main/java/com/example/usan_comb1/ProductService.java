@@ -17,6 +17,7 @@ import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.RegisterResponse;
 import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.response.UpdateResponse;
+import com.example.usan_comb1.response.UploadResponse;
 
 import java.util.List;
 
@@ -76,7 +77,7 @@ public interface ProductService {
     @GET("/display/{username}/favorite")
     Call<List<FavoriteProduct>> favorite_list(@Header("Authorization") String accessToken, @Path("username") String username, @Query("page") int page);
 
-    // 이미지 다운로드
+    // 상품 이미지 다운로드
     @GET("imgs/download/{product_id}/{filename}")
     Call<ResponseBody> downloadImage(@Path("product_id") Integer productId, @Path("filename") String filename);
 
@@ -121,11 +122,15 @@ public interface ProductService {
     @POST("/profile/{username}/modify")
     Call<Void> modifyProfile(@Header("Authorization") String accessToken, @Path("username") String username, @Body ProfileUpRequest profileUpRequest);
 
-    // 사용자 프로필 이미지
     @Headers("Content-Type: multipart/form-data")
     @Multipart
     @POST("/profile/{username}/upload")
-    Call<ResponseBody> uploadImage(@Header("Authorization") String accessToken, @Path("username") String username, @Part MultipartBody.Part imagePart);
+    Call<UploadResponse> uploadImage(
+            @Header("Authorization") String accessToken,
+            @Path("username") String username,
+            @Part MultipartBody.Part imagePart
+    );
+
 
     @POST ("/users/email_check")
     Call<EmailCheckResponse> checkEmailAvailability(@Body EmailCheckRequest request);
