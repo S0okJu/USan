@@ -1,36 +1,49 @@
 package com.example.usan_comb1.map;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.interfaces.MyCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.PolyUtil;
 
-import java.lang.annotation.Target;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MapTracking extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -38,7 +51,10 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     private GoogleMap mMap;
 
     private HashMap<String, Marker> markers = new HashMap<>();
-
+    private FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
+    private Polyline distanceLine; // 둘 사이의 거리를 나타내기 위해 사용됨
     private String username;
     private String otherUser;
     DatabaseReference locationRef; // 이름이 헷갈려서 ref로 변경합니다. - D7MEKZ
@@ -78,16 +94,36 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 //                Log.d(TAG, "Other user: " + otherUser);
 //            }
 //        });
-        otherUser = "helloworld2";
 
-        if(otherUser != null){
-            initLocation(chatId,username,otherUser);
+        if (!username.equals("helloworld2")){
+            otherUser = "helloworld2";
         }else{
-            Log.d(TAG, "Other User is NULL");
+            otherUser = "helloworld3";
         }
 
-        if (!TextUtils.isEmpty(username)) {
+//        // 지속적인 위치 추적을 위해
+//        locationRequest = LocationRequest.create();
+//        locationRequest.setInterval(10000); // 10 seconds
+//        locationRequest.setFastestInterval(5000); // 5 seconds
+//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//
+//        locationCallback = new LocationCallback(){
+//            @Override
+//            public void onLocationResult(LocationResult locationResult) {
+//                super.onLocationResult(locationResult);
+//                if(locationResult == null){
+//                    return ;
+//                }
+//
+//                for (Location location : locationResult.getLocations()) {
+//                    if (location != null) {
+//                        // updateLocationInFirebase(location);
+//                    }
+//                }
+//            }
+//        };
 
+        if (!TextUtils.isEmpty(username)) {
             locationMarking(chatId, username, otherUser);
         }
 
@@ -104,13 +140,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
          */
     }
 
-    private void initLocation(String chatId, String user, String otherUser){
-        Map<String, Object> userLocationUpdates = new HashMap<>();
-        userLocationUpdates.put("lat", 0.0);
-        userLocationUpdates.put("lng", 0.0);
-        locationRef.child(chatId).child(user).updateChildren(userLocationUpdates);
-        locationRef.child(chatId).child(otherUser).updateChildren(userLocationUpdates);
-    }
     // 지도에 정보를 marking하는 함수
     private void locationMarking(String chatId, String username, String other_username) {
         // Query user_location = locationRef.child(chatId).orderByKey().equalTo(username);
@@ -218,6 +247,38 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
             friendMarker.setSnippet("Distance: " + distanceString);
         }
 
+        // Execute the Directions API request in a new thread
+        new Thread(() -> {
+            String response = callDirectionsAPI(currentUser, friend);
+
+            if(response == null) {
+                Log.d(TAG, "API CALL NULL");
+                return;
+            }
+
+            // Extract the polyline from the response
+            String polyline = extractPolyline(response);
+
+            if(polyline == null) {
+
+                return;
+            }
+
+            List<LatLng> latLngs = PolyUtil.decode(polyline);
+
+            runOnUiThread(() -> {
+                if(distanceLine != null) {
+                    distanceLine.remove();
+                }
+
+                // Draw the new polyline
+                distanceLine = mMap.addPolyline(new PolylineOptions()
+                        .addAll(latLngs)
+                        .width(10)
+                        .color(Color.RED));
+            });
+        }).start();
+
         /*
         // Check if the distance is within 5 meters
         if (distance <= 5 && !isDealButtonVisible) {
@@ -227,6 +288,53 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         }
          */
     }
+
+    // 거리를 시각적으로 표현하기 위해 사용됨.
+    private String callDirectionsAPI(Location origin, Location destination) {
+        String url = "https://maps.googleapis.com/maps/api/directions/json?" +
+                "origin=" + origin.getLatitude() + "," + origin.getLongitude() +
+                "&destination=" + destination.getLatitude() + "," + destination.getLongitude() +
+                "&key=AIzaSyCoYvOJIo6-rpl-GJvxPa7SwtuCeQrXBw4";
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+
+    private String extractPolyline(String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray routes = jsonObject.getJSONArray("routes");
+
+            if (routes.length() > 0) {  // Check if the array has elements
+                JSONObject route = routes.getJSONObject(0);
+                JSONObject overview_polyline = route.getJSONObject("overview_polyline");
+                String polyline = overview_polyline.getString("points");
+
+                return polyline;
+            } else {
+                System.err.println("No routes available in the response.");
+                return null;
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
+
 
     private void getOtherUser(String chatId, MyCallback myCallback){
         DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction").child(chatId);
