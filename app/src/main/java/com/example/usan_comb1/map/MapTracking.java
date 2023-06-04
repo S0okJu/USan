@@ -96,6 +96,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
             otherUser = "helloworld3";
         }
 
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
         // 지속적인 위치 추적을 위해 사용된다.
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(10000); // 10 seconds
@@ -108,12 +110,14 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 if(locationResult==null){
                     return;
                 }
+
                 for(Location location : locationResult.getLocations()){
+                    locationMarking(chatId,username,otherUser);
                     Map<String, Object> latLng = new HashMap<>();
                     latLng.put("lat", location.getLatitude());
                     latLng.put("lng", location.getLongitude());
-                    locationRef.child(chatId).child(username).setValue(latLng);
-//                    locationMarking(chatId,username,otherUser);
+                    locationRef.child(chatId).child(username).updateChildren(latLng);
+
                 }
 
             }
@@ -148,11 +152,11 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         super.onStart();
         checkSettingsAndStartLocationUpdates();
     }
-    @Override
-    protected void onStop(){
-        super.onStop();
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-    }
+//    @Override
+//    protected void onStop(){
+//        super.onStop();
+//        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+//    }
 
     private void checkSettingsAndStartLocationUpdates() {
         LocationSettingsRequest request = new LocationSettingsRequest.Builder().
