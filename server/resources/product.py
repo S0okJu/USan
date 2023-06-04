@@ -207,3 +207,14 @@ def check_status():
     else:
         raise error.DBNotFound('Product')
     return jsonify({"status_code" : 200, "message":"Success"}), 200 
+
+# 목적지 위치 정보를 얻는 함수 
+@bp.route('/dest/<int:product_id>',methods=["GET"])
+@jwt_required()
+def get_dest(product_id):
+    product = ProductModel.query.get(product_id)
+    res = {
+        "lat" : product.latitude,
+        "lng" : product.longitude
+    }
+    return res
