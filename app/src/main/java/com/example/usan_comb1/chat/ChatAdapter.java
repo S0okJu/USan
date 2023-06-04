@@ -1,102 +1,133 @@
 package com.example.usan_comb1.chat;
 
-import android.content.Context;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import com.example.usan_comb1.chat.ChatData;
-import com.example.usan_comb1.R;
+import com.bumptech.glide.Glide;
+import com.example.usan_comb1.databinding.ItemContainerRevceivedMessageBinding;
+import com.example.usan_comb1.databinding.ItemContainerSentMessageBinding;
 
 import java.util.List;
+import com.squareup.picasso.Picasso;
+
 
 /**
  * Created by KPlo on 2018. 10. 28..
  */
 
-public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.MyViewHolder> {
-    private List<ChatData> mDataset;
-    private String myNickName;
-    // Provide a reference to the views for each data item
-    // Complex data items may need more than one view per item, and
-    // you provide access to all the views for a data item in a view holder
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
-        // each data item is just a string in this case
-        public TextView TextView_nickname;
-        public TextView TextView_msg;
-        public View rootView;
-        public MyViewHolder(View v) {
-            super(v);
-            TextView_nickname = v.findViewById(R.id.TextView_nickname);
-            TextView_msg = v.findViewById(R.id.TextView_msg);
-            rootView = v;
 
-        }
+public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private List<ChatData> chatMessages;
+    private final String senderId;
 
+    public static final int VIEW_TYPE_SENT = 1;
+    public static final int VIEW_TYPE_RECEIVED = 2;
 
+    public ChatAdapter(List<ChatData> chatMessages, String senderId) {
+        this.chatMessages = chatMessages;
+        this.senderId = senderId;
     }
 
-    // Provide a suitable constructor (depends on the kind of dataset)
-    public ChatAdapter(List<ChatData> myDataset, Context context, String myNickName) {
-        //{"1","2"}
-        mDataset = myDataset;
-        this.myNickName = myNickName;
-    }
-
-    // Create new views (invoked by the layout manager)
+    @NonNull
     @Override
-    public MyViewHolder onCreateViewHolder(ViewGroup parent,
-                                                       int viewType) {
-        // create a new view
-        LinearLayout v = (LinearLayout) LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.row_chat, parent, false);
-
-        MyViewHolder vh = new MyViewHolder(v);
-        return vh;
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        if (viewType == VIEW_TYPE_SENT) {
+            ItemContainerSentMessageBinding binding = ItemContainerSentMessageBinding.inflate(layoutInflater, parent, false);
+            return new SentMessageViewHolder(binding);
+        } else {
+            ItemContainerRevceivedMessageBinding binding = ItemContainerRevceivedMessageBinding.inflate(layoutInflater, parent, false);
+            return new ReceivedMessageViewHolder(binding);
+        }
     }
 
-    // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(MyViewHolder holder, int position) {
-        // - get element from your dataset at this position
-        // - replace the contents of the view with that element
-        ChatData chat = mDataset.get(position);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        ChatData chat = chatMessages.get(position);
 
-        holder.TextView_nickname.setText(chat.getNickname());
-        holder.TextView_msg.setText(chat.getMsg());
-
-        if(chat.getNickname().equals(this.myNickName)) {
-            holder.TextView_msg.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
-            holder.TextView_nickname.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+        if (holder instanceof SentMessageViewHolder) {
+            SentMessageViewHolder sentHolder = (SentMessageViewHolder) holder;
+            sentHolder.setData(chat);
+        } else if (holder instanceof ReceivedMessageViewHolder) {
+            ReceivedMessageViewHolder receivedHolder = (ReceivedMessageViewHolder) holder;
+            receivedHolder.setData(chat);
         }
-        else {
-            holder.TextView_msg.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-            holder.TextView_nickname.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
-        }
-
     }
 
-    // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-
-        //삼항 연산자
-        return mDataset == null ? 0 :  mDataset.size();
+        return chatMessages.size();
     }
 
-    public ChatData getChat(int position) {
-        return mDataset != null ? mDataset.get(position) : null;
+    @Override
+    public int getItemViewType(int position) {
+        if (chatMessages.get(position).getSenderId().equals(senderId)) {
+            return VIEW_TYPE_SENT;
+        } else {
+            return VIEW_TYPE_RECEIVED;
+        }
     }
 
-    public void addChat(ChatData chat) {
-        mDataset.add(chat);
-        notifyItemInserted(mDataset.size()-1); //갱신
+    public void addChat(ChatData chatData) {
+        chatMessages.add(chatData);
+        notifyItemInserted(chatMessages.size() - 1);
     }
+
+    static class SentMessageViewHolder extends RecyclerView.ViewHolder {
+        private final ItemContainerSentMessageBinding binding;
+        private final ImageView imageView;
+
+        SentMessageViewHolder(ItemContainerSentMessageBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            this.imageView = binding.imageMessage;
+        }
+
+        void setData(ChatData chatData) {
+            binding.textMessage.setText(chatData.getMessage());
+            if (chatData.getMessage().startsWith("https://firebasestorage.googleapis.com/")) {
+                // 이미지 URL인 경우 이미지를 로드하여 표시
+                Picasso.get().load(chatData.getMessage()).into(imageView);
+                imageView.setVisibility(View.VISIBLE);
+                binding.textMessage.setVisibility(View.GONE);
+            } else {
+                // 텍스트 메시지인 경우 텍스트를 표시
+                imageView.setVisibility(View.GONE);
+                binding.textMessage.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
+    static class ReceivedMessageViewHolder extends RecyclerView.ViewHolder {
+        private final ItemContainerRevceivedMessageBinding binding;
+        private final ImageView imageView;
+
+        ReceivedMessageViewHolder(ItemContainerRevceivedMessageBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+            this.imageView = binding.imageMessage;
+        }
+
+        void setData(ChatData chatData) {
+            binding.textMessage.setText(chatData.getMessage());
+            if (chatData.getMessage().startsWith("https://firebasestorage.googleapis.com/")) {
+                // 이미지 URL인 경우 이미지를 로드하여 표시
+                Picasso.get().load(chatData.getMessage()).into(imageView);
+                imageView.setVisibility(View.VISIBLE);
+                binding.textMessage.setVisibility(View.GONE);
+            } else {
+                // 텍스트 메시지인 경우 텍스트를 표시
+                imageView.setVisibility(View.GONE);
+                binding.textMessage.setVisibility(View.VISIBLE);
+            }
+        }
+    }
+
 
 }

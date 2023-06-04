@@ -5,7 +5,8 @@ import android.content.SharedPreferences;
 
 
 public class PreferenceManager {
-    private final SharedPreferences sharedPreferences;
+
+    private static SharedPreferences sharedPreferences;
 
     public PreferenceManager(Context context) {
         sharedPreferences = context.getSharedPreferences("usanPreference", Context.MODE_PRIVATE);
@@ -27,7 +28,7 @@ public class PreferenceManager {
         editor.apply();
     }
 
-    public String getString(String key){
+    public static String getString(String key){
         return sharedPreferences.getString(key,null);
     }
     public void clear(){

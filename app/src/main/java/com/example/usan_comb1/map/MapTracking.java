@@ -471,8 +471,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         } else {
                 }
          */
-            setResult(Activity.RESULT_OK);
-            finish();
+        setResult(Activity.RESULT_OK);
+        finish();
     }
 
 }
