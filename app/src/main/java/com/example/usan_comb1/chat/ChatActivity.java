@@ -26,9 +26,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.usan_comb1.R;
+import com.example.usan_comb1.activity.ProductActivity;
 import com.example.usan_comb1.chat.model.Users;
 import com.example.usan_comb1.databinding.ChatActivitySampleBinding;
 import com.example.usan_comb1.map.ListOnline;
+import com.example.usan_comb1.map.MapTracking;
 import com.example.usan_comb1.utilities.PreferenceManager;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -55,7 +57,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
     private FirebaseFirestore database;
-    ImageButton buttonFile;
+    ImageButton buttonFile, buttonGps;
 
     private static final int REQUEST_CODE_IMAGE = 1001;
 
@@ -83,7 +85,26 @@ public class ChatActivity extends AppCompatActivity {
         });
 
 
+        buttonGps = findViewById(R.id.button_gps);
+        buttonGps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ChatActivity.this, MapTracking.class);
+                startActivity(intent);
+            }
+        });
     }
+
+    /* userId PreferenceManager에 저장하기
+    private void startMapTrackingActivity() {
+        PreferenceManager preferenceManager = new PreferenceManager(this);
+        preferenceManager.putString("username", preferenceManager.getString("userId"));
+        preferenceManager.putString("other_username", receiverUser.getId());
+
+        Intent intent = new Intent(ChatActivity.this, MapTracking.class);
+        startActivity(intent);
+    }
+     */
 
     private void init() {
         preferenceManager = new PreferenceManager(this);

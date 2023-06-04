@@ -7,6 +7,10 @@
     android:orientation="vertical"
     tools:context=".activity.UploadActivity">
 
+    <include
+        layout="@layout/toolbar"
+        android:id="@+id/toolbar"/>
+
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:background="@drawable/lavender_border"
+            android:background="@drawable/yellow_border"
             android:orientation="vertical"
             android:padding="20dp">
 
@@ -29,13 +33,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/updateTitle"
-                android:background="@drawable/lavender_border"
+                android:background="@drawable/yellow_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
                 android:fontFamily="@font/noto"
                 android:hint= "제목을 입력해 주세요"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/color3"/>
+                android:textColor="@color/black"/>
 
 
             <EditText
@@ -43,37 +47,37 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/updatePrice"
                 android:inputType="number"
-                android:background="@drawable/lavender_border"
+                android:background="@drawable/yellow_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
                 android:fontFamily="@font/noto"
                 android:hint= "가격을 입력해 주세요"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/color3"/>
+                android:textColor="@color/black"/>
 
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:fontFamily="@font/noto"
                 android:id="@+id/updateContent"
-                android:background="@drawable/lavender_border"
+                android:background="@drawable/yellow_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
                 android:hint= "상품 설명을 입력해 주세요"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/color3"/>
+                android:textColor="@color/black"/>
 
-            <EditText
+            <Spinner
+                android:id="@+id/updateAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/updateAddress"
-                android:background="@drawable/lavender_border"
+                android:background="@drawable/yellow_border"
                 android:layout_marginTop="20dp"
                 android:padding="16dp"
                 android:fontFamily="@font/noto"
-                android:hint= "주소를 입력해 주세요"
+                android:hint= "주소를 선택해 주세요"
                 android:gravity="start|center_vertical"
-                android:textColor="@color/color3"/>
+                android:textColor="@color/black" />
 
             <ProgressBar
                 android:id="@+id/product_progress"

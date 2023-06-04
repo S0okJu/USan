@@ -226,7 +226,7 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
                     tvTitle.setText(product.getPost_Title());
                     tvDetail.setText(product.getPost_Content());
                     tvAuthor.setText(product.getPost_Author());
-                    price.setText(product.getPost_Price());
+                    price.setText(product.getPost_Price()+"원");
 
                     loadUserPosts(product.getPost_Author());
 

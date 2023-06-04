@@ -224,7 +224,7 @@ public class DetailActivity extends AppCompatActivity {
                     tvTitle.setText(product.getPost_Title());
                     tvDetail.setText(product.getPost_Content());
                     tvAuthor.setText(product.getPost_Author());
-                    price.setText(product.getPost_Price());
+                    price.setText(product.getPost_Price() +"원");
                     // tvAuthor 텍스트 설정 후에 호출
                     loadUserPosts(product.getPost_Author());
 

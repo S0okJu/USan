@@ -6,21 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".fragment.UserFragment">
 
-    <ImageButton
-        android:id="@+id/btnhome"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:background="@drawable/home"
-        android:text="Button"
-        android:backgroundTint="@color/color3"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.044"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023"
-        tools:ignore="TouchTargetSizeCheck,SpeaskableTextPresentCheck" />
-
 
     <TextView
         android:id="@+id/name"
@@ -28,7 +13,7 @@
         android:layout_height="71dp"
         android:fontFamily="@font/noto_bold"
         android:text="name"
-        android:textSize="25dp"
+        android:textSize="20dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.524"
@@ -63,18 +48,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.214" />
 
-    <View
-        android:id="@+id/view2"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.086"></View>
-
     <Button
         android:id="@+id/btnsalelist"
         android:layout_width="wrap_content"
@@ -99,7 +72,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.562"
-        app:srcCompat="@drawable/star"
+        app:srcCompat="@drawable/select_ic_heart"
         app:tint="@color/color3" />
 
     <ImageView
@@ -112,7 +85,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.459"
-        app:srcCompat="@drawable/star"
+        app:srcCompat="@drawable/ic_shopping"
         app:tint="@color/color3" />
 
     <View
@@ -132,7 +105,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="나의 거래"
-        android:textSize="17dp"
+        android:textSize="15dp"
         android:fontFamily="@font/noto_bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

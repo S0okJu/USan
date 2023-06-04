@@ -1,16 +1,26 @@
 package com.example.usan_comb1.map;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.usan_comb1.R;
+import com.example.usan_comb1.activity.DetailActivity;
+import com.example.usan_comb1.activity.ProductActivity;
+import com.example.usan_comb1.activity.SalelistActivity;
 import com.example.usan_comb1.interfaces.MyCallback;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -47,8 +57,14 @@ import okhttp3.Response;
 
 public class MapTracking extends AppCompatActivity implements OnMapReadyCallback {
 
+    //private Toolbar toolbar;
+    //private ImageButton btn_back;
+
     private static MapTracking instance;
     private GoogleMap mMap;
+
+    private Button dealButton;
+    private boolean isDealButtonVisible;
 
     private HashMap<String, Marker> markers = new HashMap<>();
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -78,12 +94,23 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        /*
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 뒤로가기 버튼, 디폴트로 true만 해도 백버튼이 생
+         */
         // Ref to firebase first
         locationRef = FirebaseDatabase.getInstance().getReference("locations");
 
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+        String username = prefs.getString("username", "");
+
+        /*
         if (getIntent() != null) {
             username = getIntent().getStringExtra("username");
         }
+
+         */
 
 //        String chatId = getIntent().getStringExtra("chatId");
         String chatId = "chat_50";
@@ -95,9 +122,15 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 //            }
 //        });
 
+        /* userId PreferenceManager에서 받아오기
+        PreferenceManager preferenceManager = new PreferenceManager(this);
+        username = preferenceManager.getString("username");
+        otherUser = preferenceManager.getString("other_username");
+         */
+
         if (!username.equals("helloworld2")){
             otherUser = "helloworld2";
-        }else{
+        } else{
             otherUser = "helloworld3";
         }
 
@@ -127,7 +160,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
             locationMarking(chatId, username, otherUser);
         }
 
-        /*
         dealButton = findViewById(R.id.deal_button);
         dealButton.setVisibility(View.GONE);
 
@@ -137,7 +169,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 showAlertDialog();
             }
         });
-         */
     }
 
     // 지도에 정보를 marking하는 함수
@@ -157,8 +188,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 Tracking tracking = new Tracking(lat, lng);
 
                 if (tracking != null) {
-                    double user_lat = tracking.getLat();
-                    double user_lng = tracking.getLng();
+                    double user_lat =  tracking.getLat(); //35.1415103;
+                    double user_lng =  tracking.getLng(); //126.9321101;
 
                     LatLng currentUserLocation = new LatLng(user_lat, user_lng);
 
@@ -279,14 +310,12 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
             });
         }).start();
 
-        /*
         // Check if the distance is within 5 meters
         if (distance <= 5 && !isDealButtonVisible) {
             showDealButton();
         } else if (distance > 5 && isDealButtonVisible) {
             hideDealButton();
         }
-         */
     }
 
     // 거리를 시각적으로 표현하기 위해 사용됨.
@@ -412,7 +441,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
         dist = Math.acos(dist);
         dist = rad2deg(dist);
-        dist = dist * 60 * 1.1515 * 1.609344;
+        dist = dist * 60 * 1.1515 * 1.609344 * 1000; // Convert miles to meters
 
         return dist;
     }
@@ -431,7 +460,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         mMap.getUiSettings().setZoomControlsEnabled(true);
     }
 
-    /*
     private void showDealButton() {
         isDealButtonVisible = true;
         dealButton.setVisibility(View.VISIBLE);
@@ -449,7 +477,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 .setPositiveButton("예", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // TODO: 결제 Activity로 이동하는 코드 작성
+                        Intent intent = new Intent(MapTracking.this, ProductActivity.class);
+                        startActivity(intent);
                     }
                 })
                 .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
@@ -461,7 +490,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }
-     */
 
     @Override
     public void onBackPressed() {
