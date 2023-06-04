@@ -8,7 +8,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class RetrofitClient {
 
-    private static final String BASE_URL = "http://3.36.126.20:58837/";
+    private static final String BASE_URL = "http://3.36.126.20:56858/";
 
     private static Retrofit retrofit = null;
 

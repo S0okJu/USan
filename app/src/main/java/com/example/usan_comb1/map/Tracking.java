@@ -7,11 +7,16 @@ public class Tracking {
     public Tracking() {
     }
 
+    public Tracking(double lat, double lng){
+        this.lat = lat;
+        this.lng = lng;
+    }
     public Tracking(String username, double lat, double lng) {
         this.username = username;
         this.lat = lat;
         this.lng = lng;
     }
+
 
     public String getUsername() {
         return username;

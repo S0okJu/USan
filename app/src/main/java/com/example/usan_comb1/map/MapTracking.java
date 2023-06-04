@@ -1,10 +1,7 @@
 package com.example.usan_comb1.map;
 
-import static com.google.android.material.color.utilities.MaterialDynamicColors.error;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
 
 import android.app.Activity;
 import android.location.Location;
@@ -13,6 +10,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.usan_comb1.R;
+import com.example.usan_comb1.interfaces.MyCallback;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,11 +25,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.annotation.Target;
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MapTracking extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -72,8 +71,20 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
 //        String chatId = getIntent().getStringExtra("chatId");
         String chatId = "chat_50";
-        Log.d(TAG,chatId);
-        getOtherUser(chatId);
+//        getOtherUser(chatId, new MyCallback() {
+//            @Override
+//            public void onCallback(String value) {
+//                otherUser = value;
+//                Log.d(TAG, "Other user: " + otherUser);
+//            }
+//        });
+        otherUser = "helloworld2";
+
+        if(otherUser != null){
+            initLocation(chatId,username,otherUser);
+        }else{
+            Log.d(TAG, "Other User is NULL");
+        }
 
         if (!TextUtils.isEmpty(username)) {
 
@@ -93,7 +104,13 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
          */
     }
 
-
+    private void initLocation(String chatId, String user, String otherUser){
+        Map<String, Object> userLocationUpdates = new HashMap<>();
+        userLocationUpdates.put("lat", 0.0);
+        userLocationUpdates.put("lng", 0.0);
+        locationRef.child(chatId).child(user).updateChildren(userLocationUpdates);
+        locationRef.child(chatId).child(otherUser).updateChildren(userLocationUpdates);
+    }
     // 지도에 정보를 marking하는 함수
     private void locationMarking(String chatId, String username, String other_username) {
         // Query user_location = locationRef.child(chatId).orderByKey().equalTo(username);
@@ -103,28 +120,29 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
         locationRef.child(chatId).child(username).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot postSnapShot) {
                 mMap.clear(); // Clear old markers
 
-                for (DataSnapshot postSnapShot : dataSnapshot.getChildren()) {
-                    Tracking tracking = postSnapShot.getValue(Tracking.class);
+                double lat = postSnapShot.child("lat").getValue(Double.class);
+                double lng = postSnapShot.child("lng").getValue(Double.class);
+                Tracking tracking = new Tracking(lat, lng);
 
-                    if (tracking != null) {
-                        double user_lat = tracking.getLat();
-                        double user_lng = tracking.getLng();
+                if (tracking != null) {
+                    double user_lat = tracking.getLat();
+                    double user_lng = tracking.getLng();
 
-                        LatLng currentUserLocation = new LatLng(user_lat, user_lng);
+                    LatLng currentUserLocation = new LatLng(user_lat, user_lng);
 
-                        currentUser.setLatitude(user_lat);
-                        currentUser.setLongitude(user_lng);
+                    currentUser.setLatitude(user_lat);
+                    currentUser.setLongitude(user_lng);
 
-                        Marker currentUserMarker = mMap.addMarker(new MarkerOptions()
-                                .position(currentUserLocation)
-                                .title(username)
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+                    Marker currentUserMarker = mMap.addMarker(new MarkerOptions()
+                            .position(currentUserLocation)
+                            .title(username)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
-                        markers.put(username, currentUserMarker);
-                    }
+                    markers.put(username, currentUserMarker);
+
                 }
 
                 // Call distance calculation after updating currentUser and friend locations
@@ -148,26 +166,28 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         locationRef.child(chatId).child(other_username).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot postSnapShot : dataSnapshot.getChildren()) {
-                    Tracking tracking = postSnapShot.getValue(Tracking.class);
 
-                    if (tracking != null) {
-                        double other_lat = tracking.getLat();
-                        double other_lng = tracking.getLng();
+                double lat = dataSnapshot.child("lat").getValue(Double.class);
+                double lng = dataSnapshot.child("lng").getValue(Double.class);
+                Tracking tracking = new Tracking(lat, lng);
 
-                        LatLng otherLocation = new LatLng(other_lat, other_lng);
+                if (tracking != null) {
+                    double other_lat = tracking.getLat();
+                    double other_lng = tracking.getLng();
 
-                        friend.setLatitude(other_lat);
-                        friend.setLongitude(other_lng);
+                    LatLng otherLocation = new LatLng(other_lat, other_lng);
 
-                        Marker friendMarker = mMap.addMarker(new MarkerOptions()
-                                .position(otherLocation)
-                                .title(other_username)
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    friend.setLatitude(other_lat);
+                    friend.setLongitude(other_lng);
 
-                        markers.put(other_username, friendMarker);
-                    }
+                    Marker friendMarker = mMap.addMarker(new MarkerOptions()
+                            .position(otherLocation)
+                            .title(other_username)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+
+                    markers.put(other_username, friendMarker);
                 }
+
 
                 // Call distance calculation after updating currentUser and friend locations
                 if (currentUser.getLatitude() != 0.0 && currentUser.getLongitude() != 0.0) {
@@ -208,24 +228,26 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
          */
     }
 
-    private void getOtherUser(String chatId){
-        DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction");
-        transRef.child(chatId).addValueEventListener(new ValueEventListener() {
+    private void getOtherUser(String chatId, MyCallback myCallback){
+        DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction").child(chatId);
+        transRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot childShot : snapshot.getChildren()){
-                    String sellerName = childShot.child("sellerName").getValue(String.class);
-                    String buyerName = childShot.child("buyerName").getValue(String.class);
-                    if(sellerName.equals(username)) {
-                        otherUser = buyerName;
-                    }else{
-                        otherUser = sellerName;
-                    }
+                String sellerName = snapshot.child("sellerName").getValue(String.class);
+                String buyerName = snapshot.child("buyerName").getValue(String.class);
+                if(sellerName!=null && sellerName.equals(username)) {
+                    myCallback.onCallback(buyerName);
+                }else if (buyerName != null) {
+                    myCallback.onCallback(sellerName);
+                } else {
+                    myCallback.onCallback(null); // Null 처리 추가
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+
+                System.out.println(error);
                 otherUser = "ErrorUser";
             }
         });
