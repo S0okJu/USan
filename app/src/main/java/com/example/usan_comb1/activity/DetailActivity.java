@@ -4,8 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,10 +23,24 @@ import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.adapter.CardAdapter;
+import com.example.usan_comb1.chat.ChatActivity;
+import com.example.usan_comb1.chat.model.Users;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.utilities.PreferenceManager;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -44,9 +60,13 @@ public class DetailActivity extends AppCompatActivity {
     private String username;
     private String accessToken;
     private static final String KEY_IS_FAVORITE = "is_favorite";
+    public String author;
 
     private RecyclerView recyclerView;
     private CardAdapter cardadapter;
+    private Button chat;
+    private PreferenceManager preferenceManager;
+    String TAG = "FirebaseChat";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +77,7 @@ public class DetailActivity extends AppCompatActivity {
         tvDetail = findViewById(R.id.tv_detail);
         tvAuthor = findViewById(R.id.nickname);
         profile = findViewById(R.id.profile);
+        chat = findViewById(R.id.btnchat); // 채팅 버튼
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
@@ -91,8 +112,17 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
+        // 채팅 버튼 누르기
+        chat.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                createOrJoinChat(String.valueOf(productId));
+            }
+        });
+
 
         //하단바 가격을 나타내는 뷰 객체
+
         price = findViewById(R.id.txtvprice);
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
@@ -200,6 +230,9 @@ public class DetailActivity extends AppCompatActivity {
 
                     ImageView favoriteButton = findViewById(R.id.imgbtn);
 
+                    // get Author username
+                    author = product.getPost_Author();
+
                     isFavorite = product.isFavorite();
                     if (product.isFavorite() == true) {
                         favoriteButton.setImageResource(R.drawable.select_ic_heart);
@@ -292,6 +325,48 @@ public class DetailActivity extends AppCompatActivity {
             container.removeView((View) object);
         }
 
+    }
+    // 채팅
+    private void createOrJoinChat(String productId){
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+        DatabaseReference chatRef = FirebaseDatabase.getInstance().getReference("chats");
+        String chatId = "chat_"+productId;
+
+        // 데이터 구성
+        Map<String, Object> chatData = new HashMap<>();
+        chatData.put("chatId", chatId);
+
+        // 데이터 추가 및
+        chatRef.child(chatId).updateChildren(chatData)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Intent intent = new Intent(DetailActivity.this, ChatActivity.class);
+                        intent.putExtra("chatId",chatId); // 추후 사용 예정
+
+                        database.collection("users").whereEqualTo("username", author).get().addOnCompleteListener(task -> {
+                            if(task.isSuccessful() && task.getResult() != null){
+                                QuerySnapshot result = task.getResult();
+                                QueryDocumentSnapshot document = (QueryDocumentSnapshot) result.getDocuments().get(0);
+
+                                Users user = new Users();
+                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                String receiverId = document.getId(); // receiver id
+                                System.out.println("id : " + receiverId);
+                                user.setName(author);
+                                user.setId(receiverId);
+                                intent.putExtra("user",user);
+                                startActivity(intent);
+                            }
+                        });
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(DetailActivity.this, "Failed to created or join", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void generateDataList(List<RetroProduct> productList) {
