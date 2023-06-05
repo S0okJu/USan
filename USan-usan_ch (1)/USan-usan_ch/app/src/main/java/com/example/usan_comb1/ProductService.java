@@ -15,6 +15,7 @@ import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.RegisterResponse;
 import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.response.UpdateResponse;
+import com.example.usan_comb1.response.UploadResponse;
 
 import java.util.List;
 
@@ -75,7 +76,7 @@ public interface ProductService {
 
     // 상품 이미지 다운로드
     @GET("imgs/download/{product_id}/{filename}")
-    Call<ResponseBody> downloadImage(@Path("product_id") Integer productId, @Path("filename") String filename);
+    Call<ResponseBody> downloadImage(@Path("filename") String filename);
 
     // 페이지 별 상품 정보
     @GET("display/productlist?page_per=10&page=1&type=0")
@@ -122,21 +123,15 @@ public interface ProductService {
     @Headers("Content-Type: multipart/form-data")
     @Multipart
     @POST("/profile/{username}/upload")
-    Call<ResponseBody> uploadImage(
+    Call<UploadResponse> uploadImage(
             @Header("Authorization") String accessToken,
             @Path("username") String username,
             @Part MultipartBody.Part imagePart
     );
 
+
     // 사용자 프로필 다운로드
     @GET("/profile/{username}/download")
     Call<ResponseBody> downloadProfileImage(@Path("username") String username);
 
-
-    /*
-    통신을 정의해주는 interface를 만들어 통신을 위한 함수를 만들어줍니다.
-    getLoginResponse 함수로 LoginRequest.java에 정의해준 데이터들을 서버 Body에 보낸 후 LoginResponse로 데이터를 받겠다는 의미를 가집니다.
-
-    출처 - https://code-hyoon.tistory.com/9
-     */
 }

@@ -12,6 +12,16 @@ public class UploadRequest {
     private String username;
     private String filename;
 
+    public MultipartBody.Part createImagePart(File file) {
+        // 요청에 첨부할 이미지 파일의 RequestBody 생성
+        RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), file);
+
+        // MultipartBody.Part 생성
+        MultipartBody.Part part = MultipartBody.Part.createFormData("img", file.getName(), requestBody);
+
+        return part;
+    }
+
     public UploadRequest(String username, String filename) {
         this.username = username;
         this.filename = filename;

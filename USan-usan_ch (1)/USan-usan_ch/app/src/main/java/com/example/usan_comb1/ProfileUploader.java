@@ -3,6 +3,8 @@ package com.example.usan_comb1;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.example.usan_comb1.response.UploadResponse;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -37,10 +39,10 @@ public class ProfileUploader {
             return;
         }
 
-        Call<ResponseBody> call = mProductService.uploadImage("Bearer " + accessToken, username, body);
-        call.enqueue(new Callback<ResponseBody>() {
+        Call<UploadResponse> call = mProductService.uploadImage("Bearer " + accessToken, username, body);
+        call.enqueue(new Callback<UploadResponse>() {
             @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+            public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
                 if (response.isSuccessful()) {
                     callback.onUploadSuccess();
                 } else {
@@ -49,7 +51,7 @@ public class ProfileUploader {
             }
 
             @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
+            public void onFailure(Call<UploadResponse> call, Throwable t) {
                 callback.onUploadFailed(t.getMessage());
             }
         });
