@@ -25,11 +25,16 @@ def check_if_token_in_blocklist(jwt_header, jwt_payload):
     token = TokenBlocklist.query.filter_by(token=jti).first()
     return bool(token)
 
+def is_username_taken(username):
+    existing_user = UserModel.query.filter_by(username=username).first()
+    return existing_user is not None
+
+
 @bp.route('/register', methods=['POST'])
 def register():
     user_info = request.get_json()
-    if user_info:
-        pass
+    if not user_info:
+        return jsonify({"status_code": 400, "message": "Bad Request"}), 400
 
     pw_receive = str(user_info['password'])
     nickname_receive = str(user_info['nickname'])
@@ -45,6 +50,19 @@ def register():
     rdb.session.commit()
 
     return jsonify({"status_code": 200, "message": "Success"}), 200
+
+@bp.route('/email_check', methods=['POST'])
+def email_check():
+    user_info = request.get_json()
+    if not user_info:
+        return jsonify({"status_code": 400, "message": "Bad Request"}), 400
+    
+    email_receive = user_info['email']
+    existing_user = UserModel.query.filter_by(email=email_receive).first()
+    if existing_user:
+        return jsonify({"status_code": 409, "message": "Email is already taken"}), 409
+
+    return jsonify({"status_code": 200, "message": "Email is available"}), 200
 
 @bp.route('/login', methods=["POST"])
 def login():

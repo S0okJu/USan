@@ -3,45 +3,37 @@ from init.init_db import rdb
 from datetime import datetime, timedelta
 import random
 
-class UserModel(rdb.Model): # User -> UserModel로 수정 
-    __tablename__ = 'User' # 
+class UserModel(rdb.Model): 
+    __tablename__ = 'User' 
 
-    # id -> user_id로 변경 
     user_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
     username = rdb.Column(rdb.String(80), unique=True, nullable=False)
     email = rdb.Column(rdb.String(120), unique=True, nullable=False)
     password = rdb.Column(rdb.String(256), nullable=False)
-    account = rdb.relationship('AccountModel', backref='User', lazy=True)
+    account = rdb.relationship('AccountModel', backref='user', lazy=True)
+    
     def to_dict(self):
         return {
             'user_id': self.user_id,
             'username': self.username,
             'email': self.email
         }
-        
-        
-def generate_number():
-    part1 = str(random.randint(100, 999))  # Generate a random three-digit number
-    part2 = str(random.randint(100, 999))  # Generate another random three-digit number
-    part3 = str(random.randint(100000, 999999))  # Generate a random six-digit number
-    return part1 + '-' + part2 + '-' + part3
 
-# 계좌와 관련된 DB
+
+
 class AccountModel(rdb.Model):
     __tablename__ = 'Account'
 
     account_id = rdb.Column(rdb.Integer, primary_key=True, autoincrement=True)
     user_id = rdb.Column(rdb.Integer, rdb.ForeignKey('User.user_id'))
-    account_number = rdb.Column(rdb.String(14), unique=True, nullable=False, default=generate_number())
+    account_number = rdb.Column(rdb.String(14), unique=True, nullable=False)
     balance = rdb.Column(rdb.Integer, nullable=False, default=0)
 
-    user = rdb.relationship('UserModel')
-    
     def to_json(self):
         return {
             'account_id': self.account_id,
             'user_id': self.user_id,
-            'user': self.user.username,  # assuming UserModel has a 'username' field
+            'user': self.user.username,
             'account_number': self.account_number,
             'balance': self.balance
         }
@@ -70,7 +62,7 @@ class ProductModel(rdb.Model):
     title = rdb.Column(rdb.String(50), nullable=False)
     author = rdb.relationship('UserModel', backref=rdb.backref('product_set'))
     price = rdb.Column(rdb.Integer, nullable=False)
-    address = rdb.Column(rdb.String(30), nullable=False)
+    address = rdb.Column(rdb.String(100), nullable=False)
     latitude = rdb.Column(rdb.Float, nullable=False, default = 0.0)
     longitude = rdb.Column(rdb.Float, nullable=False, default= 0.0)
     content = rdb.Column(rdb.String(1000), nullable=False)

@@ -1,6 +1,7 @@
 import os, sys
 import json 
 import datetime
+import re 
 
 # * lib
 from flask import request,Response, jsonify, Blueprint
@@ -15,6 +16,20 @@ import utils.color as msg
 import utils.error.custom_error as error
 
 bp = Blueprint('product', __name__, url_prefix='/product')
+
+@bp.route('<int:product_id>/pinfo',methods=["GET"])
+@jwt_required()
+def get_payment_product(product_id):
+    
+    product = ProductModel.query.get(product_id)
+    pro = product.to_dict()
+    result = {
+        "title": product.title,
+        "author": product.author.username,
+        "price":product.price,
+    }
+    return jsonify(result),200
+
 
 # 상품 정보 조회
 # 특정 상품을 메인으로 볼때 사용된다.  
@@ -208,11 +223,15 @@ def check_status():
         raise error.DBNotFound('Product')
     return jsonify({"status_code" : 200, "message":"Success"}), 200 
 
+def extract_numbers(s):
+    return "".join(re.findall(r'\d+', s))
+
 # 목적지 위치 정보를 얻는 함수 
-@bp.route('/dest/<int:product_id>',methods=["GET"])
-@jwt_required()
-def get_dest(product_id):
-    product = ProductModel.query.get(product_id)
+@bp.route('/dest/<string:chatId>',methods=["GET"])
+# @jwt_required()
+def get_dest(chatId):
+    product_id = extract_numbers(chatId)
+    product = ProductModel.query.get(int(product_id))
     res = {
         "lat" : product.latitude,
         "lng" : product.longitude
