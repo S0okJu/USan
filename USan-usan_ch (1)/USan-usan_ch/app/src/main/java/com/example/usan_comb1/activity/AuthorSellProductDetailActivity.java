@@ -3,7 +3,10 @@ package com.example.usan_comb1.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -25,8 +28,10 @@ import com.example.usan_comb1.adapter.CardAdapter;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.RetroProduct;
 
+import java.io.InputStream;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -38,12 +43,14 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
     private int mProductPrice;
     private TextView tvTitle, price, tvDetail, tvAuthor;
     private ImageButton imgButton;
+    private ImageView profile;
     private boolean isFavorite = false;
     private ViewPager viewPager;
     private String username;
     private RecyclerView recyclerView;
     private CardAdapter cardadapter;
     private String accessToken;
+    private String author;
 
     private ProductService mProductService;
     private Integer productId;
@@ -66,9 +73,10 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
         }
 
         tvTitle = findViewById(R.id.tv_title);
-        price = findViewById(R.id.author_sell);
+        price = findViewById(R.id.tvprice);
         tvDetail = findViewById(R.id.tv_detail);
         tvAuthor = findViewById(R.id.nickname);
+        profile = findViewById(R.id.profile);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
@@ -201,8 +209,14 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
                     tvTitle.setText(product.getPost_Title());
                     tvDetail.setText(product.getPost_Content());
                     tvAuthor.setText(product.getPost_Author());
+                    price.setText(product.getPost_Price());
 
                     loadUserPosts(product.getPost_Author());
+
+                    // get Author username
+                    author = product.getPost_Author();
+                    System.out.println(author);
+                    downloadImage();
 
                     ImageView favoriteButton = findViewById(R.id.imgbtn);
 
@@ -302,5 +316,44 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(AuthorSellProductDetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(cardadapter);
+    }
+
+    // 프로필 이미지 다운로드
+    private void downloadImage() {
+        Call<ResponseBody> call = mProductService.downloadProfileImage(accessToken, author);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    ResponseBody responseBody = response.body();
+                    if (responseBody != null) {
+                        // 이미지 데이터를 읽어옵니다.
+                        InputStream inputStream = responseBody.byteStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+                        // 이미지를 이미지 뷰에 설정합니다.
+                        profile.setImageBitmap(bitmap);
+                    } else {
+                        // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                        profile.setImageResource(R.drawable.ic_default_profile);
+                        Toast.makeText(AuthorSellProductDetailActivity.this, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("Download error", "Download failed: " + response.message());
+                    }
+                } else {
+                    // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
+                    profile.setImageResource(R.drawable.ic_default_profile);
+                    Toast.makeText(AuthorSellProductDetailActivity.this, "서버 응답 실패", Toast.LENGTH_SHORT).show();
+                    Log.e("Download error", "Download failed: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
+                profile.setImageResource(R.drawable.ic_default_profile);
+                Toast.makeText(AuthorSellProductDetailActivity.this, "다운로드 오류", Toast.LENGTH_SHORT).show();
+                Log.e("Download error", "Download failed: " + t.getMessage());
+            }
+        });
     }
 }

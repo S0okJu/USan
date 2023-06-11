@@ -6,10 +6,12 @@ import com.example.usan_comb1.request.ProductRequest;
 import com.example.usan_comb1.request.ProfileUpRequest;
 import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.request.UpdateRequest;
+import com.example.usan_comb1.response.DownProfileResponse;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.GpsResponse;
 import com.example.usan_comb1.response.LoginResponse;
 import com.example.usan_comb1.response.PostResult;
+import com.example.usan_comb1.response.ProductImageResponse;
 import com.example.usan_comb1.response.ProductResponse;
 import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.RegisterResponse;
@@ -74,9 +76,19 @@ public interface ProductService {
     @GET("/display/{username}/favorite")
     Call<List<FavoriteProduct>> favorite_list(@Header("Authorization") String accessToken, @Path("username") String username, @Query("page") int page);
 
+    // 상품 이미지 업로드
+    @Multipart
+    @POST("/imgs/upload/{product_id}")
+    Call<List<ProductImageResponse>> uploadproductImage(
+            @Header("Authorization") String accessToken,
+            @Path("product_id") Integer productId,
+            @Part MultipartBody.Part imagePart
+    );
+
     // 상품 이미지 다운로드
     @GET("imgs/download/{product_id}/{filename}")
-    Call<ResponseBody> downloadImage(@Path("filename") String filename);
+    Call<ResponseBody> downloadImage(@Header("Authorization") String accessToken,
+                                     @Path("product_id") Integer productId, @Path("filename") String filename);
 
     // 페이지 별 상품 정보
     @GET("display/productlist?page_per=10&page=1&type=0")
@@ -120,7 +132,6 @@ public interface ProductService {
     Call<Void> modifyProfile(@Header("Authorization") String accessToken, @Path("username") String username, @Body ProfileUpRequest profileUpRequest);
 
     // 사용자 프로필 이미지
-    @Headers("Content-Type: multipart/form-data")
     @Multipart
     @POST("/profile/{username}/upload")
     Call<UploadResponse> uploadImage(
@@ -129,9 +140,8 @@ public interface ProductService {
             @Part MultipartBody.Part imagePart
     );
 
-
     // 사용자 프로필 다운로드
     @GET("/profile/{username}/download")
-    Call<ResponseBody> downloadProfileImage(@Path("username") String username);
+    Call<ResponseBody> downloadProfileImage(@Header("Authorization") String accessToken, @Path("username") String username);
 
 }

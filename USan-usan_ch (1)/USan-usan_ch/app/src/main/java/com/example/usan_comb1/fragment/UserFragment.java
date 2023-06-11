@@ -7,12 +7,14 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -68,6 +70,7 @@ public class UserFragment extends Fragment {
 
         tvname.setText(username);
 
+        downloadImage();
 
         btnviewprf.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,10 +122,13 @@ public class UserFragment extends Fragment {
         });
 
         return view;
+
+
     }
 
+    // 프로필 이미지 다운로드
     private void downloadImage() {
-        Call<ResponseBody> call = mProductService.downloadProfileImage(username);
+        Call<ResponseBody> call = mProductService.downloadProfileImage(accessToken, username);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -138,10 +144,14 @@ public class UserFragment extends Fragment {
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         imgprofile.setImageResource(R.drawable.ic_default_profile);
+                        Toast.makeText(getContext(), "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("Download error", "Download failed: " + response.message());
                     }
                 } else {
                     // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
                     imgprofile.setImageResource(R.drawable.ic_default_profile);
+                    Toast.makeText(getContext(), "서버 응답 실패", Toast.LENGTH_SHORT).show();
+                    Log.e("Download error", "Download failed: " + response.message());
                 }
             }
 
@@ -149,10 +159,10 @@ public class UserFragment extends Fragment {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
                 imgprofile.setImageResource(R.drawable.ic_default_profile);
+                Toast.makeText(getContext(), "다운로드 오류", Toast.LENGTH_SHORT).show();
+                Log.e("Download error", "Download failed: " + t.getMessage());
             }
         });
     }
-
-
 
 }

@@ -4,16 +4,12 @@ import com.google.gson.annotations.SerializedName;
 
 // 프로필 닉네임 수정
 
-public class UploadRequest {
+public class DownProfileRequest {
     @SerializedName("username")
     String username;
 
-    @SerializedName("filename")
-    String filename;
 
-
-    public UploadRequest(String username, String filename) {
+    public DownProfileRequest(String username) {
         this.username = username ;
-        this.filename = filename ;
     }
 }

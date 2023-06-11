@@ -14,12 +14,23 @@ public class ProductResponse {
     @SerializedName("access_token")
     private String access_token;
 
+    @SerializedName("product_id")
+    private int product_id;
+
     public int getStatus_code() {
         return status_code;
     }
 
     public void setStatus_code(int status_code) {
         this.status_code = status_code;
+    }
+
+    public int getProduct_id() {
+        return product_id;
+    }
+
+    public void setProduct_id(int product_id) {
+        this.product_id = product_id;
     }
 
     public String getMessage() {
