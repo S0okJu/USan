@@ -132,8 +132,8 @@ public class UploadActivity extends AppCompatActivity {
         }
 
         // 주소의 유효성 검사
-        String selectedAddress = (String) mAddressSpinner.getSelectedItem();
-        if (selectedAddress == null || selectedAddress.isEmpty() || selectedAddress == "주소를 선택해 주세요") {
+        String selectedAddress = mAddressSpinner.getSelectedItem().toString();
+        if (selectedAddress == null || selectedAddress.isEmpty() || selectedAddress.equals("주소를 선택해 주세요")) {
             showToast("주소를 제대로 선택해주세요.");
             cancel = true;
         } else {

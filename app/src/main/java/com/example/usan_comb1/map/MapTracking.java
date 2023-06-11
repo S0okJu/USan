@@ -1,164 +1,203 @@
 package com.example.usan_comb1.map;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
+
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
-import com.example.usan_comb1.activity.DetailActivity;
+import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.activity.ProductActivity;
-import com.example.usan_comb1.activity.SalelistActivity;
-import com.example.usan_comb1.interfaces.MyCallback;
+import com.example.usan_comb1.models.Loc;
+import com.example.usan_comb1.response.PostResult;
+import com.example.usan_comb1.response.ProfileResponse;
+import com.example.usan_comb1.utilities.PreferenceManager;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.location.LocationServices;
+
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
+import com.example.usan_comb1.databinding.ActivityMapTrackingBinding;
+
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.maps.DirectionsApi;
+import com.google.maps.DirectionsApiRequest;
+import com.google.maps.GeoApiContext;
+import com.google.maps.internal.PolylineEncoding;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.TravelMode;
+
+
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.google.maps.android.PolyUtil;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import io.reactivex.rxjava3.internal.operators.maybe.MaybeHide;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class MapTracking extends AppCompatActivity implements OnMapReadyCallback {
+public class MapTracking extends FragmentActivity implements OnMapReadyCallback {
 
-    //private Toolbar toolbar;
-    //private ImageButton btn_back;
-
-    private static MapTracking instance;
     private GoogleMap mMap;
+    private HashMap<String, Marker> markers = new HashMap<>();
+    private String email;
+    DatabaseReference locations;
+    Double lat, lng;
+    private String chatId;
+    private String otherUser;
+
+    private String accessToken;
 
     private Button dealButton;
     private boolean isDealButtonVisible;
 
-    private HashMap<String, Marker> markers = new HashMap<>();
+    private ProductService service;
+    private LatLng dest;
+    private DatabaseReference locationRef;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     private Polyline distanceLine; // 둘 사이의 거리를 나타내기 위해 사용됨
-    private String username;
-    private String otherUser;
-    DatabaseReference locationRef; // 이름이 헷갈려서 ref로 변경합니다. - D7MEKZ
-    double lat, lng;
-    String TAG = "MapTracking";
-
-    public static MapTracking getInstance() {
-        return instance;
-    }
-
-    public static boolean isActive() {
-        return instance != null;
-    }
-
+    private PreferenceManager preferenceManager;
+    private String curUsername;
+    private int role;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        instance = this;
 
         setContentView(R.layout.activity_map_tracking);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        /*
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // 뒤로가기 버튼, 디폴트로 true만 해도 백버튼이 생
-         */
-        // Ref to firebase first
-        locationRef = FirebaseDatabase.getInstance().getReference("locations");
+        service = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
-        String username = prefs.getString("username", "");
+        accessToken = prefs.getString("access_token", "");
 
-        /*
-        if (getIntent() != null) {
-            username = getIntent().getStringExtra("username");
+        if(getIntent() != null){
+            chatId = getIntent().getStringExtra("chatId");
+            otherUser = getIntent().getStringExtra("otherUser");
+            role = getIntent().getIntExtra("role",-1);
         }
+        curUsername = preferenceManager.getString("username");
 
-         */
+        // Ref to firebase first
+        locationRef = FirebaseDatabase.getInstance().getReference("locations").child(chatId);
 
-//        String chatId = getIntent().getStringExtra("chatId");
-        String chatId = "chat_50";
-//        getOtherUser(chatId, new MyCallback() {
-//            @Override
-//            public void onCallback(String value) {
-//                otherUser = value;
-//                Log.d(TAG, "Other user: " + otherUser);
-//            }
-//        });
+//        initLocation();
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        /* userId PreferenceManager에서 받아오기
-        PreferenceManager preferenceManager = new PreferenceManager(this);
-        username = preferenceManager.getString("username");
-        otherUser = preferenceManager.getString("other_username");
-         */
+        locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000); // 10 seconds}
+        locationRequest.setFastestInterval(5000); // 5 seconds
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                if (locationResult == null) {
+                    return;
+                }
+                for (Location location : locationResult.getLocations()) {
+                    // update location
+                    Map<String, Object> latLng = new HashMap<>();
+                    Double lat = location.getLatitude();
+                    Double lng = location.getLongitude();
+                    latLng.put("lat", lat);
+                    latLng.put("lng", lng);
 
-        if (!username.equals("helloworld2")){
-            otherUser = "helloworld2";
-        } else{
-            otherUser = "helloworld3";
-        }
+                    LatLng current = new LatLng(lat, lng);
+                    // Clear the old marker for curUsername
+                    if (markers.get(curUsername) != null) {
+                        markers.get(curUsername).remove();
+                    }
 
-//        // 지속적인 위치 추적을 위해
-//        locationRequest = LocationRequest.create();
-//        locationRequest.setInterval(10000); // 10 seconds
-//        locationRequest.setFastestInterval(5000); // 5 seconds
-//        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//
-//        locationCallback = new LocationCallback(){
-//            @Override
-//            public void onLocationResult(LocationResult locationResult) {
-//                super.onLocationResult(locationResult);
-//                if(locationResult == null){
-//                    return ;
-//                }
-//
-//                for (Location location : locationResult.getLocations()) {
-//                    if (location != null) {
-//                        // updateLocationInFirebase(location);
-//                    }
-//                }
-//            }
-//        };
+                    Marker curUserMarker = mMap.addMarker(new MarkerOptions().position(current).title(curUsername));
+                    markers.put(curUsername, curUserMarker);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng),14.0f));
 
-        if (!TextUtils.isEmpty(username)) {
-            locationMarking(chatId, username, otherUser);
-        }
+                    latLng.put("lat", lat);
+                    latLng.put("lng", lng);
+                    locationRef.child(curUsername).updateChildren(latLng);
+
+                }
+
+                locationRef.child(otherUser).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        // Checking if the dataSnapshot has the children "lat" and "lng"
+                        if (dataSnapshot.hasChild("lat") && dataSnapshot.hasChild("lng")) {
+                            Double lat = (Double) dataSnapshot.child("lat").getValue();
+                            Double lng = (Double) dataSnapshot.child("lng").getValue();
+                            LatLng otherLocation = new LatLng(lat, lng);
+
+                            // Clear the old marker for otherUser
+                            if (markers.get(otherUser) != null) {
+                                markers.get(otherUser).remove();
+                            }
+                            // Add new marker for otherUser
+                            Marker otherUserMarker = mMap.addMarker(new MarkerOptions().position(otherLocation).title(otherUser).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                            markers.put(otherUser, otherUserMarker);
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Log.e("MapTracking", "Failed to read value.", error.toException());
+                    }
+                });
+            }
+        };
+
+        getDest();
 
         dealButton = findViewById(R.id.deal_button);
         dealButton.setVisibility(View.GONE);
@@ -169,290 +208,234 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 showAlertDialog();
             }
         });
+
+    }
+    @Override
+    protected void onStart(){
+        super.onStart();
+        checkSettingsAndStartLocationUpdates();
     }
 
-    // 지도에 정보를 marking하는 함수
-    private void locationMarking(String chatId, String username, String other_username) {
-        // Query user_location = locationRef.child(chatId).orderByKey().equalTo(username);
+    private void checkSettingsAndStartLocationUpdates() {
+        LocationSettingsRequest request = new LocationSettingsRequest.Builder().
+                addLocationRequest(locationRequest).
+                build();
+        SettingsClient client = LocationServices.getSettingsClient(this);
 
-        Location currentUser = new Location(""); // Declare currentUser variable outside the ValueEventListener
-        Location friend = new Location(""); // Declare friend variable outside the ValueEventListener
-
-        locationRef.child(chatId).child(username).addValueEventListener(new ValueEventListener() {
+        Task<LocationSettingsResponse> locationSettingsResponseTask = client.checkLocationSettings(request);
+        locationSettingsResponseTask.addOnSuccessListener(new OnSuccessListener<LocationSettingsResponse>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot postSnapShot) {
-                mMap.clear(); // Clear old markers
-
-                double lat = postSnapShot.child("lat").getValue(Double.class);
-                double lng = postSnapShot.child("lng").getValue(Double.class);
-                Tracking tracking = new Tracking(lat, lng);
-
-                if (tracking != null) {
-                    double user_lat =  tracking.getLat(); //35.1415103;
-                    double user_lng =  tracking.getLng(); //126.9321101;
-
-                    LatLng currentUserLocation = new LatLng(user_lat, user_lng);
-
-                    currentUser.setLatitude(user_lat);
-                    currentUser.setLongitude(user_lng);
-
-                    Marker currentUserMarker = mMap.addMarker(new MarkerOptions()
-                            .position(currentUserLocation)
-                            .title(username)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-
-                    markers.put(username, currentUserMarker);
-
-                }
-
-                // Call distance calculation after updating currentUser and friend locations
-                if (friend.getLatitude() != 0.0 && friend.getLongitude() != 0.0) {
-                    updateDistance(currentUser, friend);
-                }
-
-                // Zoom to current user's location
-                if (currentUser.getLatitude() != 0.0 && currentUser.getLongitude() != 0.0) {
-                    LatLng current = new LatLng(currentUser.getLatitude(), currentUser.getLongitude());
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(current, 12.0f));
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("MapTracking", "Failed to read value.", error.toException());
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                startLocationUpdates();
             }
         });
 
-        locationRef.child(chatId).child(other_username).addValueEventListener(new ValueEventListener() {
+    }
+
+    private void startLocationUpdates() {
+// 위치 권한 요청
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // 위치 권한이 없는 경우 권한 요청
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+        } else {
+            // 위치 권한이 있는 경우 위치 업데이트 시작
+            startLocationUpdates();
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+    }
+
+    private void initLocation(){
+        Map<String, Object> latLng = new HashMap<>();
+        latLng.put("lat", 0.0);
+        latLng.put("lng", 0.0);
+        locationRef.child(curUsername).updateChildren(latLng);
+    }
+    private void getOtherUserLocation(String other){
+        locationRef.child(other).addValueEventListener(new ValueEventListener(){
+
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot postSnapShot:dataSnapshot.getChildren()){
+                    Double lat = (Double) postSnapShot.child("lat").getValue();
+                    Double lng = (Double) postSnapShot.child("lng").getValue();
+                    LatLng otherLocation = new LatLng(lat,lng);
 
-                double lat = dataSnapshot.child("lat").getValue(Double.class);
-                double lng = dataSnapshot.child("lng").getValue(Double.class);
-                Tracking tracking = new Tracking(lat, lng);
+                    Location friend = new Location("");
+                    friend.setLatitude(lat);
+                    friend.setLongitude(lng);
 
-                if (tracking != null) {
-                    double other_lat = tracking.getLat();
-                    double other_lng = tracking.getLng();
+                    // Clear old mark
+                    mMap.clear();
 
-                    LatLng otherLocation = new LatLng(other_lat, other_lng);
-
-                    friend.setLatitude(other_lat);
-                    friend.setLongitude(other_lng);
-
-                    Marker friendMarker = mMap.addMarker(new MarkerOptions()
-                            .position(otherLocation)
-                            .title(other_username)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
-                    markers.put(other_username, friendMarker);
-                }
-
-
-                // Call distance calculation after updating currentUser and friend locations
-                if (currentUser.getLatitude() != 0.0 && currentUser.getLongitude() != 0.0) {
-                    updateDistance(currentUser, friend);
+                    // Add friend Marker
+                    // TODO Snipper를 임시적으로 삭제함
+                    //  추후 목적지 거리 차를 구하기 위해 사용할 예정
+                    mMap.addMarker(new MarkerOptions().position(otherLocation).title(otherUser).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng),12.0f));
                 }
             }
 
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("MapTracking", "Failed to read value.", error.toException());
+
+            }
+        });
+    }
+    // 지도에 정보를 marking하는 함수
+    private void loadLocationForThisUser(String username) {
+
+
+        locationRef.child(username).addValueEventListener(new ValueEventListener(){
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot postSnapShot:dataSnapshot.getChildren()){
+                    Tracking tracking =  postSnapShot.getValue(Tracking.class);
+
+                    // Add marker for friend location
+                    LatLng friendLocation = new LatLng(Double.parseDouble(tracking.getLat()), Double.parseDouble((tracking.getLng())));
+                    // Create location from user coordinates
+                    Location currentUser = new Location("");
+                    currentUser.setLatitude(lat);
+                    currentUser.setLongitude(lng);
+
+                    Location friend = new Location("");
+                    friend.setLatitude(Double.parseDouble(tracking.getLat()));
+                    friend.setLongitude(Double.parseDouble(tracking.getLng()));
+
+                    // Clear old mark
+                    mMap.clear();
+                    // Add friend Marker
+                    mMap.addMarker(new MarkerOptions().position(friendLocation).title(tracking.getEmail()).snippet("Distance "+ new DecimalFormat("#.#").format(distance(currentUser, friend))).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng),12.0f));
+                }
+                // Create marker for current user
+                LatLng current = new LatLng(lat,lng);
+                mMap.addMarker(new MarkerOptions().position(current).title(FirebaseAuth.getInstance().getCurrentUser().getEmail()));
+
+            }
+
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
 
-    private void updateDistance(Location currentUser, Location friend) {
-        // Calculate the distance between currentUser and friend
-        double distance = distance(currentUser, friend);
-        String distanceString = new DecimalFormat("#.#m").format(distance);
 
-        // Update the distance value in the markers' snippets
-        Marker currentUserMarker = markers.get(username);
-        if (currentUserMarker != null) {
-            currentUserMarker.setSnippet("Distance: " + distanceString);
-        }
+    public void getDest(){
 
-        Marker friendMarker = markers.get(otherUser);
-        if (friendMarker != null) {
-            friendMarker.setSnippet("Distance: " + distanceString);
-        }
+        Call<Loc> call = service.getDestLocation(accessToken, chatId);
+        dest = new LatLng(0.0,0.0);
+        call.enqueue(new Callback<Loc>() {
+            @Override
+            public void onResponse(Call<Loc> call, Response<Loc> response) {
+                if(response.isSuccessful()){
+                    Loc result = response.body();
+                    System.out.println(result.getLat());
+                    dest = new LatLng(result.getLat(), result.getLng());
+                    Marker destMarker = mMap.addMarker(new MarkerOptions().position(dest).title("거래 장소"));
+                    markers.put("거래 장소",destMarker);
 
-        // Execute the Directions API request in a new thread
-        new Thread(() -> {
-            String response = callDirectionsAPI(currentUser, friend);
-
-            if(response == null) {
-                Log.d(TAG, "API CALL NULL");
-                return;
-            }
-
-            // Extract the polyline from the response
-            String polyline = extractPolyline(response);
-
-            if(polyline == null) {
-
-                return;
-            }
-
-            List<LatLng> latLngs = PolyUtil.decode(polyline);
-
-            runOnUiThread(() -> {
-                if(distanceLine != null) {
-                    distanceLine.remove();
                 }
+            }
+            @Override
+            public void onFailure(Call<Loc> call, Throwable t) {
+                Log.d("Dest Location", "Failed to load dest location");
+                mMap.addMarker(new MarkerOptions().position(new LatLng(0.0,0.0)).title("Dest"));
+            }
+        });
 
-                // Draw the new polyline
-                distanceLine = mMap.addPolyline(new PolylineOptions()
-                        .addAll(latLngs)
-                        .width(10)
-                        .color(Color.RED));
-            });
-        }).start();
-
-        // Check if the distance is within 5 meters
-        if (distance <= 5 && !isDealButtonVisible) {
-            showDealButton();
-        } else if (distance > 5 && isDealButtonVisible) {
-            hideDealButton();
-        }
     }
 
-    // 거리를 시각적으로 표현하기 위해 사용됨.
-    private String callDirectionsAPI(Location origin, Location destination) {
-        String url = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=" + origin.getLatitude() + "," + origin.getLongitude() +
-                "&destination=" + destination.getLatitude() + "," + destination.getLongitude() +
-                "&key=AIzaSyCoYvOJIo6-rpl-GJvxPa7SwtuCeQrXBw4";
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-
-    private String extractPolyline(String response) {
+    // Directions API 요청을 보내고 응답을 처리하는 메소드
+    private void requestDirections(LatLng user, LatLng destination) {
+        // Directions API를 사용하여 경로 요청 생성
+        DirectionsResult result;
         try {
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray routes = jsonObject.getJSONArray("routes");
-
-            if (routes.length() > 0) {  // Check if the array has elements
-                JSONObject route = routes.getJSONObject(0);
-                JSONObject overview_polyline = route.getJSONObject("overview_polyline");
-                String polyline = overview_polyline.getString("points");
-
-                return polyline;
-            } else {
-                System.err.println("No routes available in the response.");
-                return null;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
-    }
-
-
-
-    private void getOtherUser(String chatId, MyCallback myCallback){
-        DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction").child(chatId);
-        transRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String sellerName = snapshot.child("sellerName").getValue(String.class);
-                String buyerName = snapshot.child("buyerName").getValue(String.class);
-                if(sellerName!=null && sellerName.equals(username)) {
-                    myCallback.onCallback(buyerName);
-                }else if (buyerName != null) {
-                    myCallback.onCallback(sellerName);
-                } else {
-                    myCallback.onCallback(null); // Null 처리 추가
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-                System.out.println(error);
-                otherUser = "ErrorUser";
-            }
-        });
-    }
-
-    public void updateMarker(String username, double latitude, double longitude) {
-
-        if (mMap == null) {
-            // mMap이 초기화되지 않았으므로 아무 작업도 수행하지 않음
+            result = DirectionsApi.newRequest(getGeoContext())
+                    .origin(new com.google.maps.model.LatLng(user.latitude, user.longitude))
+                    .destination(new com.google.maps.model.LatLng(destination.latitude, destination.longitude))
+                    .mode(TravelMode.WALKING) // 도보 모드로 설정
+                    .await(); // 동기적으로 응답 받기
+        } catch (Exception e) {
+            // 경로 요청에 실패했을 때 처리하는 부분
+            // 에러 처리 로직을 구현하면 됩니다.
             return;
         }
 
+        // 응답을 처리하는 부분
+        if (result != null && result.routes != null && result.routes.length > 0) {
+            // 경로 정보가 있을 경우 처리
+            DirectionsRoute route = result.routes[0]; // 첫 번째 경로 사용
 
-        // Update marker for friend location
-        LatLng friendLocation = new LatLng(latitude, longitude);
+            // 경로를 따라 지도에 폴리라인 그리기
+            List<LatLng> path = decodePolyline(route.overviewPolyline.getEncodedPath());
+            PolylineOptions polylineOptions = new PolylineOptions()
+                    .addAll(path)
+                    .width(10)
+                    .color(Color.BLUE);
+            mMap.addPolyline(polylineOptions);
 
-        // Check if the marker exists in the map
-        if (markers.containsKey(username)) {
-            // Marker already exists, update its position
-            Marker friendMarker = markers.get(username);
-            friendMarker.setPosition(friendLocation);
-        } else {
-            // Marker doesn't exist, create a new marker
-            Marker friendMarker = mMap.addMarker(new MarkerOptions()
-                    .position(friendLocation)
-                    .title(username)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-
-            markers.put(username, friendMarker);
+            // 출발지와 목적지가 보이도록 카메라 이동
+            LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+            boundsBuilder.include(user);
+            boundsBuilder.include(destination);
+            LatLngBounds bounds = boundsBuilder.build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
         }
-
-        mMap.clear(); // Clear old markers
-
-        // Create marker for current user
-        if (lat != 0.0 && lng != 0.0) {
-            LatLng current = new LatLng(lat, lng);
-            mMap.addMarker(new MarkerOptions().position(current).title(username));
-        }
-
     }
 
-    public double distance(Location currentUser, Location friend) {
-        double lat1 = currentUser.getLatitude();
-        double lon1 = currentUser.getLongitude();
-        double lat2 = friend.getLatitude();
-        double lon2 = friend.getLongitude();
+    // 인코딩된 폴리라인 데이터를 디코딩하여 LatLng 리스트로 변환하는 메소드
+    private List<LatLng> decodePolyline(String encodedPath) {
+        List<LatLng> path = new ArrayList<>();
+        PolylineEncoding.decode(encodedPath).forEach(latLng -> path.add(new LatLng(latLng.lat, latLng.lng)));
+        return path;
+    }
 
-        if (lat1 == lat2 && lon1 == lon2) {
-            return 0.0; // Same coordinates, distance is 0
-        }
+    // Geocoding API와 Directions API에 필요한 GeoApiContext 생성
+    private GeoApiContext getGeoContext() {
+        GeoApiContext geoApiContext = new GeoApiContext.Builder()
+                .apiKey("AIzaSyCoYvOJIo6-rpl-GJvxPa7SwtuCeQrXBw4") // Directions API 및 Geocoding API를 사용하려면 API 키를 지정해야 합니다.
+                .build();
+        return geoApiContext;
+    }
 
-        double theta = lon1 - lon2;
-        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2))
-                + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+
+
+    public double distance(Location currentUser, Location friend){
+        double theta = currentUser.getLongitude() - friend.getLongitude();
+        double dist = Math.sin(deg2rad(currentUser.getLatitude())) * Math.sin(deg2rad(friend.getLatitude()))
+                * Math.cos(deg2rad(currentUser.getLongitude()))* Math.cos(deg2rad(friend.getLongitude()))
+                * Math.cos(deg2rad(theta));
         dist = Math.acos(dist);
         dist = rad2deg(dist);
         dist = dist * 60 * 1.1515 * 1.609344 * 1000; // Convert miles to meters
-
         return dist;
     }
 
     private double rad2deg(double rad) {
-        return (rad * 180.0 / Math.PI);
+        return (rad * 180 / Math.PI);
     }
 
-    private double deg2rad(double deg) {
+    private double deg2rad(double deg){
         return (deg * Math.PI / 180.0);
     }
+
+    /**
+     * Manipulates the map once available.
+     * This callback is triggered when the map is ready to be used.
+     * This is where we can add markers or lines, add listeners or move the camera. In this case,
+     * we just add a marker near Sydney, Australia.
+     * If Google Play services is not installed on the device, the user will be prompted to install
+     * it inside the SupportMapFragment. This method will only be triggered once the user has
+     * installed Google Play services and returned to the app.
+     */
+
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -493,14 +476,11 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public void onBackPressed() {
-        /*
         if (isDealButtonVisible) {
             hideDealButton();
         } else {
                 }
-         */
         setResult(Activity.RESULT_OK);
         finish();
     }
-
 }

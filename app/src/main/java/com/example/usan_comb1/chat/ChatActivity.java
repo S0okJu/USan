@@ -1,43 +1,39 @@
 package com.example.usan_comb1.chat;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+import static com.example.usan_comb1.utilities.Constants.BUYER;
+import static com.example.usan_comb1.utilities.Constants.SELLER;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.usan_comb1.R;
-import com.example.usan_comb1.activity.ProductActivity;
+import com.example.usan_comb1.chat.model.ChatData;
 import com.example.usan_comb1.chat.model.Users;
 import com.example.usan_comb1.databinding.ChatActivitySampleBinding;
-import com.example.usan_comb1.map.ListOnline;
 import com.example.usan_comb1.map.MapTracking;
+import com.example.usan_comb1.utilities.FindFromFirebase;
 import com.example.usan_comb1.utilities.PreferenceManager;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -45,27 +41,41 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+/*
+ * 데이터를 저장할때 chatId와 함께 추가하도록 했습니다.
+ * 채팅 시 명확하게 메세지를 분류하기 위해서입니다. - @D7MeKz
+ * */
 public class ChatActivity extends AppCompatActivity {
     private ChatActivitySampleBinding binding;
-    private Users receiverUser;
+    public Users receiverUser;
     private List<ChatData> chatMessages;
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
     private FirebaseFirestore database;
-    ImageButton buttonFile, buttonGps;
-
+    public DatabaseReference transRef;
+    public FindFromFirebase findFromFirebase = new FindFromFirebase();
+    ImageButton buttonFile;
+    ImageButton buttonGps;
     private static final int REQUEST_CODE_IMAGE = 1001;
+    private int role;
+    private String chatId;
+    private String conversationId;
+    public String previousInfo;
+    public String userId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ChatActivitySampleBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        // setup DB
+        transRef = FirebaseDatabase.getInstance().getReference("transaction");
+
         setListeners();
         loadReceiverDetails();
         init();
@@ -85,26 +95,7 @@ public class ChatActivity extends AppCompatActivity {
         });
 
 
-        buttonGps = findViewById(R.id.button_gps);
-        buttonGps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ChatActivity.this, MapTracking.class);
-                startActivity(intent);
-            }
-        });
     }
-
-    /* userId PreferenceManager에 저장하기
-    private void startMapTrackingActivity() {
-        PreferenceManager preferenceManager = new PreferenceManager(this);
-        preferenceManager.putString("username", preferenceManager.getString("userId"));
-        preferenceManager.putString("other_username", receiverUser.getId());
-
-        Intent intent = new Intent(ChatActivity.this, MapTracking.class);
-        startActivity(intent);
-    }
-     */
 
     private void init() {
         preferenceManager = new PreferenceManager(this);
@@ -112,26 +103,47 @@ public class ChatActivity extends AppCompatActivity {
         chatAdapter = new ChatAdapter(chatMessages, preferenceManager.getString("userId"));
         binding.chatRecyclerView.setAdapter(chatAdapter);
         database = FirebaseFirestore.getInstance();
+        userId = PreferenceManager.getString("userId");
+
+        role = getIntent().getIntExtra("role",-1);
+        previousInfo = getIntent().getStringExtra("prevInfo");
     }
 
     private void sendMessage() {
         HashMap<String, Object> message = new HashMap<>();
+        message.put("chatId",chatId);
         message.put("senderId", preferenceManager.getString("userId"));
         message.put("receiverId", receiverUser.getId());
         message.put("message", binding.inputMessage.getText().toString());
         message.put("timestamp", new Date());
         database.collection("chats").add(message);
+
+        // TODO 최근 목록 업데이트
+        if (conversationId != null){
+            updateConversation(binding.inputMessage.getText().toString());
+        }else{
+            HashMap<String, Object> conversation = new HashMap<>();
+            conversation.put("chatId",chatId);
+            conversation.put("senderId",preferenceManager.getString("userId"));
+            conversation.put("senderName",preferenceManager.getString("username"));
+            conversation.put("receiverId",receiverUser.getId());
+            conversation.put("receiverName",receiverUser.getName());
+            conversation.put("message",binding.inputMessage.getText().toString());
+            conversation.put("timestamp",new Date());
+            addOrUpdateConversation(conversation);
+        }
         binding.inputMessage.setText(null);
     }
 
     private void listenMessages() {
+
         database.collection("chats")
+                .whereEqualTo("chatId",chatId)
                 .whereEqualTo("senderId", preferenceManager.getString("userId"))
-                .whereEqualTo("receiverId", receiverUser.getId())
                 .addSnapshotListener(eventListener);
 
         database.collection("chats")
-                .whereEqualTo("senderId", receiverUser.getId())
+                .whereEqualTo("chatId",chatId)
                 .whereEqualTo("receiverId", preferenceManager.getString("userId"))
                 .addSnapshotListener(eventListener);
     }
@@ -144,6 +156,7 @@ public class ChatActivity extends AppCompatActivity {
             for (DocumentChange documentChange : value.getDocumentChanges()) {
                 if (documentChange.getType() == DocumentChange.Type.ADDED) {
                     ChatData chatData = new ChatData();
+                    chatData.setChatId(chatId);
                     chatData.setSenderId(documentChange.getDocument().getString("senderId"));
                     chatData.setReceiverId(documentChange.getDocument().getString("receiverId"));
                     chatData.setMessage(documentChange.getDocument().getString("message"));
@@ -152,16 +165,30 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         }
+        if(chatId == null){
+            checkForConversion();
+        }
     };
 
     private void loadReceiverDetails() {
         receiverUser = (Users) getIntent().getSerializableExtra("user");
         binding.textName.setText(receiverUser.getName());
+
+        // RecentAdapter, DetailActivity에서부터 ChatActivity를 호출하는지에 따라 역할을 정하는 방식이 약간 다릅니다.
+        // 이를 구분하기 위해 Intent를 통해 prevInfo를 전달받을 수 있도록 했습니다. - @D7MeKz
+        chatId = getIntent().getStringExtra("chatId");
+        if (previousInfo=="recent"){
+            role = findFromFirebase.checkSeller(chatId,userId);
+        }else{
+            role = getIntent().getIntExtra("role",-1);
+        }
     }
 
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
+        binding.imageInfo.setOnClickListener(v -> setTransaction()); // 거래 정보 확장 버튼
+        binding.buttonGps.setOnClickListener(v -> getMap()); // 채팅
     }
 
 
@@ -192,6 +219,7 @@ public class ChatActivity extends AppCompatActivity {
 
                         // 메시지 데이터 생성
                         ChatData chatData = new ChatData();
+                        chatData.setChatId(chatId);
                         chatData.setSenderId(preferenceManager.getString("userId"));
                         chatData.setReceiverId(receiverUser.getId());
                         chatData.setMessage(imageUrl); // 이미지 URL 저장
@@ -208,12 +236,125 @@ public class ChatActivity extends AppCompatActivity {
                     // 이미지 업로드 실패
                     Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                 });
+
     }
+
+    private void setTransaction(){
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("transaction").child(chatId);
+        Map<String, Object> transInfo = new HashMap<>();
+
+
+        if(role == SELLER){
+            transInfo.put("chatId",chatId);
+            transInfo.put("sellerId", preferenceManager.getString("userId"));
+            transInfo.put("sellerName", preferenceManager.getString("username"));
+            transInfo.put("sellerStatus",false);
+            transInfo.put("buyerId",receiverUser.getId());
+            transInfo.put("buyerName",receiverUser.getName());
+            transInfo.put("buyerStatus",false);
+
+
+        }else if(role==BUYER){
+            transInfo.put("chatId",chatId);
+            transInfo.put("buyerId", preferenceManager.getString("userId"));
+            transInfo.put("buyerName", preferenceManager.getString("username"));
+            transInfo.put("sellerStatus",false);
+            transInfo.put("sellerId",receiverUser.getId());
+            transInfo.put("sellerName",receiverUser.getName());
+            transInfo.put("buyerStatus",false);
+
+        }
+
+        myRef.setValue(transInfo)
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("Firebase", "Data has been saved successfully.");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("Firebase", "Failed to save data.", e);
+                    }
+                });
+    }
+    private void addOrUpdateConversation(HashMap<String, Object> conversation){
+        // Check if conversation exists with the same chatId
+        database.collection("conversation")
+                .whereEqualTo("chatId", chatId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            QuerySnapshot querySnapshot = task.getResult();
+                            if (!querySnapshot.isEmpty()) {
+                                DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
+                                documentSnapshot.getReference().update(conversation);
+                            } else {
+                                database.collection("conversation")
+                                        .add(conversation)
+                                        .addOnSuccessListener(documentReference -> conversationId = documentReference.getId());
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+    }
+
 
     private String getFileExtension(Uri uri) {
         ContentResolver contentResolver = getContentResolver();
         MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
         return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
+    }
+
+    private void getMap(){
+        Intent intent = new Intent(ChatActivity.this, MapTracking.class);
+        intent.putExtra("chatId",chatId);
+        intent.putExtra("role",role);
+        intent.putExtra("otherUser",receiverUser.getName());
+        startActivity(intent);
+    }
+
+    private void updateConversation(String message){
+        DocumentReference documentReference = database.collection("conversation").document(conversationId);
+        documentReference.update(
+                "message",message,
+                "timestamp", new Date()
+        );
+    }
+
+
+    private void checkForConversationRemotely(String senderId, String receiverId) {
+        database.collection("conversation")
+                .whereEqualTo("senderId", senderId)
+                .whereEqualTo("receiverId", receiverId)
+                .get()
+                .addOnCompleteListener(conversionOnCompleteListener);
+    }
+    private final OnCompleteListener<QuerySnapshot> conversionOnCompleteListener = task ->{
+        if(task.isSuccessful() && task.getResult()!=null && task.getResult().getDocuments().size()>0){
+            DocumentSnapshot documentSnapshot = task.getResult().getDocuments().get(0);
+            conversationId = documentSnapshot.getId();
+        }
+    };
+
+    private void checkForConversion(){
+        if(chatMessages.size() !=0){
+            checkForConversationRemotely(
+                    preferenceManager.getString("userId"),
+                    receiverUser.getId()
+            );
+            checkForConversationRemotely(
+                    receiverUser.getId(),
+                    preferenceManager.getString("userId")
+            );
+        }
     }
 
 }

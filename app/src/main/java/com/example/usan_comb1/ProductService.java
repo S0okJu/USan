@@ -1,5 +1,6 @@
 package com.example.usan_comb1;
 
+import com.example.usan_comb1.models.Loc;
 import com.example.usan_comb1.request.LoginData;
 import com.example.usan_comb1.request.MyLocationRequest;
 import com.example.usan_comb1.request.ProductRequest;
@@ -9,7 +10,9 @@ import com.example.usan_comb1.request.UpdateRequest;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.GpsResponse;
 import com.example.usan_comb1.response.LoginResponse;
+import com.example.usan_comb1.response.PaymentProductResponse;
 import com.example.usan_comb1.response.PostResult;
+import com.example.usan_comb1.response.ProductImageResponse;
 import com.example.usan_comb1.response.ProductResponse;
 import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.RegisterResponse;
@@ -75,10 +78,20 @@ public interface ProductService {
     @GET("/display/{username}/favorite")
     Call<List<FavoriteProduct>> favorite_list(@Header("Authorization") String accessToken, @Path("username") String username, @Query("page") int page);
 
+    // 상품 이미지 업로드
+    @Multipart
+    @POST("/imgs/upload/{product_id}")
+    Call<List<ProductImageResponse>> uploadproductImage(
+            @Header("Authorization") String accessToken,
+            @Path("product_id") Integer productId,
+            @Part MultipartBody.Part imagePart
+    );
+
+
     // 상품 이미지 다운로드
     @GET("imgs/download/{product_id}/{filename}")
-    Call<ResponseBody> downloadImage(@Path("product_id") Integer productId, @Path("filename") String filename);
-
+    Call<ResponseBody> downloadImage(@Header("Authorization") String accessToken,
+                                     @Path("product_id") Integer productId, @Path("filename") String filename);
     // 페이지 별 상품 정보
     @GET("display/productlist?page_per=10&page=1&type=0")
     Call<String> string_call(@Header("Authorization") String accessToken);
@@ -121,7 +134,6 @@ public interface ProductService {
     Call<Void> modifyProfile(@Header("Authorization") String accessToken, @Path("username") String username, @Body ProfileUpRequest profileUpRequest);
 
     // 사용자 프로필 이미지
-    @Headers("Content-Type: multipart/form-data")
     @Multipart
     @POST("/profile/{username}/upload")
     Call<UploadResponse> uploadImage(
@@ -130,6 +142,23 @@ public interface ProductService {
             @Part MultipartBody.Part imagePart
     );
 
+
+    // 사용자 프로필 다운로드
+    @GET("/profile/{username}/download")
+    Call<ResponseBody> downloadProfileImage(@Header("Authorization") String accessToken, @Path("username") String username);
+
+    // Dest 구하는 함수
+    @GET("/product/dest/{chatId}")
+    Call<Loc> getDestLocation(@Header("Authorization") String authorization, @Path("chatId") String chatId);
+
+    // 상품 지불 시 일부 상품 정보를 보여주는 함수
+    @GET("/product/{productId}/pinfo")
+    Call<PaymentProductResponse> getPaymentProduct(@Header("Authorization") String accessToken, @Path("productId") Integer productId);
+
+
+    // 결제와 관련된 함수
+    @POST("/payment/withdraw/{chatId}")
+    Call<Void> getBuyerPayment(@Header("Authorization") String accessToken, @Path("chatId") String chatId);
 
     /*
     통신을 정의해주는 interface를 만들어 통신을 위한 함수를 만들어줍니다.

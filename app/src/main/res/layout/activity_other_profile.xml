@@ -6,9 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".activity.OtherProfileActivity">
 
-    <include
-        layout="@layout/toolbar"
-        android:id="@+id/toolbar"/>
 
     <ImageView
         android:id="@+id/otherprofile"

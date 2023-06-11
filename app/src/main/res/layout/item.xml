@@ -33,8 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/adpt_coverImage"
             android:layout_marginLeft="16dp"
-            android:paddingTop="20dp"
-            android:lines="2"
+            android:layout_marginTop="20dp"
             android:maxLines="1"
             android:ellipsize="end"
             android:text="title" />
@@ -46,9 +45,9 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="11dp"
             android:layout_toRightOf="@+id/adpt_coverImage"
+            android:layout_below="@id/adpt_title"
             android:fontFamily="@font/noto"
             android:lines="1"
-            android:paddingTop="65dp"
             android:text="author" />
 
         <TextView
@@ -56,12 +55,15 @@
             style="@style/TextAppearance.AppCompat.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="121dp"
-            android:layout_toRightOf="@+id/adpt_author"
+            android:layout_alignBaseline="@id/adpt_author"
+            android:layout_marginStart="144dp"
+            android:layout_toEndOf="@id/adpt_author"
             android:fontFamily="@font/noto"
+            android:gravity="end|center_vertical"
+            android:includeFontPadding="false"
             android:lines="1"
-            android:paddingTop="65dp"
-            android:text="price" />
+            android:text="price"
+            android:textAlignment="textEnd" />
 
 
     </RelativeLayout>

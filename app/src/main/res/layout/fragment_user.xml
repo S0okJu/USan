@@ -141,18 +141,18 @@
         app:layout_constraintVertical_bias="0.458" />
 
     <Button
-        android:id="@+id/btngps"
+        android:id="@+id/btn_logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="GPS"
-        android:background="@color/color1"
+        android:background="@color/grey"
         android:fontFamily="@font/noto"
+        android:text="로그아웃"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.185"
+        app:layout_constraintHorizontal_bias="0.916"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.713" />
+        app:layout_constraintVertical_bias="0.935" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

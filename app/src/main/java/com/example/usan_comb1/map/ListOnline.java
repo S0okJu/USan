@@ -1,134 +1,159 @@
 package com.example.usan_comb1.map;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
-//import android.location.LocationRequest;
+
 import android.os.Bundle;
-import android.os.Looper;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
+import android.widget.Toolbar;
+
+import android.Manifest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.usan_comb1.R;
+
+import com.example.usan_comb1.map.Tracking;
+import com.example.usan_comb1.response.LoginResponse;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-//import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.firebase.database.ValueEventListener;
 
 
-public class ListOnline extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class ListOnline extends AppCompatActivity  implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
-    // Firebase
-    DatabaseReference locationRef; // 변수명이 헷갈려서 수정합니다. - DAMEKZ
+    //Firebase
+    DatabaseReference onlineRef, currentUserRef, counterRef, locations;
+    FirebaseRecyclerAdapter<LoginResponse, ListOnlineViewHolder> adapter;
 
-    // Location
+    //View
+    RecyclerView listOnline;
+    RecyclerView.LayoutManager layoutManager;
+
+    //Location
     private static final int MY_PERMISSION_REQUEST_CODE = 7171;
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 7172;
-    LocationRequest mLocationRequest;
+    private static final int PLAY_SERVICES_RES_REQUEST = 7172;
+    private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-    private LocationCallback locationCallback;
 
-    private static int UPDATE_INTERVAL = 5000; // 5 seconds
-    private static int FASTEST_INTERVAL = 3000; // 3 seconds
-    private static int DISPLACEMENT = 10; // 10 meters
-
-    private static final int REQUEST_CODE_MAP_TRACKING = 200;
-
-    private String username;
-
-    private String chatId;
+    private static int UPDATE_INTERVAL = 5000;
+    private static int FASTEST_INTERVAL = 3000;
+    private static int DISTANCE = 10;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_online);
 
-        // ChatId
-        chatId = getIntent().getStringExtra("chatId");
+        //Init views
+        listOnline = (RecyclerView) findViewById(R.id.listOnline);
+        listOnline.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        listOnline.setLayoutManager(layoutManager);
 
-        // Firebase
-        locationRef = FirebaseDatabase.getInstance().getReference("locations");
+        //Set toolbar and Logout / Join menu
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
+        toolbar.setTitle("사용자 위치 공유");
+        setSupportActionBar(toolbar);
 
-        // SharedPreferences
-        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
-        username = prefs.getString("username", "");
-
-        if (username.isEmpty()) {
-            // Username not found, handle accordingly
-        }
+        //Firebase
+        locations = FirebaseDatabase.getInstance().getReference("Locations");
+        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
+        counterRef = FirebaseDatabase.getInstance().getReference("lastOnline");
+        currentUserRef = FirebaseDatabase.getInstance().getReference("lastOnline")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            ActivityCompat.requestPermissions(this, new String[] {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION
-            }, MY_PERMISSION_REQUEST_CODE);
-        } else {
-            if (checkPlayServices()) {
+            },MY_PERMISSION_REQUEST_CODE);
+        }
+        else {
+            if(checkPlayServices()) {
                 buildGoogleApiClient();
                 createLocationRequest();
+                displayLocation();
             }
         }
 
+        setupSystem();
+        updateList();
+    }
 
-        // MapTracking으로 이동하는 부분
-        //
-        Intent intent = new Intent(ListOnline.this, MapTracking.class);
-        intent.putExtra("username", username);
-        intent.putExtra("chatId", chatId);
-        startActivityForResult(intent, REQUEST_CODE_MAP_TRACKING);
+    private void setSupportActionBar(Toolbar toolbar) {
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_CODE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (checkPlayServices()) {
+                        buildGoogleApiClient();
+                        createLocationRequest();
+                        displayLocation();
+                    }
+                }
+            }
+        }
     }
 
     private void displayLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
             return;
         }
-        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                mLastLocation = location;
-                if (mLastLocation != null) {
-                    // Update location to Firebase
-                    locationRef.child(chatId).child(username)
-                            .setValue(new Tracking(username,
-                                    mLastLocation.getLatitude(),
-                                    mLastLocation.getLongitude()));
-                } else {
-                    Toast.makeText(ListOnline.this, "Cannot get your location", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if(mLastLocation != null) {
+            // Update to Firebase
+            locations.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .setValue(new Tracking(FirebaseAuth.getInstance().getCurrentUser().getEmail(),
+                            FirebaseAuth.getInstance().getCurrentUser().getUid(),
+                            String.valueOf(mLastLocation.getLatitude()),
+                            String.valueOf(mLastLocation.getLongitude())));
+        }
+        else {
+            Toast.makeText(this, "위치를 얻을 수 없습니다.", Toast.LENGTH_SHORT).show();
+        }
     }
 
+
     private void createLocationRequest() {
-        mLocationRequest = LocationRequest.create();
+        mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL);
         mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
-        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
+        mLocationRequest.setSmallestDisplacement(DISTANCE);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -136,18 +161,17 @@ public class ListOnline extends AppCompatActivity implements
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .build();
+                .addApi(LocationServices.API).build();
         mGoogleApiClient.connect();
     }
 
     private boolean checkPlayServices() {
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+        if(resultCode != ConnectionResult.SUCCESS) {
+            if(GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICES_RES_REQUEST).show();
             } else {
-                Toast.makeText(this, "This device is not supported", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "이 기기에서 지원하지 않습니다.", Toast.LENGTH_SHORT).show();
                 finish();
             }
             return false;
@@ -155,66 +179,120 @@ public class ListOnline extends AppCompatActivity implements
         return true;
     }
 
-    private void updateLocation() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                mLastLocation = location;
-                if (mLastLocation != null) {
-                    // Update location to Firebase
-                    locationRef.child(chatId).child(username)
-                            .setValue(new Tracking(username,
-                                    mLastLocation.getLatitude(),
-                                    mLastLocation.getLongitude()));
+    private void updateList() {
+        FirebaseRecyclerOptions<LoginResponse> options =
+                new FirebaseRecyclerOptions.Builder<LoginResponse>()
+                        .setQuery(counterRef, LoginResponse.class)
+                        .build();
 
-                    // Update marker on the map
-                    if (MapTracking.isActive()) {
-                        MapTracking.getInstance().updateMarker(username, mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+        adapter = new FirebaseRecyclerAdapter<LoginResponse,ListOnlineViewHolder>(options){
+            @NonNull
+            @Override
+            public ListOnlineViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                return null;
+            }
+
+            @Override
+            protected void onBindViewHolder(@NonNull ListOnlineViewHolder viewHolder, int position, @NonNull LoginResponse model) {
+                viewHolder.txtEmail.setText(model.getEmail());
+
+                viewHolder.itemClickListener = new ItemClickListener() {
+                    @Override
+                    public void onClick(View view, int position) {
+                        // If model is current user, note set click event
+                        if(!model.getEmail().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())){
+                            Intent map = new Intent(ListOnline.this, MapTracking.class);
+                            map.putExtra("email", model.getEmail());
+                            map.putExtra("lat",mLastLocation.getLatitude());
+                            map.putExtra("lng",mLastLocation.getLongitude());
+                            startActivity(map);
+                        }
                     }
-                } else {
-                    Toast.makeText(ListOnline.this, "Cannot get your location", Toast.LENGTH_SHORT).show();
+                };
+            }
+        };
+        adapter.notifyDataSetChanged();
+        listOnline.setAdapter(adapter);
+    }
+
+    private void setupSystem() {
+        onlineRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue(Boolean.class)) {
+                    currentUserRef.onDisconnect().removeValue();
+                    // Set Online user in list
+                    counterRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .setValue(new User(FirebaseAuth.getInstance().getCurrentUser().getEmail(), "Online"));
+                    adapter.notifyDataSetChanged();
                 }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        counterRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    User user = postSnapshot.getValue(User.class);
+                    Log.d("LOG", "" + user.getEmail() + " is " + user.getStatus());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }
 
     @Override
-    public void onLocationChanged(Location location) {
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.map_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_join:
+                counterRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                        .setValue(new User(FirebaseAuth.getInstance().getCurrentUser().getEmail(), "Online"));
+                break;
+
+            case R.id.action_logout:
+                currentUserRef.removeValue();
+                break;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
         mLastLocation = location;
-        updateLocation();
+        displayLocation();
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        updateLocation();
+        displayLocation();
         startLocationUpdates();
     }
 
     private void startLocationUpdates() {
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
             return;
         }
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                if (locationResult == null) {
-                    return;
-                }
-                for (Location location : locationResult.getLocations()) {
-                    onLocationChanged(location);
-                }
-            }
-        };
-        fusedLocationProviderClient.requestLocationUpdates(mLocationRequest, locationCallback, Looper.myLooper());
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
     }
-
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -223,13 +301,13 @@ public class ListOnline extends AppCompatActivity implements
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.e("Error", "Connection failed: " + connectionResult.getErrorMessage());
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        if (mGoogleApiClient != null) {
+        if(mGoogleApiClient != null) {
             mGoogleApiClient.connect();
         }
     }
@@ -245,35 +323,6 @@ public class ListOnline extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        if (checkPlayServices()) {
-            buildGoogleApiClient();
-            createLocationRequest();
-            startLocationUpdates();
-        }
-        // 위치 업데이트 코드를 onResume 메서드로 이동합니다.
-        updateLocation();
+        checkPlayServices();
     }
-
-    @Override
-    protected void onPause() {
-        stopLocationUpdates();
-        super.onPause();
-    }
-
-    private void stopLocationUpdates() {
-        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
-            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == REQUEST_CODE_MAP_TRACKING && resultCode == Activity.RESULT_OK) {
-            // MapTracking 액티비티에서 UserFragment로 돌아온 경우
-            finish(); // ListOnline 액티비티 종료
-        }
-    }
-
 }

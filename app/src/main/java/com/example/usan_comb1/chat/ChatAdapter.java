@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import com.bumptech.glide.Glide;
+import com.example.usan_comb1.chat.model.ChatData;
 import com.example.usan_comb1.databinding.ItemContainerRevceivedMessageBinding;
 import com.example.usan_comb1.databinding.ItemContainerSentMessageBinding;
 
@@ -67,8 +67,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        ChatData chat = chatMessages.get(position);
-        if (chat != null && chat.getSenderId() != null && chat.getSenderId().equals(senderId)) {
+        if (chatMessages.get(position).getSenderId().equals(senderId)) {
             return VIEW_TYPE_SENT;
         } else {
             return VIEW_TYPE_RECEIVED;

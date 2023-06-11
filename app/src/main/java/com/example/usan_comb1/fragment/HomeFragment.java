@@ -41,6 +41,9 @@ public class HomeFragment extends Fragment {
     private RecyclerView.LayoutManager layoutManager;
     FloatingActionButton fab;
     private String accessToken;
+    //private int currentPage = 1; // 페이지 번호 변수 선언
+
+    private boolean isDataLoading = false; // 데이터 로딩 여부를 관리하는 변수
 
     NestedScrollView nestedScrollView;
     ProgressBar progressBar;
@@ -120,19 +123,29 @@ public class HomeFragment extends Fragment {
             }
         });
 
+
         return view;
     }
 
     private void getData()
     {
+        if (isDataLoading) {
+            return; // 이미 데이터 로딩 중인 경우 중복 호출 방지
+        }
+
+        dataArrayList.clear(); // 기존 데이터 초기화
+
+        isDataLoading = true; // 데이터 로딩 시작
 
         ProductService productService = RetrofitClient.getProductService();
+        //Call<String> call = productService.string_call(accessToken, currentPage); // 페이지 번호 설정
         Call<String> call = productService.string_call(accessToken);
         call.enqueue(new Callback<String>()
         {
             @Override
             public void onResponse(Call<String> call, Response<String> response)
             {
+                isDataLoading = false; // 데이터 로딩 종료
                 if (response.isSuccessful() && response.body() != null)
                 {
                     progressBar.setVisibility(View.GONE);
@@ -151,6 +164,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onFailure(Call<String> call, Throwable t)
             {
+                isDataLoading = false; // 데이터 로딩 종료
                 Log.e("에러 : ", t.getMessage());
             }
         });
@@ -170,6 +184,8 @@ public class HomeFragment extends Fragment {
                 data.setPrice(jsonObject.getString("price"));
                 data.setProduct_id(jsonObject.getInt("product_id"));
                 dataArrayList.add(data);
+
+                //currentPage++; // 페이지 번호 증가
             }
             catch (JSONException e)
             {

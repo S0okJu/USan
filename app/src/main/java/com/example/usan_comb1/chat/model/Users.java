@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class Users implements Serializable {
     public String name, image, id;
+    public int role;
 
     public String getName() {
         return name;
@@ -21,13 +22,19 @@ public class Users implements Serializable {
         this.image = image;
     }
 
-
-
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
     }
 }
