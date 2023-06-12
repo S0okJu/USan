@@ -3,6 +3,7 @@ package com.example.usan_comb1.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,7 @@ import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.FavoriteProduct;
 
+import java.io.File;
 import java.util.List;
 
 import retrofit2.Call;
@@ -69,23 +71,29 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public void onBindViewHolder(@NonNull FavoriteAdapter.ViewHolder holder, int position)
     {
         FavoriteProduct data = favoriteList.get(position);
-        DownImage downImage = new DownImage();
+        String fileName = data.getImg(); // 이미지 파일 이름
+        SharedPreferences pref = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("image_file_name", fileName);
+        editor.apply();
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
-        if (data.getImg() != null) {
-            Glide.with(activity)
-                    .load(data.getImg())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+        SharedPreferences prefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        fileName = prefs.getString("image_file_name", "");
+
+        if (!TextUtils.isEmpty(fileName)) {
+            File imageFile = new File(context.getFilesDir(), fileName);
+
+            Glide.with(context)
+                    .load(imageFile)
                     .into(holder.coverImage);
         } else {
-            // 이미지가 null인 경우, 기본 이미지 또는 에러 이미지를 설정해 줄 수 있습니다.
-            Glide.with(activity)
-                    .load(R.drawable.error)
+            // 이미지 파일 이름이 저장되지 않은 경우 기본 이미지 또는 에러 이미지 로드
+            Glide.with(context)
+                    .load(R.drawable.img_error)
                     .into(holder.coverImage);
         }
-
-
 
         holder.txtTitle.setText(data.getTitle());
         holder.txtAuthor.setText(data.getAuthor());

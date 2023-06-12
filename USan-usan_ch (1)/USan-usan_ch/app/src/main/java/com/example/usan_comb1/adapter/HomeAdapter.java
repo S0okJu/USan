@@ -1,6 +1,9 @@
 package com.example.usan_comb1.adapter;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
+import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.PostList;
 
+import java.io.File;
 import java.util.ArrayList;
 
 // HomeFragment RecyclerView Adapter
@@ -23,6 +29,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
 {
     private ArrayList<PostList> dataArrayList;
     private Activity activity;
+    private ProductService mProductService;
 
     // Interface for item click listener
     public interface OnItemClickListener {
@@ -54,17 +61,27 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
     public void onBindViewHolder(@NonNull HomeAdapter.ViewHolder holder, int position)
     {
         PostList data = dataArrayList.get(position);
-        DownImage downImage = new DownImage();
+        String fileName = data.getImg(); // 이미지 파일 이름
+        SharedPreferences pref = activity.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("image_file_name", fileName);
+        editor.apply();
 
-        if (downImage.getFilename() != null) {
+        mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
+
+        SharedPreferences prefs = activity.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+        fileName = prefs.getString("image_file_name", "");
+
+        if (!TextUtils.isEmpty(fileName)) {
+            File imageFile = new File(activity.getFilesDir(), fileName);
+
             Glide.with(activity)
-                    .load(data.getImg())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .load(imageFile)
                     .into(holder.coverImage);
         } else {
-            // 이미지가 null인 경우, 기본 이미지 또는 에러 이미지를 설정해 줄 수 있습니다.
+            // 이미지 파일 이름이 저장되지 않은 경우 기본 이미지 또는 에러 이미지 로드
             Glide.with(activity)
-                    .load(R.drawable.error)
+                    .load(R.drawable.img_error)
                     .into(holder.coverImage);
         }
 

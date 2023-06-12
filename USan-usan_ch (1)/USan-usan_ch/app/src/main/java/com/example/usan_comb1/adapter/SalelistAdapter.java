@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,12 +20,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.activity.UpdateActivity;
+import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.RetroProduct;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +77,32 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
         if (position >= 0 && position < productList.size()) {
             //...
             com.example.usan_comb1.response.RetroProduct product = productList.get(position);
+
+            String fileName = product.getImg(); // 이미지 파일 이름
+            SharedPreferences pref = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putString("image_file_name", fileName);
+            editor.apply();
+
+            mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
+
+            SharedPreferences prefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
+            fileName = prefs.getString("image_file_name", "");
+
+            if (!TextUtils.isEmpty(fileName)) {
+                File imageFile = new File(context.getFilesDir(), fileName);
+
+                Glide.with(context)
+                        .load(imageFile)
+                        .into(holder.coverImage);
+            } else {
+                // 이미지 파일 이름이 저장되지 않은 경우 기본 이미지 또는 에러 이미지 로드
+                Glide.with(context)
+                        .load(R.drawable.img_error)
+                        .into(holder.coverImage);
+            }
+
+
             Log.d("SalelistAdapter", "onBindViewHolder: position=" + position + ", title=" + product.getTitle());
 
             mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
@@ -236,28 +267,6 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
         else {
             Log.e("SalelistAdapter", "Invalid position: " + position);
         }
-
-
-
-
-
-
-        /*
-        DownImage downImage = new DownImage(data.getImg());
-
-        if (downImage.getFilename() != null) {
-            Glide.with(activity)
-                    .load(downImage.getFilename())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.coverImage);
-        } else {
-            Glide.with(activity)
-                    .load(R.drawable.error)
-                    .into(holder.coverImage);
-        }
-
-
-         */
     }
 
     @Override

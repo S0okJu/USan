@@ -57,7 +57,6 @@ public class DetailActivity extends AppCompatActivity {
     private static ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
-    private int[] imageReslds = {R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg};
     private static Integer productId;
     private String username;
     private static String accessToken;
@@ -88,6 +87,7 @@ public class DetailActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
         accessToken = prefs.getString("access_token", "");
 
+
         Intent intent = getIntent();
 
         if (intent != null) {
@@ -96,6 +96,8 @@ public class DetailActivity extends AppCompatActivity {
                 checkData(productId);
             }
         }
+
+        downloadProfileImage();
 
         System.out.println(username);
         System.out.println(productId);
@@ -137,9 +139,10 @@ public class DetailActivity extends AppCompatActivity {
         tvTitle.setText("상품 제목");
         tvDetail.setText("상품 설명입니다.");
 
+        // viewpager 초기화
         viewPager = findViewById(R.id.viewPager);
-        ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageReslds);
-        viewPager.setAdapter(adapter);
+
+
 
 
         if (savedInstanceState != null) {
@@ -235,12 +238,14 @@ public class DetailActivity extends AppCompatActivity {
                     loadUserPosts(product.getPost_Author());
 
                     ImageView favoriteButton = findViewById(R.id.imgbtn);
-
-                    // get Author username
+/*
+                    // ImagePagerAdapter에 inputStream 할당
+                    ImagePagerAdapter adapter = new ImagePagerAdapter(DetailActivity.this, inputStream, mProductService, accessToken, productId);
+                    viewPager.setAdapter(adapter);
+ */
                     author = product.getPost_Author();
                     System.out.println(author);
-                    downloadImage();
-
+                    downloadProfileImage();
 
                     isFavorite = product.isFavorite();
                     if (product.isFavorite() == true) {
@@ -297,15 +302,21 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-
+/*
     private static class ImagePagerAdapter extends PagerAdapter {
 
         private Context context;
         private String[] imageUrls;
+        private ProductService mProductService;
+        private String accessToken;
+        private int productId;
 
-        public ImagePagerAdapter(Context context, String[] imageUrls) {
+        public ImagePagerAdapter(Context context, String[] imageUrls, ProductService productService, String accessToken, int productId) {
             this.context = context;
             this.imageUrls = imageUrls;
+            this.mProductService = productService;
+            this.accessToken = accessToken;
+            this.productId = productId;
         }
 
         @Override
@@ -325,7 +336,7 @@ public class DetailActivity extends AppCompatActivity {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             // 이미지 다운로드 및 표시
-            downloadAndDisplayImage(imageUrls[position], imageView);
+            downloadImage(imageUrls[position], imageView);
 
             container.addView(imageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
             return imageView;
@@ -336,9 +347,8 @@ public class DetailActivity extends AppCompatActivity {
             container.removeView((View) object);
         }
 
-        // 이미지 다운로드 및 표시 메서드
-        private void downloadAndDisplayImage(String imageUrl, final ImageView imageView) {
-            // 이미지 다운로드
+        // 이미지 다운로드
+        private void downloadImage(String imageUrl, ImageView imageView) {
             Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrl);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
@@ -346,20 +356,12 @@ public class DetailActivity extends AppCompatActivity {
                     if (response.isSuccessful()) {
                         ResponseBody responseBody = response.body();
                         if (responseBody != null) {
-                            try {
-                                // 이미지 데이터를 읽어옵니다.
-                                InputStream inputStream = responseBody.byteStream();
-                                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            // 이미지 데이터를 읽어옵니다.
+                            InputStream inputStream = responseBody.byteStream();
+                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                                // 이미지를 이미지 뷰에 설정합니다.
-                                imageView.setImageBitmap(bitmap);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                // 이미지 데이터 읽기 실패 시 기본 이미지를 설정합니다.
-                                imageView.setImageResource(R.drawable.img_error);
-                                Toast.makeText(context, "이미지 로딩 실패", Toast.LENGTH_SHORT).show();
-                                Log.e("Image loading error", "Failed to load image: " + e.getMessage());
-                            }
+                            // 이미지를 이미지 뷰에 설정합니다.
+                            imageView.setImageBitmap(bitmap);
                         } else {
                             // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                             imageView.setImageResource(R.drawable.img_error);
@@ -384,6 +386,9 @@ public class DetailActivity extends AppCompatActivity {
             });
         }
     }
+
+ */
+
 
     // 채팅
     private void createOrJoinChat(String productId){
@@ -437,7 +442,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     // 프로필 이미지 다운로드
-    private void downloadImage() {
+    private void downloadProfileImage() {
         Call<ResponseBody> call = mProductService.downloadProfileImage(accessToken, author);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -474,6 +479,5 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
     }
-
 
 }
