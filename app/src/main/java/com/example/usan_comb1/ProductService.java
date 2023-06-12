@@ -1,5 +1,6 @@
 package com.example.usan_comb1;
 
+import com.example.usan_comb1.models.Loc;
 import com.example.usan_comb1.request.LoginData;
 import com.example.usan_comb1.request.MyLocationRequest;
 import com.example.usan_comb1.request.ProductRequest;
@@ -9,6 +10,7 @@ import com.example.usan_comb1.request.UpdateRequest;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.GpsResponse;
 import com.example.usan_comb1.response.LoginResponse;
+import com.example.usan_comb1.response.PaymentProductResponse;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.ProductResponse;
 import com.example.usan_comb1.response.ProfileResponse;
@@ -20,7 +22,6 @@ import com.example.usan_comb1.response.UploadResponse;
 import java.util.List;
 
 import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -130,7 +131,19 @@ public interface ProductService {
             @Part MultipartBody.Part imagePart
     );
 
+    // Dest 구하는 함수
+    @GET("/product/dest/{chatId}")
+    Call<Loc> getDestLocation(@Path("chatId") String chatId);
 
+    // 상품 지불 시 일부 상품 정보를 보여주는 함수
+    @GET("/product/{productId}/pinfo")
+    Call<PaymentProductResponse> getPaymentProduct(@Header("Authorization") String accessToken, @Path("productId") Integer productId);
+
+
+    // 결제와 관련된 함수
+    @POST("/payment/withdraw/{chatId}")
+    Call<Void> getBuyerPayment(@Header("Authorization") String accessToken, @Path("chatId") String chatId);
+    /*
     /*
     통신을 정의해주는 interface를 만들어 통신을 위한 함수를 만들어줍니다.
     getLoginResponse 함수로 LoginRequest.java에 정의해준 데이터들을 서버 Body에 보낸 후 LoginResponse로 데이터를 받겠다는 의미를 가집니다.

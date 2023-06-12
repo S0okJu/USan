@@ -28,7 +28,7 @@
             android:value="AIzaSyDZcFq86EmIyYitzFCPhJq-1t06GTMqnC0" />
 
         <activity
-            android:name=".chat.UsersActivity"
+            android:name=".activity.chat.UsersActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -36,12 +36,13 @@
         </activity>
 
         <activity
-            android:name=".chat.ChatActivity"
+            android:name=".activity.chat.ChatActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -55,73 +56,60 @@
         -->
 
         <activity
-            android:name=".map.MapActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".map.MapTracking"
+            android:name=".activity.map.MapTracking"
             android:exported="false" />
         <activity
-            android:name=".activity.DestinationActivity"
+            android:name=".activity.map.DestinationActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
+        <activity
+            android:name=".activity.profile.OtherProfileActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".map.ListOnline"
+            android:name=".activity.profile.ProfileActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.OtherProfileActivity"
+            android:name=".activity.product.SalelistActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.ProfileActivity"
+            android:name=".activity.profile.UserUpdateActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.SalelistActivity"
+            android:name=".activity.product.FavoriteActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.UserUpdateActivity"
+            android:name=".activity.sign.RegisterActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.FavoriteActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".activity.RegisterActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".activity.LoginActivity"
+            android:name=".activity.sign.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -134,35 +122,35 @@
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.AuthorSellProductDetailActivity"
+            android:name=".activity.product.AuthorSellProductDetailActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.UpdateActivity"
+            android:name=".activity.product.UpdateActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.DetailActivity"
+            android:name=".activity.product.DetailActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.ProductActivity"
+            android:name=".activity.product.ProductActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
         <activity
-            android:name=".activity.UploadActivity"
+            android:name=".activity.product.UploadActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
@@ -174,6 +162,27 @@
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
+        </activity>
+        <activity
+            android:name=".activity.payment.BuyerPaymentActivity"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value=""/>
+        </activity>
+        <activity
+            android:name=".activity.payment.SellerPaymentActivity"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value=""/>
+        </activity>
+        <activity
+            android:name=".activity.payment.PaymentSuccessActivity"
+            android:exported="true">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value=""/>
         </activity>
     </application>
 

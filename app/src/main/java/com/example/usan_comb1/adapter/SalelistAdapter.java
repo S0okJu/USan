@@ -22,8 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
-import com.example.usan_comb1.activity.UpdateActivity;
-import com.example.usan_comb1.response.FavoriteProduct;
+import com.example.usan_comb1.activity.product.UpdateActivity;
 import com.example.usan_comb1.response.RetroProduct;
 
 import java.util.ArrayList;

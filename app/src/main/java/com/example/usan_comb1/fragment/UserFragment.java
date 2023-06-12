@@ -15,12 +15,10 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 import com.example.usan_comb1.R;
-import com.example.usan_comb1.activity.FavoriteActivity;
-import com.example.usan_comb1.map.ListOnline;
-import com.example.usan_comb1.activity.SalelistActivity;
-import com.example.usan_comb1.activity.UserUpdateActivity;
-import com.example.usan_comb1.map.MapActivity;
-import com.example.usan_comb1.map.MapTracking;
+import com.example.usan_comb1.activity.product.FavoriteActivity;
+import com.example.usan_comb1.activity.product.SalelistActivity;
+import com.example.usan_comb1.activity.profile.UserUpdateActivity;
+import com.example.usan_comb1.activity.map.MapTracking;
 
 public class UserFragment extends Fragment {
 

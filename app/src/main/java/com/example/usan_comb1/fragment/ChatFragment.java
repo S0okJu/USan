@@ -1,5 +1,6 @@
 package com.example.usan_comb1.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 
 import com.example.usan_comb1.R;
+import com.example.usan_comb1.activity.chat.UsersActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -54,6 +56,8 @@ public class ChatFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        Intent intent = new Intent(getActivity(), UsersActivity.class);
+        startActivity(intent);
     }
 
     @Override

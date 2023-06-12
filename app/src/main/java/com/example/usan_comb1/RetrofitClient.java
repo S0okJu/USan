@@ -1,6 +1,5 @@
 package com.example.usan_comb1;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
@@ -8,7 +7,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class RetrofitClient {
 
-    private static final String BASE_URL = "http://43.200.6.34:57663/";
+    private static final String BASE_URL = "http://192.168.0.15:6000/";
 
     private static Retrofit retrofit = null;
 

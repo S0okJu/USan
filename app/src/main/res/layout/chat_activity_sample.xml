@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:animateLayoutChanges="true"
     android:background="@color/colorPrimary"
-    tools:context=".chat.ChatActivity">
+    tools:context=".activity.chat.ChatActivity">
 
     <View
         android:id="@+id/viewBackground"

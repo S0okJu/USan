@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".activity.DetailActivity">
+        tools:context=".activity.product.DetailActivity">
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/viewPager"
