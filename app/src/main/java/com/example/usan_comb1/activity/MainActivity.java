@@ -114,12 +114,14 @@ public class MainActivity extends AppCompatActivity {
         long tempTime = System.currentTimeMillis();
         long intervalTime = tempTime - presstime;
 
-        if (0 <= intervalTime && finishtimeed >= intervalTime)
-        {
-            finish();
-        }
-        else
-        {
+        if (0 <= intervalTime && finishtimeed >= intervalTime) {
+            // 앱이 현재 태스크의 루트 액티비티인지 확인
+            if (isTaskRoot()) {
+                finish(); // 앱 종료
+            } else {
+                super.onBackPressed(); // 루트 액티비티가 아니면 뒤로가기 동작 수행
+            }
+        } else {
             presstime = tempTime;
             Toast.makeText(getApplicationContext(), "한 번 더 누르시면 앱이 종료됩니다", Toast.LENGTH_SHORT).show();
         }

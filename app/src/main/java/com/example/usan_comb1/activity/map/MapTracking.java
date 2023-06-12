@@ -8,8 +8,10 @@ import static com.example.usan_comb1.utilities.CustomMath.extractProductIdFromCh
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -87,6 +89,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     private int role;
     String TAG = "MapTracking";
     AlertDialog alertDialog;
+    public String accessToken;
 
     public static MapTracking getInstance() {
         return instance;
@@ -113,6 +116,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
             role = getIntent().getIntExtra("role",-1);
         }
         curUsername = preferenceManager.getString("username");
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
 
         // Ref to firebase first
         locationRef = FirebaseDatabase.getInstance().getReference("locations").child(chatId);
@@ -193,7 +198,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
     public void getDest(){
 
-        Call<Loc> call = service.getDestLocation(chatId);
+        Call<Loc> call = service.getDestLocation(accessToken, chatId);
         dest = new LatLng(0.0,0.0);
         call.enqueue(new Callback<Loc>() {
 

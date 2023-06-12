@@ -6,17 +6,6 @@
     tools:context=".fragment.ChatFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Chat Fragment"
-        android:textSize="26dp"
-        android:layout_gravity="center"/>
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="145dp"
-        android:layout_height="72dp"
-        android:text="Button" />
 
 </FrameLayout>

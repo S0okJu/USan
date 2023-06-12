@@ -1,3 +1,24 @@
 <resources>
     <string name="app_name">우산</string>
+
+    <string-array name="spinner_array">
+        <item><font color="#808080">주소를 선택해주세요</font></item>
+        <item>간호대학</item>
+        <item>공과대학 1호관</item>
+        <item>공과대학 2호관</item>
+        <item>국제관</item>
+        <item>미술대학</item>
+        <item>법과대학</item>
+        <item>본관</item>
+        <item>사회과학관</item>
+        <item>생명공학관</item>
+        <item>서석홀</item>
+        <item>의과대학</item>
+        <item>자연과학관</item>
+        <item>중앙도서관</item>
+        <item>체육관</item>
+        <item>e스포츠 경기장</item>
+        <item>IT융합대학</item>
+    </string-array>
+
 </resources>

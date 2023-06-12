@@ -2,9 +2,6 @@ package com.example.usan_comb1.utilities;
 
 import android.location.Location;
 
-/*
- * 거리 계산을 위해 객체로 따로 분류했습니다. - @D7MeKz
- * */
 public class CustomMath {
 
     public static double getDistanceBetween(Location currentUser, Location friend){
@@ -14,7 +11,8 @@ public class CustomMath {
                 * Math.cos(deg2rad(theta));
         dist = Math.acos(dist);
         dist = rad2deg(dist);
-        dist  = dist * 60 * 1.1515;
+        dist = dist * 60 * 1.1515 * 1.609344 * 1000; // Convert miles to meters
+
         return dist;
     }
 

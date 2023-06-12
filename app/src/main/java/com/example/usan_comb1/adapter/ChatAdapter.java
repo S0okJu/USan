@@ -16,10 +16,6 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 
-/**
- * Created by KPlo on 2018. 10. 28..
- */
-
 
 public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<ChatData> chatMessages;
@@ -66,8 +62,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        ChatData chat = chatMessages.get(position);
-        if (chat != null && chat.getSenderId() != null && chat.getSenderId().equals(senderId)) {
+        if (chatMessages.get(position).getSenderId().equals(senderId)) {
             return VIEW_TYPE_SENT;
         } else {
             return VIEW_TYPE_RECEIVED;

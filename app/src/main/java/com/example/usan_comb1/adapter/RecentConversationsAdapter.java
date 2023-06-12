@@ -22,6 +22,7 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
     private final ConversationListener conversationListener;
 
     public RecentConversationsAdapter(List<ChatData> chatMessages, ConversationListener conversationListener) {
+
         this.chatMessages = chatMessages;
         this.conversationListener = conversationListener;
     }
@@ -72,4 +73,5 @@ public class RecentConversationsAdapter extends RecyclerView.Adapter<RecentConve
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         return bitmap;
     }
+
 }

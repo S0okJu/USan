@@ -7,6 +7,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.example.usan_comb1.ProductService;
+import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.response.CheckRoleResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -21,15 +24,18 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Map;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-/*
- *   추후 Firebase와 연동하기 위해 임의로 객체를 만들어뒀습니다. - @D7MeKz
- * */
+
 public class FindFromFirebase {
     public String chatId;
     public Integer role;
+    private static ProductService mProductService;
 
     public FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
 
     public String getChatIdFromConversation(String senderId, String receiverId){
@@ -112,29 +118,26 @@ public class FindFromFirebase {
         return chatId;
     }
 
-    public Integer checkSeller(String chatId, String userId) {
+    public Integer checkSeller(String accessToken, String chatId) {
+        mProductService = RetrofitClient.getProductService();
         role = null;
-        DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction").child(chatId);
-        transRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+        Call<CheckRoleResponse> call = mProductService.getRole(accessToken, chatId);
+        call.enqueue(new Callback<CheckRoleResponse>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot childSnapshot : snapshot.getChildren()) {
-                    String buyerId = childSnapshot.child("buyerId").getValue(String.class);
-                    String sellerId = childSnapshot.child("sellerId").getValue(String.class);
-                    if (buyerId.equals(userId)) {
-                        role = BUYER;
-                    } else if (sellerId.equals(userId)) {
-                        role = SELLER;
-                    }
-                    if(role != null) break;
+            public void onResponse(Call<CheckRoleResponse> call, Response<CheckRoleResponse> response) {
+                CheckRoleResponse result = response.body();
+                if(result.getRole()==SELLER){
+                    role = SELLER;
+                }else{
+                    role = BUYER;
                 }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onFailure(Call<CheckRoleResponse> call, Throwable t) {
 
             }
-
         });
 
         return role;

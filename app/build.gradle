@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.usan_comb1"
-        minSdk 21
+        minSdk 24
         targetSdk 33
         versionCode 1
         versionName "1.0"
@@ -82,11 +82,9 @@ dependencies {
     implementation 'io.socket:socket.io-client:1.0.0'
 
     // Google Play Services
-    //implementation 'com.google.android.gms:play-services:4.3.10'
+    //implementation 'com.google.android.gms:play-services:12.0.1'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:17.0.0'
-    implementation 'com.google.maps.android:android-maps-utils:2.2.0'
-
 
     implementation 'com.google.firebase:firebase-analytics'
     implementation platform("com.google.firebase:firebase-bom:32.0.0")
@@ -97,5 +95,8 @@ dependencies {
     implementation 'com.intuit.ssp:ssp-android:1.0.6'
 
     implementation 'com.squareup.picasso:picasso:2.8'
+
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.maps:google-maps-services:0.17.0'
 
 }

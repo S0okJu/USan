@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".activity.profile.OtherProfileActivity">
 
+
     <ImageView
         android:id="@+id/otherprofile"
         android:layout_width="123dp"
@@ -22,7 +23,7 @@
         android:id="@+id/othername"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="444dp"
+        android:layout_marginBottom="388dp"
         android:background="@drawable/oval"
         android:fontFamily="@font/noto_bold"
         android:text="TextView"
@@ -37,6 +38,7 @@
         android:id="@+id/textView5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="72dp"
         android:fontFamily="@font/noto_bold"
         android:gravity="center_vertical"
         android:text="프로필"

@@ -6,64 +6,143 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.usan_comb1.R;
-import com.example.usan_comb1.activity.chat.UsersActivity;
+import com.example.usan_comb1.activity.chat.ChatActivity;
+import com.example.usan_comb1.adapter.RecentConversationsAdapter;
+import com.example.usan_comb1.databinding.ActivityChatUsersBinding;
+import com.example.usan_comb1.listeners.ConversationListener;
+import com.example.usan_comb1.models.ChatData;
+import com.example.usan_comb1.models.Users;
+import com.example.usan_comb1.utilities.FindFromFirebase;
+import com.example.usan_comb1.utilities.PreferenceManager;
+import com.google.firebase.database.annotations.Nullable;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChatFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class ChatFragment extends Fragment {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+public class ChatFragment extends Fragment implements ConversationListener {
+    private ActivityChatUsersBinding binding;
+    private PreferenceManager preferenceManager;
+    private List<ChatData> conversations;
+    private FirebaseFirestore database;
+    private RecentConversationsAdapter recentConversationsAdapter;
+    private String chatId;
+    public Integer role;
+    public String accessToken;
+    private FindFromFirebase findFromFirebase = new FindFromFirebase();
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public ChatFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ChatFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ChatFragment newInstance(String param1, String param2) {
-        ChatFragment fragment = new ChatFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = ActivityChatUsersBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        preferenceManager = new PreferenceManager(requireContext());
+
+        init();
+        setListeners();
+        listenConversations();
+    }
+
+    private void init() {
+        conversations = new ArrayList<>();
+        database = FirebaseFirestore.getInstance();
+        recentConversationsAdapter = new RecentConversationsAdapter(conversations, this);
+        binding.conversationsRecyclerView.setAdapter(recentConversationsAdapter);
+        accessToken = preferenceManager.getString("access_token");
+    }
+
+
+
+    private void setListeners() {
+        binding.imageBack.setOnClickListener(v -> requireActivity().onBackPressed());
+    }
+
+    private void listenConversations(){
+        database.collection("conversation")
+                .whereEqualTo("senderId", preferenceManager.getString("userId"))
+                .addSnapshotListener(eventListener);
+        database.collection("conversation")
+                .whereEqualTo("receiverId", preferenceManager.getString("userId"))
+                .addSnapshotListener(eventListener);
+    }
+
+
+    private final EventListener<QuerySnapshot> eventListener = (value, error )->{
+        if(error != null){
+            return;
         }
-        Intent intent = new Intent(getActivity(), UsersActivity.class);
-        startActivity(intent);
+        if(value !=null){
+            for(DocumentChange documentChange : value.getDocumentChanges()){
+                if(documentChange.getType() == DocumentChange.Type.ADDED){
+                    String senderId = documentChange.getDocument().getString("senderId");
+                    String receiverId = documentChange.getDocument().getString("receiverId");
+
+                    // Set ChatId
+                    chatId = documentChange.getDocument().getString("chatId");
+                    role = findFromFirebase.checkSeller(accessToken, chatId);
+                    System.out.println("userId : "+ preferenceManager.getString("userId"));
+
+                    ChatData chatMessage = new ChatData();
+                    chatMessage.setSenderId(senderId);
+                    chatMessage.setReceiverId(receiverId);
+
+                    if(preferenceManager.getString("userId").equals(senderId)){
+//                        chatMessage.conversionImage = documentChange.getDocument().getString("receiverImage");
+                        chatMessage.setConversationId(documentChange.getDocument().getString("receiverId"));
+                        chatMessage.setConversationName(documentChange.getDocument().getString("receiverName"));
+                    }else{
+                        //                        chatMessage.conversionImage = documentChange.getDocument().getString("receiverImage");
+                        chatMessage.setConversationId(documentChange.getDocument().getString("senderId"));
+                        chatMessage.setConversationName(documentChange.getDocument().getString("senderName"));
+                    }
+                    chatMessage.setMessage(documentChange.getDocument().getString("message"));
+                    chatMessage.setTimestamp(documentChange.getDocument().getDate("timestamp"));
+                    conversations.add(chatMessage);
+
+                }else if(documentChange.getType() == DocumentChange.Type.MODIFIED){
+                    for(int i = 0 ; i < conversations.size(); i++){
+                        String senderId = documentChange.getDocument().getString("senderId");
+                        String receiverId = documentChange.getDocument().getString("receiverId");
+                        if(conversations.get(i).getSenderId().equals(senderId) && conversations.get(i).getReceiverId().equals(receiverId)){
+                            conversations.get(i).setMessage(documentChange.getDocument().getString("message"));
+                            conversations.get(i).setTimestamp(documentChange.getDocument().getDate("timestamp"));
+                            break;
+                        }
+                    }
+                }
+            }
+            Collections.sort(conversations,(obj1, obj2)->obj2.getTimestamp().compareTo(obj1.getTimestamp()));
+            recentConversationsAdapter.notifyDataSetChanged();
+            binding.conversationsRecyclerView.smoothScrollToPosition(0);
+            binding.conversationsRecyclerView.setVisibility(View.VISIBLE);
+            binding.progressBar.setVisibility(View.GONE);
+        }
+    };
+
+    @Override
+    public void onUserClicked(Users user) {
+
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chat, container, false);
+    public void onConversationClicked(Users users) {
+        Intent intent = new Intent(requireContext(), ChatActivity.class);
+        intent.putExtra("prevInfo","recent"); // 이전 Activity 정보를 알아보기 위해 추가
+        intent.putExtra("chatId",chatId);
+        intent.putExtra("role",role);
+        intent.putExtra("user",users);
+        startActivity(intent);
     }
 }

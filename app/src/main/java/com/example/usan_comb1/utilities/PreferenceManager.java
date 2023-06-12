@@ -31,6 +31,13 @@ public class PreferenceManager {
     public static String getString(String key){
         return sharedPreferences.getString(key,null);
     }
+
+    public void removeString(String key) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(key);
+        editor.apply();
+    }
+
     public void clear(){
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.clear();

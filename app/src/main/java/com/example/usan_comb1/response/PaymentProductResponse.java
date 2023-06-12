@@ -47,4 +47,5 @@ public class PaymentProductResponse {
     public void setImage(String image) {
         this.image = image;
     }
+
 }

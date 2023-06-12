@@ -1,3 +1,4 @@
+
 package com.example.usan_comb1.models;
 
 import java.io.Serializable;
