@@ -66,6 +66,8 @@ public class OtherProfileActivity extends AppCompatActivity {
 
         othername.setText(username);
         downloadImage();
+
+        loadUserPosts(username);
     }
 
     private void loadUserPosts(String username) {
