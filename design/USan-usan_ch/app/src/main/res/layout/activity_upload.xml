@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:fillViewport="true"
+    android:orientation="vertical"
+    android:layout_weight="1"
+    tools:context=".activity.product.UploadActivity">
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="20dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/yellow_border"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="170dp"
+                android:background="@drawable/yellow_border"
+                android:id="@+id/productImage"
+                android:src="@drawable/add_image"
+                android:scaleType="centerInside"
+                />
+
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:id="@+id/uploadTitle"
+                android:background="@drawable/yellow_border"
+                android:layout_marginTop="10dp"
+                android:padding="16dp"
+                android:hint= "제목을 입력해 주세요"
+                android:textColor="@color/black"/>
+
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:id="@+id/uploadPrice"
+                android:inputType="number"
+                android:background="@drawable/yellow_border"
+                android:layout_marginTop="10dp"
+                android:padding="16dp"
+                android:hint= "가격을 입력해 주세요"
+                android:textColor="@color/black"/>
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:id="@+id/uploadContent"
+                android:background="@drawable/yellow_border"
+                android:layout_marginTop="10dp"
+                android:padding="16dp"
+                android:hint= "상품 설명을 입력해 주세요"
+                android:textColor="@color/black"/>
+
+            <Spinner
+                android:id="@+id/uploadAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/yellow_border"
+                android:layout_marginTop="10dp"
+                android:padding="16dp"
+                android:fontFamily="@font/noto"
+                android:textColor="@color/black" />
+
+            <ProgressBar
+                android:id="@+id/product_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+
+</androidx.core.widget.NestedScrollView>
