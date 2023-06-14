@@ -15,6 +15,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.PostList;
+import com.example.usan_comb1.utilities.Constants;
 
 import java.util.ArrayList;
 
@@ -56,9 +57,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
         PostList data = dataArrayList.get(position);
         DownImage downImage = new DownImage();
 
-        if (downImage.getFilename() != null) {
+        if (Constants.BASE_URL + data.getImg() != null) {
             Glide.with(activity)
-                    .load(data.getImg())
+                    .load(Constants.BASE_URL + data.getImg())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.coverImage);
         } else {

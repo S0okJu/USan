@@ -19,11 +19,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
 import com.example.usan_comb1.activity.product.UpdateActivity;
 import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.utilities.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,8 +74,20 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
     public void onBindViewHolder(@NonNull CustomViewHolder holder, @SuppressLint("RecyclerView") int position) {
         if (position >= 0 && position < productList.size()) {
             //...
-            com.example.usan_comb1.response.RetroProduct product = productList.get(position);
+            RetroProduct product = productList.get(position);
             Log.d("SalelistAdapter", "onBindViewHolder: position=" + position + ", title=" + product.getTitle());
+
+            if (Constants.BASE_URL + product.getImg() != null) {
+                Glide.with(activity)
+                        .load(Constants.BASE_URL + product.getImg())
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(holder.coverImage);
+            } else {
+                // 이미지가 null인 경우, 기본 이미지 또는 에러 이미지를 설정해 줄 수 있습니다.
+                Glide.with(activity)
+                        .load(R.drawable.error)
+                        .into(holder.coverImage);
+            }
 
             mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
@@ -236,28 +251,6 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
         else {
             Log.e("SalelistAdapter", "Invalid position: " + position);
         }
-
-
-
-
-
-
-        /*
-        DownImage downImage = new DownImage(data.getImg());
-
-        if (downImage.getFilename() != null) {
-            Glide.with(activity)
-                    .load(downImage.getFilename())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.coverImage);
-        } else {
-            Glide.with(activity)
-                    .load(R.drawable.error)
-                    .into(holder.coverImage);
-        }
-
-
-         */
     }
 
     @Override

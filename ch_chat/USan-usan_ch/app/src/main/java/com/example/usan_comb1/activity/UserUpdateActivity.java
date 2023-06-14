@@ -1,15 +1,12 @@
 package com.example.usan_comb1.activity;
 
 import android.Manifest;
-import android.content.ActivityNotFoundException;
 import android.content.pm.PackageManager;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -59,12 +56,9 @@ public class UserUpdateActivity extends AppCompatActivity {
     private ProductService mProductService;
     private static final int REQUEST_PERMISSION = 1;
     private static final int REQUEST_SELECT_IMAGE = 2;
-    private static final int REQUEST_CROP_IMAGE = 3;
     private String username;
     private String accessToken;
-    private Uri imageUri; // Added variable to store selected image URI
-    private File croppedImageFile;
-    private File selectedImageFile;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -174,164 +168,67 @@ public class UserUpdateActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_SELECT_IMAGE);
     }
 
-    private void cropImage(Uri sourceUri) {
-        try {
-            Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), sourceUri);
-            Bitmap croppedBitmap = resizeBitmap(originalBitmap, 500, 500); // 원하는 크기로 이미지 리사이징
-
-            // 리사이즈된 이미지를 파일로 저장
-            File croppedImageFile = saveBitmapToFile(croppedBitmap);
-
-            // 파일을 업로드
-            uploadImage(croppedImageFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Bitmap resizeBitmap(Bitmap bitmap, int width, int height) {
-        return Bitmap.createScaledBitmap(bitmap, width, height, true);
-    }
-
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SELECT_IMAGE && resultCode == RESULT_OK && data != null) {
             Uri imageUri = data.getData();
-            if (imageUri != null) {
-                // 이미지를 정방향으로 잘라내기 위해 cropImage() 메서드 호출
-                cropImage(imageUri);
-            }
-        } else if (requestCode == REQUEST_CROP_IMAGE && resultCode == RESULT_OK && data != null) {
-            Bundle extras = data.getExtras();
-            if (extras != null) {
-                // 이미지를 잘라낸 결과를 받아옴
-                Bitmap croppedBitmap = extras.getParcelable("data");
-                if (croppedBitmap != null) {
-                    // 잘라낸 이미지를 파일로 저장
-                    File croppedImageFile = saveBitmapToFile(croppedBitmap);
-                    // 파일을 업로드
-                    uploadImage(croppedImageFile);
-                }
-            }
+            uploadImage(username, imageUri, accessToken);
         }
     }
 
-    private File saveBitmapToFile(Bitmap bitmap) {
+
+    public void uploadImage(String username, Uri imageUri, String accessToken) {
+        // 이미지를 MultipartBody.Part로 변환
         try {
-            File imageFile = createImageFile();
-            FileOutputStream outputStream = new FileOutputStream(imageFile);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream);
-            outputStream.flush();
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            File imageFile = createImageFileFromInputStream(inputStream);
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageFile);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("img", imageFile.getName(), requestFile);
+            //이미지 업로드 요청
+            Call<UploadResponse> call = mProductService.uploadImage("Bearer " + accessToken, username, body);
+            call.enqueue(new Callback<UploadResponse>() {
+                @Override
+                public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
+                    if (response.isSuccessful()) {
+                        // 이미지 업로드 성공 처리
+                        Toast.makeText(UserUpdateActivity.this, "사진을 업로드했습니다.", Toast.LENGTH_SHORT).show();
+                        Log.i("Upload success", "Successfully uploaded image");
+                    } else {
+                        // 이미지 업로드 실패 처리
+                        Toast.makeText(UserUpdateActivity.this, "사진 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("Upload error", "Upload failed: " + response.message());
+                        return;
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<UploadResponse> call, Throwable t) {
+                    // 네트워크 오류 처리
+                    Toast.makeText(UserUpdateActivity.this, "네트워크 오류", Toast.LENGTH_SHORT).show();
+                    Log.e("Upload error", t.getMessage());
+                }
+            });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private File createImageFileFromInputStream(InputStream inputStream) {
+        try {
+            File file = new File(getCacheDir(), "temp_image.jpg");
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
             outputStream.close();
-            return imageFile;
+            inputStream.close();
+            return file;
         } catch (IOException e) {
             e.printStackTrace();
             return null;
         }
     }
-
-
-    private File createImageFile() throws IOException {
-        // 이미지 파일을 저장할 디렉토리 생성
-        File storageDir = getExternalCacheDir();
-        File imageFile = File.createTempFile(
-                "profile_image",  /* 파일 이름 */
-                ".jpg",         /* 파일 확장자 */
-                storageDir      /* 저장될 디렉토리 */
-        );
-        return imageFile;
-    }
-
-    private void copyInputStreamToFile(InputStream inputStream, File file) {
-        try {
-            OutputStream outputStream = new FileOutputStream(file);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, length);
-            }
-            outputStream.close();
-            inputStream.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Toast.makeText(UserUpdateActivity.this, "파일을 찾을 수 없습니다.", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(UserUpdateActivity.this, "파일 복사 중 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void uploadImage(File croppedImageFile) {
-        if (croppedImageFile == null) {
-            Toast.makeText(this, "이미지가 선택되지 않았습니다.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // 파일을 RequestBody로 변환
-        RequestBody requestBody = RequestBody.create(MediaType.parse("image/*"), croppedImageFile);
-        // RequestBody를 MultipartBody.Part로 변환
-        MultipartBody.Part imagePart = MultipartBody.Part.createFormData("imgs", croppedImageFile.getName(), requestBody);
-        // API를 호출하여 이미지 업로드
-        Call<UploadResponse> call = mProductService.uploadImage(accessToken, username, imagePart);
-        call.enqueue(new Callback<UploadResponse>() {
-            @Override
-            public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
-                if (response.isSuccessful()) {
-                    // 이미지 업로드 성공 처리
-                    UploadResponse uploadResponse = response.body();
-                    String imageUrl = uploadResponse.getFileName();
-
-                    // 이미지 URL을 사용하여 필요한 작업 수행
-                    Toast.makeText(UserUpdateActivity.this, "이미지 업로드 성공", Toast.LENGTH_SHORT).show();
-                } else {
-                    // 이미지 업로드 실패 처리
-                    Toast.makeText(UserUpdateActivity.this, "이미지 업로드 실패", Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UploadResponse> call, Throwable t) {
-                // 네트워크 오류 처리
-                Toast.makeText(UserUpdateActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
-// 프로필 이미지 다운로드
-    /*
-    private void downloadImage() {
-        Call<ResponseBody> call = mProductService.downloadImage(username);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    ResponseBody responseBody = response.body();
-                    if (responseBody != null) {
-                        // 이미지 데이터를 읽어옵니다.
-                        InputStream inputStream = responseBody.byteStream();
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-                        // 이미지를 이미지 뷰에 설정합니다.
-                        imgprofile.setImageBitmap(bitmap);
-                    } else {
-                        // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
-                        imgprofile.setImageResource(R.drawable.ic_default_profile);
-                    }
-                } else {
-                    // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
-                    imgprofile.setImageResource(R.drawable.ic_default_profile);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
-                imgprofile.setImageResource(R.drawable.ic_default_profile);
-            }
-        });
-    }
-     */
 }

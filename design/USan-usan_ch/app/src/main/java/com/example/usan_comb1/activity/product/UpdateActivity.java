@@ -35,13 +35,16 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.adapter.CardAdapter;
 import com.example.usan_comb1.request.ProductRequest;
 import com.example.usan_comb1.request.UpdateRequest;
 import com.example.usan_comb1.response.ProductImageResponse;
 import com.example.usan_comb1.response.UpdateResponse;
+import com.example.usan_comb1.utilities.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -90,6 +93,8 @@ public class UpdateActivity extends AppCompatActivity {
         eAddressSpinner = findViewById(R.id.updateAddress);
         productImg = findViewById(R.id.productImage);
 
+
+
         mProgressView = (ProgressBar) findViewById(R.id.product_progress);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
@@ -102,8 +107,6 @@ public class UpdateActivity extends AppCompatActivity {
         username = intent.getStringExtra("username");
 
         productId = getIntent().getIntExtra("productId", -1);
-
-        downloadImage();
 
         productImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -463,13 +466,23 @@ public class UpdateActivity extends AppCompatActivity {
                         // 이미지 업로드 성공 처리
                         Toast.makeText(UpdateActivity.this, "사진을 업로드했습니다.", Toast.LENGTH_SHORT).show();
                         Log.i("Upload success", "Successfully uploaded image");
-                        filename = ProductImageResponse.getFileName(imageResponses.get(0));
-                        System.out.println(imageResponses);
-                        if (imageResponses != null && !imageResponses.isEmpty()) {
-                            System.out.println(filename);
 
-                            downloadImage();
-                        }
+                        ProductImageResponse firstImageResponse = imageResponses.get(0);
+                        String path = firstImageResponse.getPath();
+                        System.out.println(path);
+
+                        String imagePath = Constants.BASE_URL + path; // 완전한 이미지 URL
+                        System.out.println(imagePath);
+
+                       // Intent url_intent = new Intent(UpdateActivity.this, CardAdapter.class);
+                        // url_intent.putExtra("imagePath", imagePath); // imagePath 값을 인텐트에 추가
+                        // startActivity(url_intent);
+
+                        // Glide.with(UpdateActivity.this)
+                        //        .load(imagePath)
+                          //      .into(productImg);
+
+                       downloadImage(imagePath);
                     } else {
                         // 서버 응답에 이미지 정보가 없는 경우 처리
                         Toast.makeText(UpdateActivity.this, "서버 응답에 이미지 정보가 없습니다.", Toast.LENGTH_SHORT).show();
@@ -490,22 +503,22 @@ public class UpdateActivity extends AppCompatActivity {
         });
     }
 
-
     // 이미지 다운로드
-    private void downloadImage() {
-        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
+    private void downloadImage(String imagePath) {
+        /*
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, path);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
-                        // 이미지 데이터를 읽어옵니다.
-                        InputStream inputStream = responseBody.byteStream();
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                        // 이미지를 이미지 뷰에 설정합니다.
-                        productImg.setImageBitmap(bitmap);
+                        String imagePath = Constants.BASE_URL + path; // 완전한 이미지 URL
+
+                        Glide.with(UpdateActivity.this)
+                                .load(imagePath)
+                                .into(productImg);
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         productImg.setImageResource(R.drawable.img_error);
@@ -528,6 +541,12 @@ public class UpdateActivity extends AppCompatActivity {
                 Log.e("Download error", "Download failed: " + t.getMessage());
             }
         });
+
+         */
+
+        Glide.with(UpdateActivity.this)
+                .load(imagePath)
+                .into(productImg);
     }
 
 }

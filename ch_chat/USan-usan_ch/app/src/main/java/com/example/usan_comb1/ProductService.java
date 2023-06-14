@@ -122,7 +122,6 @@ public interface ProductService {
     @POST("/profile/{username}/modify")
     Call<Void> modifyProfile(@Header("Authorization") String accessToken, @Path("username") String username, @Body ProfileUpRequest profileUpRequest);
 
-    @Headers("Content-Type: multipart/form-data")
     @Multipart
     @POST("/profile/{username}/upload")
     Call<UploadResponse> uploadImage(
@@ -131,7 +130,7 @@ public interface ProductService {
             @Part MultipartBody.Part imagePart
     );
 
-
+    //
     @POST ("/users/email_check")
     Call<EmailCheckResponse> checkEmailAvailability(@Body EmailCheckRequest request);
 

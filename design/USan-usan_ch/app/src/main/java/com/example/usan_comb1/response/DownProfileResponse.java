@@ -4,14 +4,14 @@ import com.google.gson.annotations.SerializedName;
 
 // 프로필 이미지 다운로드 리스폰스
 public class DownProfileResponse {
-    @SerializedName("filename")
-    private String fileName;
+    @SerializedName("path")
+    private String path;
 
-    public String getFileName() {
-        return fileName;
+    public String getPath() {
+        return path;
     }
 
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
+    public void setPath(String path) {
+        this.path = path;
     }
 }

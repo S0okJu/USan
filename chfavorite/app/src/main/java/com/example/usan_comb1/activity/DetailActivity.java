@@ -173,7 +173,6 @@ public class DetailActivity extends AppCompatActivity {
                     PostResult product = response.body();
 
                     tvTitle.setText(product.getPost_Title());
-                    tvPrice.setText(product.getPost_Price());
                     tvDetail.setText(product.getPost_Content());
                     tvAuthor.setText(product.getPost_Author());
                     // tvAuthor 텍스트 설정 후에 호출

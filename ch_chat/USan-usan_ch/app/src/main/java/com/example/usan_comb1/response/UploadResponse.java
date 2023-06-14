@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 // 프로필 이미지 업로드
 public class UploadResponse {
-    @SerializedName("file_name")
+    @SerializedName("filename")
     private String fileName;
 
     public String getFileName() {

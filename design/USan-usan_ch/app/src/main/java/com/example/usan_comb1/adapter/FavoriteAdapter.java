@@ -23,6 +23,7 @@ import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.utilities.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,9 +78,9 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
-        if (data.getImg() != null) {
+        if (Constants.BASE_URL + data.getImg() != null) {
             Glide.with(activity)
-                    .load(data.getImg())
+                    .load(Constants.BASE_URL + data.getImg())
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .into(holder.coverImage);
         } else {

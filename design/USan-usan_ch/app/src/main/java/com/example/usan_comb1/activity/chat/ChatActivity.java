@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -57,6 +58,7 @@ public class ChatActivity extends AppCompatActivity {
     private PreferenceManager preferenceManager;
     private FirebaseFirestore database;
     public DatabaseReference transRef;
+    private Button buyok;
     public FindFromFirebase findFromFirebase = new FindFromFirebase();
     ImageButton buttonFile;
     ImageButton buttonGps;
@@ -184,7 +186,7 @@ public class ChatActivity extends AppCompatActivity {
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
-        binding.imageInfo.setOnClickListener(v -> setTransaction()); // 거래 정보 확장 버튼
+        binding.buyok.setOnClickListener(v -> setTransaction()); // 거래 정보 확장 버튼
         binding.buttonGps.setOnClickListener(v -> getMap()); // 채팅
     }
 
