@@ -41,6 +41,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.ResponseBody;
@@ -57,7 +58,7 @@ public class DetailActivity extends AppCompatActivity {
     private static ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
-    private int[] imageReslds = {R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg};
+    private String[] imageUrls;
     private static Integer productId;
     private String username;
     private static String accessToken;
@@ -101,6 +102,10 @@ public class DetailActivity extends AppCompatActivity {
                 checkData(productId);
             }
         }
+
+        viewPager = findViewById(R.id.viewPager);
+        ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageUrls);
+        viewPager.setAdapter(adapter);
 
         tvAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -243,7 +248,6 @@ public class DetailActivity extends AppCompatActivity {
                     System.out.println(author);
                     downloadImage();
 
-
                     isFavorite = product.isFavorite();
                     if (product.isFavorite() == true) {
                         favoriteButton.setImageResource(R.drawable.select_ic_heart);
@@ -316,7 +320,7 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+        public boolean isViewFromObject(View view, Object object) {
             return view == object;
         }
 
@@ -324,12 +328,16 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
             ImageView imageView = new ImageView(context);
+            imageView.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            ));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             // 이미지 다운로드 및 표시
             downloadAndDisplayImage(imageUrls[position], imageView);
 
-            container.addView(imageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            container.addView(imageView);
             return imageView;
         }
 

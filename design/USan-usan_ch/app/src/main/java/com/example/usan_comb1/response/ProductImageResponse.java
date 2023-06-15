@@ -7,11 +7,22 @@ public class ProductImageResponse {
     @SerializedName("path")
     private String path;
 
+    @SerializedName("filename")
+    private String filename;
+
     public String getPath() {
         return path;
     }
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public String getFileName() {
+        return filename;
+    }
+
+    public void setFileName(String filename) {
+        this.filename = filename;
     }
 }

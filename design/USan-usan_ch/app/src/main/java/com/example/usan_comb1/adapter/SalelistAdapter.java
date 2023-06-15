@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,9 +30,11 @@ import com.example.usan_comb1.activity.product.UpdateActivity;
 import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.utilities.Constants;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,6 +45,7 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
     private Context context;
     private ProductService mProductService;
     private Integer productId;
+    private String accessToken;
     private List<com.example.usan_comb1.response.RetroProduct> productList;
     private ArrayList<com.example.usan_comb1.response.RetroProduct> dataArrayList;
 
@@ -61,6 +66,9 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
         this.context = activity.getApplicationContext();
         this.productList = productList;
         this.dataArrayList = new ArrayList<>(productList);
+
+        SharedPreferences prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
     }
 
     @NonNull
@@ -77,19 +85,10 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
             RetroProduct product = productList.get(position);
             Log.d("SalelistAdapter", "onBindViewHolder: position=" + position + ", title=" + product.getTitle());
 
-            if (Constants.BASE_URL + product.getImg() != null) {
-                Glide.with(activity)
-                        .load(Constants.BASE_URL + product.getImg())
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        .into(holder.coverImage);
-            } else {
-                // 이미지가 null인 경우, 기본 이미지 또는 에러 이미지를 설정해 줄 수 있습니다.
-                Glide.with(activity)
-                        .load(R.drawable.error)
-                        .into(holder.coverImage);
-            }
-
             mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
+
+            // 이미지 다운로드 메소드 호출
+            downloadImage(accessToken, product.getProductId(), product.getImg(), holder.coverImage);
 
             // 상품명과 가격, 상태를 출력하는 코드 추가
             holder.tvName.setText(product.getTitle());
@@ -282,5 +281,43 @@ public class SalelistAdapter extends RecyclerView.Adapter<SalelistAdapter.Custom
             btnupdate = itemView.findViewById(R.id.btnupdate);
             btndelete = itemView.findViewById(R.id.btndelete);
         }
+    }
+
+    // 이미지 다운로드
+    private void downloadImage(String accessToken, int productId, String filename, ImageView coverImage) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    ResponseBody responseBody = response.body();
+                    if (responseBody != null) {
+                        InputStream inputStream = responseBody.byteStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+                        // 이미지를 이미지 뷰에 설정합니다.
+                        coverImage.setImageBitmap(bitmap);
+                    } else {
+                        // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                        coverImage.setImageResource(R.drawable.img_error);
+                        Toast.makeText(context, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("Download error", "Download failed: " + response.message());
+                    }
+                } else {
+                    // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
+                    coverImage.setImageResource(R.drawable.img_error);
+                    Toast.makeText(context, "서버 응답 실패", Toast.LENGTH_SHORT).show();
+                    Log.e("Download error", "Download failed: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
+                coverImage.setImageResource(R.drawable.img_error);
+                Toast.makeText(context, "다운로드 오류", Toast.LENGTH_SHORT).show();
+                Log.e("Download error", "Download failed: " + t.getMessage());
+            }
+        });
     }
 }

@@ -88,9 +88,9 @@ public interface ProductService {
 
 
     // 상품 이미지 다운로드
-    @GET("imgs/download/{product_id}/{path}")
+    @GET("/imgs/download/{product_id}/{filename}")
     Call<ResponseBody> downloadImage(@Header("Authorization") String accessToken,
-                                     @Path("product_id") Integer productId, @Path("path") String path);
+                                     @Path("product_id") Integer productId, @Path("filename") String filename);
     // 페이지 별 상품 정보
     @GET("display/productlist?page_per=10&page=1&type=0")
     Call<String> string_call(@Header("Authorization") String accessToken);

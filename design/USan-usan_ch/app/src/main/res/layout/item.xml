@@ -18,24 +18,27 @@
 
         <ImageView
             android:id="@+id/adpt_coverImage"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="122dp"
+            android:layout_height="123dp"
             android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:scaleType="centerCrop"
-            android:layout_alignParentLeft="true" />
+            android:layout_marginStart="1dp"
+            android:layout_marginLeft="1dp"
+            android:layout_marginTop="-1dp"
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/adpt_title"
-            android:fontFamily="@font/noto"
             style="@style/TextAppearance.AppCompat.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="29dp"
+            android:layout_marginTop="10dp"
             android:layout_toRightOf="@+id/adpt_coverImage"
-            android:layout_marginLeft="16dp"
-            android:layout_marginTop="20dp"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:fontFamily="@font/noto"
+            android:maxLines="1"
             android:text="title" />
 
         <TextView
@@ -43,9 +46,10 @@
             style="@style/TextAppearance.AppCompat.Medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="11dp"
-            android:layout_toRightOf="@+id/adpt_coverImage"
             android:layout_below="@id/adpt_title"
+            android:layout_marginLeft="28dp"
+            android:layout_marginTop="0dp"
+            android:layout_toRightOf="@+id/adpt_coverImage"
             android:fontFamily="@font/noto"
             android:lines="1"
             android:text="author" />
@@ -56,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/adpt_author"
-            android:layout_marginStart="144dp"
+            android:layout_marginStart="120dp"
             android:layout_toEndOf="@id/adpt_author"
             android:fontFamily="@font/noto"
             android:gravity="end|center_vertical"

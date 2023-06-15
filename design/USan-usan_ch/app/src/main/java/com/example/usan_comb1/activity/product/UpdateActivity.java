@@ -93,11 +93,13 @@ public class UpdateActivity extends AppCompatActivity {
         eAddressSpinner = findViewById(R.id.updateAddress);
         productImg = findViewById(R.id.productImage);
 
-
-
         mProgressView = (ProgressBar) findViewById(R.id.product_progress);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
+
+        SharedPreferences file_prefs = getSharedPreferences("file", Context.MODE_PRIVATE);
+        filename = file_prefs.getString("filename", "");
+        System.out.println(filename);
 
         // Authorization
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
@@ -107,6 +109,8 @@ public class UpdateActivity extends AppCompatActivity {
         username = intent.getStringExtra("username");
 
         productId = getIntent().getIntExtra("productId", -1);
+
+        downloadImage(accessToken, productId, filename);
 
         productImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -468,21 +472,17 @@ public class UpdateActivity extends AppCompatActivity {
                         Log.i("Upload success", "Successfully uploaded image");
 
                         ProductImageResponse firstImageResponse = imageResponses.get(0);
+                        String filename = firstImageResponse.getFileName();
                         String path = firstImageResponse.getPath();
                         System.out.println(path);
+                        System.out.println(filename);
 
-                        String imagePath = Constants.BASE_URL + path; // 완전한 이미지 URL
-                        System.out.println(imagePath);
+                        SharedPreferences file_pref = getSharedPreferences("file", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = file_pref.edit();
+                        editor.putString("filename", filename);
+                        editor.apply();
 
-                       // Intent url_intent = new Intent(UpdateActivity.this, CardAdapter.class);
-                        // url_intent.putExtra("imagePath", imagePath); // imagePath 값을 인텐트에 추가
-                        // startActivity(url_intent);
-
-                        // Glide.with(UpdateActivity.this)
-                        //        .load(imagePath)
-                          //      .into(productImg);
-
-                       downloadImage(imagePath);
+                       downloadImage(accessToken, productId, filename);
                     } else {
                         // 서버 응답에 이미지 정보가 없는 경우 처리
                         Toast.makeText(UpdateActivity.this, "서버 응답에 이미지 정보가 없습니다.", Toast.LENGTH_SHORT).show();
@@ -504,21 +504,19 @@ public class UpdateActivity extends AppCompatActivity {
     }
 
     // 이미지 다운로드
-    private void downloadImage(String imagePath) {
-        /*
-        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, path);
+    private void downloadImage(String accessToken, int productId, String filename) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
+                        InputStream inputStream = responseBody.byteStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                        String imagePath = Constants.BASE_URL + path; // 완전한 이미지 URL
-
-                        Glide.with(UpdateActivity.this)
-                                .load(imagePath)
-                                .into(productImg);
+                        // 이미지를 이미지 뷰에 설정합니다.
+                        productImg.setImageBitmap(bitmap);
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         productImg.setImageResource(R.drawable.img_error);
@@ -541,12 +539,5 @@ public class UpdateActivity extends AppCompatActivity {
                 Log.e("Download error", "Download failed: " + t.getMessage());
             }
         });
-
-         */
-
-        Glide.with(UpdateActivity.this)
-                .load(imagePath)
-                .into(productImg);
     }
-
 }
