@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.usan_comb1.activity.chat.ChatActivity;
+import com.example.usan_comb1.chat.ChatActivity;
 import com.example.usan_comb1.adapter.RecentConversationsAdapter;
 import com.example.usan_comb1.databinding.ActivityChatUsersBinding;
 import com.example.usan_comb1.listeners.ConversationListener;
