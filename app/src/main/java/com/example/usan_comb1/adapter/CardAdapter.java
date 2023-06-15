@@ -17,7 +17,7 @@ import com.bumptech.glide.Glide;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
-import com.example.usan_comb1.activity.AuthorSellProductDetailActivity;
+import com.example.usan_comb1.activity.product.AuthorSellProductDetailActivity;
 import com.example.usan_comb1.response.RetroProduct;
 
 import java.io.File;

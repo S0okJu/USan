@@ -32,6 +32,7 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
     private RecentConversationsAdapter recentConversationsAdapter;
     private String chatId;
     public Integer role;
+    public String title;
     private FindFromFirebase findFromFirebase = new FindFromFirebase();
 
     public DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction");
@@ -80,11 +81,9 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
                 if(documentChange.getType() == DocumentChange.Type.ADDED){
                     String senderId = documentChange.getDocument().getString("senderId");
                     String receiverId = documentChange.getDocument().getString("receiverId");
+                    title = documentChange.getDocument().getString("title");
 
-                    // Set ChatId
-                    chatId = documentChange.getDocument().getString("chatId");
-                    role = findFromFirebase.checkSeller(chatId,preferenceManager.getString("userId"));
-                    System.out.println("userId : "+ preferenceManager.getString("userId"));
+
 
                     ChatData chatMessage = new ChatData();
                     chatMessage.setSenderId(senderId);
@@ -110,6 +109,7 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
                         if(conversations.get(i).getSenderId().equals(senderId) && conversations.get(i).getReceiverId().equals(receiverId)){
                             conversations.get(i).setMessage(documentChange.getDocument().getString("message"));
                             conversations.get(i).setTimestamp(documentChange.getDocument().getDate("timestamp"));
+
                             break;
                         }
                     }
@@ -131,9 +131,10 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
     @Override
     public void onConversationClicked(Users users) {
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
-        intent.putExtra("prevInfo","recent"); // 이전 Activity 정보를 알아보기 위해 추가
         intent.putExtra("chatId",chatId);
+        intent.putExtra("prevInfo","list");
         intent.putExtra("role",role);
+        intent.putExtra("title",title);
         intent.putExtra("user",users);
         startActivity(intent);
     }

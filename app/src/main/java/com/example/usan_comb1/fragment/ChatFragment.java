@@ -21,6 +21,7 @@ import com.google.firebase.database.annotations.Nullable;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class ChatFragment extends Fragment implements ConversationListener {
     private String chatId;
     public Integer role;
     public String accessToken;
+    public String title;
     private FindFromFirebase findFromFirebase = new FindFromFirebase();
 
     @Nullable
@@ -88,15 +90,14 @@ public class ChatFragment extends Fragment implements ConversationListener {
                 if(documentChange.getType() == DocumentChange.Type.ADDED){
                     String senderId = documentChange.getDocument().getString("senderId");
                     String receiverId = documentChange.getDocument().getString("receiverId");
-
-                    // Set ChatId
+                    title = documentChange.getDocument().getString("title");
                     chatId = documentChange.getDocument().getString("chatId");
                     role = findFromFirebase.checkSeller(accessToken, chatId);
-                    System.out.println("userId : "+ preferenceManager.getString("userId"));
 
                     ChatData chatMessage = new ChatData();
                     chatMessage.setSenderId(senderId);
                     chatMessage.setReceiverId(receiverId);
+
 
                     if(preferenceManager.getString("userId").equals(senderId)){
 //                        chatMessage.conversionImage = documentChange.getDocument().getString("receiverImage");
@@ -140,6 +141,7 @@ public class ChatFragment extends Fragment implements ConversationListener {
     public void onConversationClicked(Users users) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("prevInfo","recent"); // 이전 Activity 정보를 알아보기 위해 추가
+        intent.putExtra("title",title);
         intent.putExtra("chatId",chatId);
         intent.putExtra("role",role);
         intent.putExtra("user",users);

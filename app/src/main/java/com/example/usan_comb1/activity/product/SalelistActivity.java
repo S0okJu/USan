@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.activity.product.DetailActivity;
 import com.example.usan_comb1.adapter.RecyclerViewEmptySupport;
 import com.example.usan_comb1.adapter.SalelistAdapter;
 import com.example.usan_comb1.response.RetroProduct;

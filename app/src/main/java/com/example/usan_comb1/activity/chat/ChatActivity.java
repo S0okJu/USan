@@ -23,6 +23,7 @@ import com.example.usan_comb1.R;
 import com.example.usan_comb1.activity.map.MapTracking;
 import com.example.usan_comb1.adapter.ChatAdapter;
 import com.example.usan_comb1.databinding.ChatActivitySampleBinding;
+import com.example.usan_comb1.interfaces.ChatIdCallback;
 import com.example.usan_comb1.models.ChatData;
 import com.example.usan_comb1.models.Users;
 import com.example.usan_comb1.utilities.FindFromFirebase;
@@ -39,6 +40,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -66,6 +68,8 @@ public class ChatActivity extends AppCompatActivity {
     private String conversationId;
     public String previousInfo;
     public String userId;
+    public String title;
+    private String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +80,8 @@ public class ChatActivity extends AppCompatActivity {
         transRef = FirebaseDatabase.getInstance().getReference("transaction");
 
         setListeners();
-        loadReceiverDetails();
         init();
+        loadReceiverDetails();
         listenMessages();
         listenForTransactionConfirmation();
 
@@ -104,9 +108,8 @@ public class ChatActivity extends AppCompatActivity {
         binding.chatRecyclerView.setAdapter(chatAdapter);
         database = FirebaseFirestore.getInstance();
         userId = PreferenceManager.getString("userId");
+        accessToken = preferenceManager.getString("access_token");
 
-        role = getIntent().getIntExtra("role",-1);
-        previousInfo = getIntent().getStringExtra("prevInfo");
     }
 
     private void sendMessage() {
@@ -124,6 +127,7 @@ public class ChatActivity extends AppCompatActivity {
         }else{
             HashMap<String, Object> conversation = new HashMap<>();
             conversation.put("chatId",chatId);
+            conversation.put("title",title);
             conversation.put("senderId",preferenceManager.getString("userId"));
             conversation.put("senderName",preferenceManager.getString("username"));
             conversation.put("receiverId",receiverUser.getId());
@@ -140,11 +144,13 @@ public class ChatActivity extends AppCompatActivity {
         database.collection("chats")
                 .whereEqualTo("chatId",chatId)
                 .whereEqualTo("senderId", preferenceManager.getString("userId"))
+                .whereEqualTo("receiverId",receiverUser.getId())
                 .addSnapshotListener(eventListener);
 
         database.collection("chats")
                 .whereEqualTo("chatId",chatId)
                 .whereEqualTo("receiverId", preferenceManager.getString("userId"))
+                .whereEqualTo("senderId",receiverUser.getId())
                 .addSnapshotListener(eventListener);
     }
 
@@ -174,10 +180,12 @@ public class ChatActivity extends AppCompatActivity {
         receiverUser = (Users) getIntent().getSerializableExtra("user");
         binding.textName.setText(receiverUser.getName());
 
-        // RecentAdapter, DetailActivity에서부터 ChatActivity를 호출하는지에 따라 역할을 정하는 방식이 약간 다릅니다.
-        // 이를 구분하기 위해 Intent를 통해 prevInfo를 전달받을 수 있도록 했습니다. - @D7MeKz
-        chatId = getIntent().getStringExtra("chatId");
+        title = getIntent().getStringExtra("title");
+        System.out.println("title "+title);
+
         role = getIntent().getIntExtra("role",-1);
+        chatId = getIntent().getStringExtra("chatId");
+
 
     }
 
@@ -233,7 +241,7 @@ public class ChatActivity extends AppCompatActivity {
                     // 이미지 업로드 실패
                     Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                 });
-
+        role = findFromFirebase.checkSeller(accessToken, chatId);
     }
 
     private void addOrUpdateConversation(HashMap<String, Object> conversation){
@@ -287,6 +295,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void checkForConversationRemotely(String senderId, String receiverId) {
         database.collection("conversation")
+                .whereEqualTo("chatId",chatId)
                 .whereEqualTo("senderId", senderId)
                 .whereEqualTo("receiverId", receiverId)
                 .get()
@@ -341,7 +350,8 @@ public class ChatActivity extends AppCompatActivity {
                         if (!checkStatus && role == BUYER) {
                             showConfirmationDialog();
 
-                        } else if (checkStatus) {
+                        }
+                        if(!checkStatus){
                             showTransactionCompleteDialog();
                         }
                     }
@@ -384,6 +394,7 @@ public class ChatActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
 
 
 }

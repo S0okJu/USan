@@ -1,4 +1,4 @@
-package com.example.usan_comb1.activity;
+package com.example.usan_comb1.activity.product;
 
 import static com.example.usan_comb1.utilities.Constants.BUYER;
 import static com.example.usan_comb1.utilities.Constants.SELLER;
@@ -72,6 +72,7 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CardAdapter cardadapter;
     private Button chat;
+    public String title;
     private PreferenceManager preferenceManager;
 
     String TAG = "FirebaseChat";
@@ -234,6 +235,7 @@ public class DetailActivity extends AppCompatActivity {
                     PostResult product = response.body();
 
                     tvTitle.setText(product.getPost_Title());
+                    title = product.getPost_Title();
                     tvDetail.setText(product.getPost_Content());
                     tvAuthor.setText(product.getPost_Author());
                     price.setText(product.getPost_Price()+"원");
@@ -393,6 +395,7 @@ public class DetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(DetailActivity.this, ChatActivity.class);
                 intent.putExtra("chatId",chatId);
                 intent.putExtra("user", seller);
+                intent.putExtra("title", title);
                 intent.putExtra("role",role); // TODO 본인의 역할을 넘겨줍니다.
                 intent.putExtra("prevInfo","detail");
                 startActivity(intent);

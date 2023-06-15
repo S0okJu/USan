@@ -1,5 +1,6 @@
 package com.example.usan_comb1.utilities;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.usan_comb1.utilities.Constants.BUYER;
 import static com.example.usan_comb1.utilities.Constants.SELLER;
 
@@ -9,6 +10,8 @@ import androidx.annotation.NonNull;
 
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.interfaces.ChatIdCallback;
+import com.example.usan_comb1.interfaces.MyCallback;
 import com.example.usan_comb1.response.CheckRoleResponse;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -18,6 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -32,40 +36,33 @@ import retrofit2.Response;
 public class FindFromFirebase {
     public String chatId;
     public Integer role;
+    public ChatIdCallback callback;
     private static ProductService mProductService;
 
     public FirebaseFirestore db = FirebaseFirestore.getInstance();
 
 
-
-    public String getChatIdFromConversation(String senderId, String receiverId){
-        final String[] returnChatId = {null};
+    public void getChatIdFromConversation(String senderId, String receiverId, String title, ChatIdCallback chatIdCallback){
         db.collection("conversation")
+                .whereEqualTo("senderId", senderId)
+                .whereEqualTo("receiverId",receiverId)
+                .whereEqualTo("title", title)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        String chatId = null;
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Map<String, Object> data = document.getData();
-
-                                if (data.get("senderId").equals(senderId) &&
-                                        data.get("receiverId").equals(receiverId)) {
-                                    chatId = (String) data.get("chatId");
-
-                                    break;
-                                }
+                                chatId = document.getString("chatId");
+                                callback.onCallback(chatId);
+                                break;
                             }
                         } else {
-                            Log.w("Firebase", "Error getting documents.", task.getException());
+                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                        returnChatId[0] = chatId;
                     }
                 });
-        return returnChatId[0];
     }
-
 
     public String getChatIdFromProductDetail(String senderId, String receiverId) {
         // Setup
@@ -142,4 +139,6 @@ public class FindFromFirebase {
 
         return role;
     }
+
+
 }

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.activity.product.DetailActivity;
 import com.example.usan_comb1.adapter.FavoriteAdapter;
 import com.example.usan_comb1.adapter.RecyclerViewEmptySupport;
 import com.example.usan_comb1.response.FavoriteProduct;
@@ -36,8 +37,6 @@ public class FavoriteActivity extends AppCompatActivity {
     private RecyclerViewEmptySupport recyclerView;
     private FavoriteAdapter adapter;
     private TextView empty;
-
-
     NestedScrollView nestedScrollView;
     ProgressBar progressBar;
 
