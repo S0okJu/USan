@@ -333,6 +333,7 @@ public class ChatActivity extends AppCompatActivity {
             transInfo.put("buyerName","");
             transInfo.put("buyerStatus",false);
             transInfo.put("check",false);
+            transInfo.put("cnt",0);
         }
 
         myRef.setValue(transInfo)
@@ -346,13 +347,14 @@ public class ChatActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
                     Boolean checkStatus = dataSnapshot.child("check").getValue(Boolean.class);
+                    Integer cnt = dataSnapshot.child("cnt").getValue(Integer.class);
                     if (checkStatus != null) {
                         if (!checkStatus && role == BUYER) {
                             showConfirmationDialog();
 
-                        }
-                        if(!checkStatus){
+                        }else if(checkStatus && cnt==0){
                             showTransactionCompleteDialog();
+                            transRef.child(chatId).child("cnt").setValue(cnt+1);
                         }
                     }
                 }
