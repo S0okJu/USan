@@ -1,15 +1,12 @@
 package com.example.usan_comb1.activity.profile;
 
 import android.Manifest;
+import android.content.pm.PackageManager;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -21,10 +18,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.loader.content.CursorLoader;
+import androidx.core.content.ContextCompat;
 
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
@@ -34,7 +32,11 @@ import com.example.usan_comb1.response.ProfileResponse;
 import com.example.usan_comb1.response.UploadResponse;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -47,30 +49,22 @@ import retrofit2.Response;
 // 프로필 수정
 public class UserUpdateActivity extends AppCompatActivity {
 
-
     private Button btnselect, btn_ch, btn_ok;
     private TextView tvname;
     private EditText et_updatename;
     private ImageView imgprofile;
     private ProductService mProductService;
+    private static final int REQUEST_PERMISSION = 1;
     private static final int REQUEST_SELECT_IMAGE = 2;
-    private static final int REQUEST_CROP_IMAGE = 3;
     private String username;
     private String accessToken;
-    private Uri imageUri; // Added variable to store selected image URI
-    private static final int REQUEST_READ_MEDIA_IMAGES = 1;
-    private static String[] PERMISSIONS_STORAGE;
+
 
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_update);
-
-        PERMISSIONS_STORAGE = new String[]{
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-        };
 
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
         accessToken = prefs.getString("access_token", "");
@@ -89,13 +83,10 @@ public class UserUpdateActivity extends AppCompatActivity {
         btn_ch.setVisibility(View.VISIBLE);
         btn_ok.setVisibility(View.INVISIBLE);
 
-        downloadImage();
-
         btnselect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // 파일 엑세스 권한 확인
-                verifyStoragePermissions(UserUpdateActivity.this);
+                openGallery();
             }
         });
 
@@ -172,123 +163,72 @@ public class UserUpdateActivity extends AppCompatActivity {
         });
     }
 
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have permission
-        int permission = ActivityCompat.checkSelfPermission(
-                activity, Manifest.permission.READ_MEDIA_IMAGES);
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            ActivityCompat.requestPermissions(
-                    activity,
-                    new String[]{Manifest.permission.READ_MEDIA_IMAGES},
-                    REQUEST_READ_MEDIA_IMAGES
-            );
-        } else {
-            // Permission granted, open the gallery
-            openGallery(activity);
-        }
-    }
-
-    private static void openGallery(Activity activity) {
-        // Open gallery code
+    private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        intent.setType("image/*");
-        activity.startActivityForResult(intent, REQUEST_SELECT_IMAGE);
+        startActivityForResult(intent, REQUEST_SELECT_IMAGE);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_SELECT_IMAGE && resultCode == RESULT_OK && data != null) {
-            imageUri = data.getData();
-            String imagePath = getRealPathFromUri(imageUri);
-            uploadImage(accessToken, username, imagePath);
+            Uri imageUri = data.getData();
+            uploadImage(username, imageUri, accessToken);
         }
     }
 
-    private String getRealPathFromUri(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        CursorLoader loader = new CursorLoader(getApplicationContext(), uri, projection, null, null, null);
-        Cursor cursor = loader.loadInBackground();
-        int columnIdx = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String result = cursor.getString(columnIdx);
-        cursor.close();
-        return result;
-    }
 
-    private void uploadImage(String accessToken, String username, String imagePath) {
-        // Convert file path to actual path
-        String actualPath = Uri.parse(imagePath).getPath();
-        File file = new File(actualPath);
-
-        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("img", file.getName(), requestFile);
-        Call<UploadResponse> call = mProductService.uploadImage(accessToken, username, body);
-        call.enqueue(new Callback<UploadResponse>() {
-            @Override
-            public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
-                if (response.isSuccessful()) {
-                    // 이미지 업로드 성공 처리
-                    Toast.makeText(UserUpdateActivity.this, "사진을 업로드했습니다.", Toast.LENGTH_SHORT).show();
-                    Log.i("Upload success", "Successfully uploaded image");
-                    downloadImage();
-                } else {
-                    // 이미지 업로드 실패 처리
-                    Toast.makeText(UserUpdateActivity.this, "사진 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show();
-                    Log.e("Upload error", "Upload failed: " + response.message());
-                    return;
-                }
-            }
-
-            @Override
-            public void onFailure(Call<UploadResponse> call, Throwable t) {
-                // 네트워크 오류 처리
-                Toast.makeText(UserUpdateActivity.this, "네트워크 오류", Toast.LENGTH_SHORT).show();
-                Log.e("Upload error", t.getMessage());
-            }
-
-        });
-    }
-
-    // 프로필 이미지 다운로드
-    private void downloadImage() {
-        Call<ResponseBody> call = mProductService.downloadProfileImage(accessToken, username);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    ResponseBody responseBody = response.body();
-                    if (responseBody != null) {
-                        // 이미지 데이터를 읽어옵니다.
-                        InputStream inputStream = responseBody.byteStream();
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-                        // 이미지를 이미지 뷰에 설정합니다.
-                        imgprofile.setImageBitmap(bitmap);
+    public void uploadImage(String username, Uri imageUri, String accessToken) {
+        // 이미지를 MultipartBody.Part로 변환
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(imageUri);
+            File imageFile = createImageFileFromInputStream(inputStream);
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/jpeg"), imageFile);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("img", imageFile.getName(), requestFile);
+            //이미지 업로드 요청
+            Call<UploadResponse> call = mProductService.uploadImage("Bearer " + accessToken, username, body);
+            call.enqueue(new Callback<UploadResponse>() {
+                @Override
+                public void onResponse(Call<UploadResponse> call, Response<UploadResponse> response) {
+                    if (response.isSuccessful()) {
+                        // 이미지 업로드 성공 처리
+                        Toast.makeText(UserUpdateActivity.this, "사진을 업로드했습니다.", Toast.LENGTH_SHORT).show();
+                        Log.i("Upload success", "Successfully uploaded image");
                     } else {
-                        // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
-                        imgprofile.setImageResource(R.drawable.ic_default_profile);
-                        Toast.makeText(UserUpdateActivity.this, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
-                        Log.e("Download error", "Download failed: " + response.message());
+                        // 이미지 업로드 실패 처리
+                        Toast.makeText(UserUpdateActivity.this, "사진 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("Upload error", "Upload failed: " + response.message());
+                        return;
                     }
-                } else {
-                    // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
-                    imgprofile.setImageResource(R.drawable.ic_default_profile);
-                    Toast.makeText(UserUpdateActivity.this, "서버 응답 실패", Toast.LENGTH_SHORT).show();
-                    Log.e("Download error", "Download failed: " + response.message());
                 }
-            }
 
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
-                imgprofile.setImageResource(R.drawable.ic_default_profile);
-                Toast.makeText(UserUpdateActivity.this, "다운로드 오류", Toast.LENGTH_SHORT).show();
-                Log.e("Download error", "Download failed: " + t.getMessage());
+                @Override
+                public void onFailure(Call<UploadResponse> call, Throwable t) {
+                    // 네트워크 오류 처리
+                    Toast.makeText(UserUpdateActivity.this, "네트워크 오류", Toast.LENGTH_SHORT).show();
+                    Log.e("Upload error", t.getMessage());
+                }
+            });
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private File createImageFileFromInputStream(InputStream inputStream) {
+        try {
+            File file = new File(getCacheDir(), "temp_image.jpg");
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
             }
-        });
+            outputStream.close();
+            inputStream.close();
+            return file;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

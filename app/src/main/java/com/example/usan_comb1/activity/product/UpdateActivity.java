@@ -29,19 +29,23 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.adapter.CardAdapter;
 import com.example.usan_comb1.request.ProductRequest;
 import com.example.usan_comb1.request.UpdateRequest;
 import com.example.usan_comb1.response.ProductImageResponse;
 import com.example.usan_comb1.response.UpdateResponse;
+import com.example.usan_comb1.utilities.Constants;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,6 +65,7 @@ import retrofit2.Response;
 public class UpdateActivity extends AppCompatActivity {
 
     private EditText eTitle, eContent, ePrice;
+    private Button update_btn;
     private Spinner eAddressSpinner;
     private Integer productId;
     private ImageView productImg;
@@ -89,10 +94,17 @@ public class UpdateActivity extends AppCompatActivity {
         ePrice = findViewById(R.id.updatePrice);
         eAddressSpinner = findViewById(R.id.updateAddress);
         productImg = findViewById(R.id.productImage);
+        update_btn = findViewById(R.id.update_btn);
+
+
 
         mProgressView = (ProgressBar) findViewById(R.id.product_progress);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
+
+        SharedPreferences file_prefs = getSharedPreferences("file", Context.MODE_PRIVATE);
+        filename = file_prefs.getString("filename", "");
+        System.out.println(filename);
 
         // Authorization
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
@@ -103,7 +115,7 @@ public class UpdateActivity extends AppCompatActivity {
 
         productId = getIntent().getIntExtra("productId", -1);
 
-        downloadImage();
+        downloadImage(accessToken, productId, filename);
 
         productImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,24 +136,14 @@ public class UpdateActivity extends AppCompatActivity {
                 getProduct(productId, accessToken);
             }
         }
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_save:
+        update_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 updateData();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+            }
+        });
     }
-
 
     private void updateData() {
         eTitle.setError(null);
@@ -463,13 +465,23 @@ public class UpdateActivity extends AppCompatActivity {
                         // 이미지 업로드 성공 처리
                         Toast.makeText(UpdateActivity.this, "사진을 업로드했습니다.", Toast.LENGTH_SHORT).show();
                         Log.i("Upload success", "Successfully uploaded image");
-                        filename = ProductImageResponse.getFileName(imageResponses.get(0));
-                        System.out.println(imageResponses);
-                        if (imageResponses != null && !imageResponses.isEmpty()) {
-                            System.out.println(filename);
 
-                            downloadImage();
-                        }
+                        ProductImageResponse firstImageResponse = imageResponses.get(0);
+                        String filename = firstImageResponse.getFileName();
+                        String path = firstImageResponse.getPath();
+                        System.out.println(path);
+                        System.out.println(filename);
+
+                        SharedPreferences file_pref = getSharedPreferences("file", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = file_pref.edit();
+                        editor.putString("filename", filename);
+                        editor.apply();
+
+                        // Intent url_intent = new Intent(UpdateActivity.this, CardAdapter.class);
+                        // url_intent.putExtra("imagePath", imagePath); // imagePath 값을 인텐트에 추가
+                        // startActivity(url_intent);
+
+                        downloadImage(accessToken, productId, filename);
                     } else {
                         // 서버 응답에 이미지 정보가 없는 경우 처리
                         Toast.makeText(UpdateActivity.this, "서버 응답에 이미지 정보가 없습니다.", Toast.LENGTH_SHORT).show();
@@ -490,9 +502,8 @@ public class UpdateActivity extends AppCompatActivity {
         });
     }
 
-
     // 이미지 다운로드
-    private void downloadImage() {
+    private void downloadImage(String accessToken, int productId, String filename) {
         Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -500,7 +511,6 @@ public class UpdateActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
-                        // 이미지 데이터를 읽어옵니다.
                         InputStream inputStream = responseBody.byteStream();
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
@@ -509,13 +519,11 @@ public class UpdateActivity extends AppCompatActivity {
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         productImg.setImageResource(R.drawable.img_error);
-                        Toast.makeText(UpdateActivity.this, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
                         Log.e("Download error", "Download failed: " + response.message());
                     }
                 } else {
                     // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
                     productImg.setImageResource(R.drawable.img_error);
-                    Toast.makeText(UpdateActivity.this, "서버 응답 실패", Toast.LENGTH_SHORT).show();
                     Log.e("Download error", "Download failed: " + response.message());
                 }
             }
@@ -524,7 +532,6 @@ public class UpdateActivity extends AppCompatActivity {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
                 productImg.setImageResource(R.drawable.img_error);
-                Toast.makeText(UpdateActivity.this, "다운로드 오류", Toast.LENGTH_SHORT).show();
                 Log.e("Download error", "Download failed: " + t.getMessage());
             }
         });

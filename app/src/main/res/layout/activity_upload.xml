@@ -85,6 +85,17 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
 
+            <Button
+                android:id="@+id/save_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="등록"
+                android:layout_marginTop="10dp"
+                android:padding="16dp"
+                android:background="@drawable/yellow_border"
+                android:textColor="@color/black"
+                android:backgroundTint="@color/color3"/>
+
         </LinearLayout>
 
 

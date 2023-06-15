@@ -58,7 +58,7 @@ public class FindFromFirebase {
                                 break;
                             }
                         } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
+                            Log.w("Firebase", "Error getting documents.", task.getException());
                         }
                     }
                 });
@@ -139,6 +139,5 @@ public class FindFromFirebase {
 
         return role;
     }
-
 
 }

@@ -1,4 +1,4 @@
-package com.example.usan_comb1.activity.chat;
+package com.example.usan_comb1.chat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.usan_comb1.adapter.RecentConversationsAdapter;
+import com.example.usan_comb1.chat.ChatActivity;
 import com.example.usan_comb1.databinding.ActivityChatUsersBinding;
 import com.example.usan_comb1.listeners.ConversationListener;
 import com.example.usan_comb1.models.ChatData;
@@ -46,7 +47,7 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
 
         init();
         // Preference
-        setListeners();
+        //setListeners();
         listenConversations();
     }
 
@@ -57,9 +58,12 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
         binding.conversationsRecyclerView.setAdapter(recentConversationsAdapter);
 
     }
+
+    /*
     private void setListeners(){
         binding.imageBack.setOnClickListener(v -> onBackPressed());
     }
+     */
 
 
     private void listenConversations(){

@@ -1,6 +1,7 @@
 package com.example.usan_comb1;
 
 import com.example.usan_comb1.models.Loc;
+import com.example.usan_comb1.request.EmailCheckRequest;
 import com.example.usan_comb1.request.LoginData;
 import com.example.usan_comb1.request.MyLocationRequest;
 import com.example.usan_comb1.request.ProductRequest;
@@ -8,6 +9,7 @@ import com.example.usan_comb1.request.ProfileUpRequest;
 import com.example.usan_comb1.request.RegisterData;
 import com.example.usan_comb1.request.UpdateRequest;
 import com.example.usan_comb1.response.CheckRoleResponse;
+import com.example.usan_comb1.response.EmailCheckResponse;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.GpsResponse;
 import com.example.usan_comb1.response.LoginResponse;
@@ -88,7 +90,7 @@ public interface ProductService {
 
 
     // 상품 이미지 다운로드
-    @GET("imgs/download/{product_id}/{filename}")
+    @GET("/imgs/download/{product_id}/{filename}")
     Call<ResponseBody> downloadImage(@Header("Authorization") String accessToken,
                                      @Path("product_id") Integer productId, @Path("filename") String filename);
     // 페이지 별 상품 정보
@@ -140,6 +142,9 @@ public interface ProductService {
             @Path("username") String username,
             @Part MultipartBody.Part imagePart
     );
+
+    @POST ("/users/email_check")
+    Call<EmailCheckResponse> checkEmailAvailability(@Body EmailCheckRequest request);
 
 
     // 사용자 프로필 다운로드

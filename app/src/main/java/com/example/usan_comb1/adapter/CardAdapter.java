@@ -1,48 +1,58 @@
 package com.example.usan_comb1.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.text.TextUtils;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
-import com.example.usan_comb1.activity.product.AuthorSellProductDetailActivity;
+import com.example.usan_comb1.activity.product.UpdateActivity;
 import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.utilities.Constants;
 
-import java.io.File;
+import java.io.InputStream;
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 // 상세페이지 내부 작성자 판매 물품 Adapter
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     private Context context;
-    private static List<RetroProduct> cardList;
+    private List<RetroProduct> cardList;
     private ProductService mProductService;
-
-    public interface OnItemClickListener {
-        void onItemClick(int productId);
-    }
-
-    private static OnItemClickListener listener;
-
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
-    }
+    private String accessToken;
 
     public CardAdapter(Context context, List<RetroProduct> cardList) {
         this.context = context;
         this.cardList = cardList;
+
+        SharedPreferences prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
+    }
+
+    @NonNull
+    @Override
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.author_sell_item, parent, false);
+        return new ViewHolder(view);
     }
 
     @Override
@@ -50,35 +60,10 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         RetroProduct cardlist = cardList.get(position);
         holder.txtView.setText(cardlist.getTitle());
 
-
-        String fileName = cardlist.getImg(); // 이미지 파일 이름
-        SharedPreferences pref = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString("image_file_name", fileName);
-        editor.apply();
-
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
-        SharedPreferences prefs = context.getSharedPreferences("my_prefs", Context.MODE_PRIVATE);
-        fileName = prefs.getString("image_file_name", "");
-
-        if (!TextUtils.isEmpty(fileName)) {
-            File imageFile = new File(context.getFilesDir(), fileName);
-
-            Glide.with(context)
-                    .load(imageFile)
-                    .into(holder.imageView);
-        } else {
-            // 이미지 파일 이름이 저장되지 않은 경우 기본 이미지 또는 에러 이미지 로드
-            Glide.with(context)
-                    .load(R.drawable.img_error)
-                    .into(holder.imageView);
-        }
-    }
-
-    public void setUserPosts(List<RetroProduct> userPosts) {
-        this.cardList = userPosts;
-        notifyDataSetChanged();
+        // 이미지 다운로드 메소드 호출
+        downloadImage(accessToken, cardlist.getProductId(), cardlist.getImg(), holder.imageView);
     }
 
     @Override
@@ -90,47 +75,47 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         ImageView imageView;
         TextView txtView;
 
-        public ViewHolder(@NonNull View itemView, OnItemClickListener listener) {
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.image);
-            txtView = itemView.findViewById(R.id.title);
+            imageView = itemView.findViewById(R.id.cardimg);
+            txtView = itemView.findViewById(R.id.txtview);
+        }
+    }
 
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION) {
-                        RetroProduct cardlist = cardList.get(position);
-                        int productId = cardlist.getProductId();
+    // 이미지 다운로드
+    private void downloadImage(String accessToken, int productId, String filename, ImageView imageView) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    ResponseBody responseBody = response.body();
+                    if (responseBody != null) {
+                        InputStream inputStream = responseBody.byteStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                        if (CardAdapter.listener != null) {
-                            CardAdapter.listener.onItemClick(productId);
-                        }
-
-                        // 클릭된 아이템의 productId를 전달하고, AuthorSellProductDetailActivity로 전환
-                        Intent intent = new Intent(itemView.getContext(), AuthorSellProductDetailActivity.class);
-                        intent.putExtra("product_id", productId);
-                        itemView.getContext().startActivity(intent);
+                        // 이미지를 이미지 뷰에 설정합니다.
+                        imageView.setImageBitmap(bitmap);
+                    } else {
+                        // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                        imageView.setImageResource(R.drawable.img_error);
+                        Log.e("Download error", "Download failed: " + response.message());
                     }
+                } else {
+                    // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
+                    imageView.setImageResource(R.drawable.img_error);
+                    Log.e("Download error", "Download failed: " + response.message());
                 }
-            });
+            }
 
-        }
-
-        // 이미지 다운로드 메서드
-        private void downloadImage(String imageUrl) {
-            Glide.with(itemView.getContext())
-                    .load(imageUrl)
-                    .into(imageView);
-        }
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
+                imageView.setImageResource(R.drawable.img_error);
+                Log.e("Download error", "Download failed: " + t.getMessage());
+            }
+        });
     }
 
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.author_sell_item, parent, false);
-        return new ViewHolder(view, listener);
-    }
 
 }

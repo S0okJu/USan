@@ -53,7 +53,7 @@ public class ChatFragment extends Fragment implements ConversationListener {
         preferenceManager = new PreferenceManager(requireContext());
 
         init();
-        setListeners();
+        //setListeners();
         listenConversations();
     }
 
@@ -67,9 +67,11 @@ public class ChatFragment extends Fragment implements ConversationListener {
 
 
 
+    /*
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> requireActivity().onBackPressed());
     }
+     */
 
     private void listenConversations(){
         database.collection("conversation")
@@ -90,6 +92,7 @@ public class ChatFragment extends Fragment implements ConversationListener {
                 if(documentChange.getType() == DocumentChange.Type.ADDED){
                     String senderId = documentChange.getDocument().getString("senderId");
                     String receiverId = documentChange.getDocument().getString("receiverId");
+
                     title = documentChange.getDocument().getString("title");
                     chatId = documentChange.getDocument().getString("chatId");
                     role = findFromFirebase.checkSeller(accessToken, chatId);
@@ -97,7 +100,6 @@ public class ChatFragment extends Fragment implements ConversationListener {
                     ChatData chatMessage = new ChatData();
                     chatMessage.setSenderId(senderId);
                     chatMessage.setReceiverId(receiverId);
-
 
                     if(preferenceManager.getString("userId").equals(senderId)){
 //                        chatMessage.conversionImage = documentChange.getDocument().getString("receiverImage");

@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -27,15 +26,12 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
-import com.example.usan_comb1.activity.chat.ChatActivity;
+import com.example.usan_comb1.chat.ChatActivity;
 import com.example.usan_comb1.activity.profile.OtherProfileActivity;
 import com.example.usan_comb1.adapter.CardAdapter;
 import com.example.usan_comb1.models.Users;
 import com.example.usan_comb1.response.PostResult;
-import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.utilities.PreferenceManager;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -43,9 +39,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -61,7 +54,7 @@ public class DetailActivity extends AppCompatActivity {
     private static ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
-    private int[] imageReslds = {R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg};
+    private String[] imageUrls;
     private static Integer productId;
     private String username;
     private static String accessToken;
@@ -106,6 +99,10 @@ public class DetailActivity extends AppCompatActivity {
                 checkData(productId);
             }
         }
+
+        viewPager = findViewById(R.id.viewPager);
+        ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageUrls);
+        viewPager.setAdapter(adapter);
 
         tvAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -299,7 +296,7 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+        public boolean isViewFromObject(View view, Object object) {
             return view == object;
         }
 
@@ -307,12 +304,16 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
             ImageView imageView = new ImageView(context);
+            imageView.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            ));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             // 이미지 다운로드 및 표시
             downloadAndDisplayImage(imageUrls[position], imageView);
 
-            container.addView(imageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            container.addView(imageView);
             return imageView;
         }
 

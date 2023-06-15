@@ -39,6 +39,7 @@ import retrofit2.Response;
 public class UploadActivity extends AppCompatActivity {
     //private ImageView mImage;
     private EditText mTitle, mContent, mPrice;
+    private Button save_btn;
     private Spinner mAddressSpinner;
     private ProductService mProductService;
     private ProductRequest.Address addressObj;
@@ -60,6 +61,7 @@ public class UploadActivity extends AppCompatActivity {
         mContent = findViewById(R.id.uploadContent);
         mPrice = findViewById(R.id.uploadPrice);
         mAddressSpinner = findViewById(R.id.uploadAddress);
+        save_btn = findViewById(R.id.save_btn);
 
         mProgressView = (ProgressBar) findViewById(R.id.product_progress);
 
@@ -78,23 +80,15 @@ public class UploadActivity extends AppCompatActivity {
 
         // clickListeners(); 이미지
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_save:
+        save_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 saveData();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
+            }
+        });
+
     }
+
 
     private void saveData() {
         mTitle.setError(null);
