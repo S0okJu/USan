@@ -123,11 +123,17 @@ public class FindFromFirebase {
         call.enqueue(new Callback<CheckRoleResponse>() {
             @Override
             public void onResponse(Call<CheckRoleResponse> call, Response<CheckRoleResponse> response) {
-                CheckRoleResponse result = response.body();
-                if(result.getRole()==SELLER){
-                    role = SELLER;
-                }else{
-                    role = BUYER;
+                if (response.isSuccessful() && response.body() != null) {
+                    CheckRoleResponse result = response.body();
+                    if (result.getRole() != null) {
+                        if (result.getRole() == SELLER) {
+                            role = SELLER;
+                        } else {
+                            role = BUYER;
+                        }
+                    } else {
+                        Log.e("Role setting error", "Failed to set role");
+                    }
                 }
             }
 

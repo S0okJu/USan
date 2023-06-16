@@ -48,6 +48,16 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         accessToken = prefs.getString("access_token", "");
     }
 
+    public interface OnItemClickListener {
+        void onItemClick(int productId);
+    }
+
+    private static OnItemClickListener listener;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

@@ -39,6 +39,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -54,7 +56,9 @@ public class DetailActivity extends AppCompatActivity {
     private static ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
-    private String[] imageUrls;
+    private List<String> imageUrls = new ArrayList<>();
+    ImageView imageBack;
+
     private static Integer productId;
     private String username;
     private static String accessToken;
@@ -80,6 +84,7 @@ public class DetailActivity extends AppCompatActivity {
         tvAuthor = findViewById(R.id.nickname);
         profile = findViewById(R.id.profile);
         chat = findViewById(R.id.btnchat); // 채팅 버튼
+        imageBack = findViewById(R.id.imageBack);
 
         mProductService = RetrofitClient.getProductService();
 
@@ -127,6 +132,13 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 createOrJoinChat(String.valueOf(productId));
+            }
+        });
+
+        imageBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 
@@ -242,10 +254,18 @@ public class DetailActivity extends AppCompatActivity {
                     // get Author username
                     author = product.getPost_Author();
                     System.out.println(author);
+
+                    imageUrls.add(product.getImage());
+                    System.out.println(imageUrls);
+
+
+
                     downloadImage();
 
 
+
                     isFavorite = product.isFavorite();
+
                     if (product.isFavorite() == true) {
                         favoriteButton.setImageResource(R.drawable.select_ic_heart);
                     } else {
@@ -283,16 +303,16 @@ public class DetailActivity extends AppCompatActivity {
     private static class ImagePagerAdapter extends PagerAdapter {
 
         private Context context;
-        private String[] imageUrls;
+        private List<String> imageUrls;
 
-        public ImagePagerAdapter(Context context, String[] imageUrls) {
+        public ImagePagerAdapter(Context context, List<String> imageUrls) {
             this.context = context;
             this.imageUrls = imageUrls;
         }
 
         @Override
         public int getCount() {
-            return imageUrls.length;
+            return imageUrls.size();
         }
 
         @Override
@@ -311,7 +331,7 @@ public class DetailActivity extends AppCompatActivity {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             // 이미지 다운로드 및 표시
-            downloadAndDisplayImage(imageUrls[position], imageView);
+            downloadAndDisplayImage(imageUrls, position, imageView);
 
             container.addView(imageView);
             return imageView;
@@ -323,9 +343,9 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         // 이미지 다운로드 및 표시 메서드
-        private void downloadAndDisplayImage(String imageUrl, final ImageView imageView) {
+        private void downloadAndDisplayImage(List<String> imageUrls, int position, final ImageView imageView) {
             // 이미지 다운로드
-            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrl);
+            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrls.get(position));
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {

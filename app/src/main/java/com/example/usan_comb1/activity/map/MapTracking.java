@@ -17,6 +17,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -91,6 +92,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     AlertDialog alertDialog;
     public String accessToken;
 
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+
     public static MapTracking getInstance() {
         return instance;
     }
@@ -110,6 +113,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
         service = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
+        preferenceManager = new PreferenceManager(getApplicationContext());
+
         if(getIntent() != null){
             chatId = getIntent().getStringExtra("chatId");
             otherUser = getIntent().getStringExtra("otherUser");
@@ -122,7 +127,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         // Ref to firebase first
         locationRef = FirebaseDatabase.getInstance().getReference("locations").child(chatId);
 
-        getDest();
+        //getDest();
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -196,31 +201,33 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    public void getDest(){
-
+    public void getDest() {
         Call<Loc> call = service.getDestLocation(accessToken, chatId);
-        dest = new LatLng(0.0,0.0);
         call.enqueue(new Callback<Loc>() {
-
             @Override
             public void onResponse(Call<Loc> call, retrofit2.Response<Loc> response) {
-                if(response.isSuccessful()){
+                if (response.isSuccessful()) {
                     Loc result = response.body();
-                    System.out.println(result.getLat());
-                    dest = new LatLng(result.getLat(), result.getLng());
-
+                    double lat = result.getLat();
+                    double lng = result.getLng();
+                    dest = new LatLng(lat, lng);
                     Marker destMarker = mMap.addMarker(new MarkerOptions().position(dest).title("Dest"));
-                    markers.put("dest",destMarker);
+                    markers.put("dest", destMarker);
+
+                    // 이곳에서 위치 업데이트 시작
+                    startLocationUpdates();
                 }
             }
 
             @Override
             public void onFailure(Call<Loc> call, Throwable t) {
                 Log.d("Dest Location", "Failed to load dest location");
-                mMap.addMarker(new MarkerOptions().position(new LatLng(0.0,0.0)).title("Dest"));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(0.0, 0.0)).title("Dest"));
+
+                // 이곳에서 위치 업데이트 시작
+                startLocationUpdates();
             }
         });
-
     }
 
 
@@ -270,10 +277,38 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
-        checkSettingsAndStartLocationUpdates();
+        if (checkLocationPermission()) {
+            checkSettingsAndStartLocationUpdates();
+        } else {
+            requestLocationPermission();
+        }
     }
+
+    private boolean checkLocationPermission() {
+        int permissionState = ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkSettingsAndStartLocationUpdates();
+            } else {
+                // 위치 권한이 거부되었을 경우에 대한 처리
+                // 사용자에게 위치 권한이 필요하다는 메시지를 표시하고, 권한 요청을 다시 수행할 수 있는 방법을 제공해야 합니다.
+                Toast.makeText(this, "사용자 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
 
     private void checkSettingsAndStartLocationUpdates() {
         LocationSettingsRequest request = new LocationSettingsRequest.Builder().
@@ -293,13 +328,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            // 위치 권한이 없는 경우 권한을 요청
+            requestLocationPermission();
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
@@ -311,6 +341,10 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
+
+        mMap.setMinZoomPreference(14.0f); // 최소 줌 레벨 설정
+
+        getDest(); // dest 변수 초기화
     }
 
 //

@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +39,8 @@ public class SalelistActivity extends AppCompatActivity {
     private ProductService mProductService;
     private TextView empty;
 
+    ImageView imageBack;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +49,7 @@ public class SalelistActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         empty = findViewById(R.id.empty_view);
+        imageBack = findViewById(R.id.imageBack);
 
         // productList를 초기화합니다.
         productList = new ArrayList<>();
@@ -66,6 +71,13 @@ public class SalelistActivity extends AppCompatActivity {
                 Intent intent = new Intent(SalelistActivity.this, DetailActivity.class);
                 intent.putExtra("product_id", data.getProductId()); // 넘어갈 데이터를 인텐트에 추가합니다.
                 startActivity(intent);
+            }
+        });
+
+        imageBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 

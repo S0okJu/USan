@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +41,8 @@ public class FavoriteActivity extends AppCompatActivity {
     NestedScrollView nestedScrollView;
     ProgressBar progressBar;
 
+    ImageView imageBack;
+
     private List<FavoriteProduct> favoriteList;
     //ArrayList<FavoriteProduct> dataArrayList = new ArrayList<>();
 
@@ -59,6 +62,7 @@ public class FavoriteActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         progressBar = findViewById(R.id.progress_bar);
         empty = findViewById(R.id.empty_view);
+        imageBack = findViewById(R.id.imageBack);
 
         //adapter = new FavoriteAdapter(this, dataArrayList);
         //recyclerView.setAdapter(adapter);
@@ -80,6 +84,13 @@ public class FavoriteActivity extends AppCompatActivity {
                 Intent intent = new Intent(FavoriteActivity.this, DetailActivity.class);
                 intent.putExtra("product_id", data.getProductId()); // 넘어갈 데이터를 인텐트에 추가합니다.
                 startActivity(intent);
+            }
+        });
+
+        imageBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 

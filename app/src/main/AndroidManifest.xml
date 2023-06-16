@@ -33,37 +33,13 @@
             android:value="AIzaSyDZcFq86EmIyYitzFCPhJq-1t06GTMqnC0" />
 
         <activity
-            android:name=".chat.UsersActivity"
+            android:name=".activity.map.MapTracking"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
 
-        <activity
-            android:name="chat.ChatActivity"
-            android:exported="false"
-            tools:ignore="MissingClass">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-
-        <!--
-             TODO: Before you run your application, you need a Google Maps API key.
-
-             To get one, follow the directions here:
-
-                https://developers.google.com/maps/documentation/android-sdk/get-api-key
-
-             Once you have your API key (it starts with "AIza"), define a new property in your
-             project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
-             "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
-        -->
-
-        <activity
-            android:name=".activity.map.MapTracking"
-            android:exported="false" />
         <activity
             android:name=".activity.map.DestinationActivity"
             android:exported="false">
@@ -73,19 +49,37 @@
         </activity>
 
         <activity
-            android:name=".activity.profile.OtherProfileActivity"
-            android:exported="false">
+            android:name=".activity.payment.BuyerPaymentActivity"
+            android:exported="true">
             <meta-data
                 android:name="android.app.lib_name"
-                android:value="" />
+                android:value=""/>
         </activity>
         <activity
-            android:name=".activity.profile.ProfileActivity"
-            android:exported="false">
+            android:name=".activity.payment.SellerPaymentActivity"
+            android:exported="true"
+            tools:ignore="WrongManifestParent">
             <meta-data
                 android:name="android.app.lib_name"
-                android:value="" />
+                android:value=""/>
         </activity>
+        <activity
+            android:name=".activity.payment.PaymentSuccessActivity"
+            android:exported="true"
+            tools:ignore="WrongManifestParent">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value=""/>
+        </activity>
+        <activity
+            android:name=".activity.payment.PaymentFailActivity"
+            android:exported="true"
+            tools:ignore="WrongManifestParent">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value=""/>
+        </activity>
+
         <activity
             android:name=".activity.product.SalelistActivity"
             android:exported="false">
@@ -93,36 +87,10 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
-        <activity
-            android:name=".activity.profile.UserUpdateActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
+
         <activity
             android:name=".activity.product.FavoriteActivity"
             android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".activity.sign.RegisterActivity"
-            android:exported="false">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value="" />
-        </activity>
-        <activity
-            android:name=".activity.sign.LoginActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
@@ -162,6 +130,50 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
+        <activity
+            android:name=".activity.profile.OtherProfileActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".activity.profile.ProfileActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".activity.profile.UserUpdateActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
+        <activity
+            android:name=".activity.sign.RegisterActivity"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".activity.sign.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+
         <activity
             android:name=".activity.MainActivity"
             android:exported="true">
@@ -169,39 +181,24 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+
         <activity
-            android:name=".activity.payment.BuyerPaymentActivity"
-            android:exported="true">
+            android:name=".chat.UsersActivity"
+            android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
-                android:value=""/>
-        </activity>
-        <activity
-            android:name=".activity.payment.SellerPaymentActivity"
-            android:exported="true"
-            tools:ignore="WrongManifestParent">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value=""/>
-        </activity>
-        <activity
-            android:name=".activity.payment.PaymentSuccessActivity"
-            android:exported="true"
-            tools:ignore="WrongManifestParent">
-            <meta-data
-                android:name="android.app.lib_name"
-                android:value=""/>
+                android:value="" />
         </activity>
 
         <activity
-            android:name=".activity.payment.PaymentFailActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            android:name=".chat.ChatActivity"
+            android:exported="false"
+            tools:ignore="MissingClass">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
         </activity>
+
     </application>
 
 </manifest>

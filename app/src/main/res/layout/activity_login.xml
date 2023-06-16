@@ -70,6 +70,7 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:text="로그인 정보 기억하기"
+        android:buttonTint="@color/color3"
         app:layout_constraintBottom_toTopOf="@+id/btnlgn"
         app:layout_constraintEnd_toEndOf="@+id/et_pwd"
         app:layout_constraintStart_toStartOf="@+id/et_pwd"
