@@ -58,13 +58,14 @@ public class DetailActivity extends AppCompatActivity {
     private static ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
-    private String[] imageUrls;
     private static Integer productId;
     private String username;
     private static String accessToken;
     private static final String KEY_IS_FAVORITE = "is_favorite";
     public String author;
     public Integer role;
+    private List<String> imageUrls = new ArrayList<>();
+
 
     private RecyclerView recyclerView;
     private CardAdapter cardadapter;
@@ -143,10 +144,6 @@ public class DetailActivity extends AppCompatActivity {
         // 제목, 가격, 설명 설정
         tvTitle.setText("상품 제목");
         tvDetail.setText("상품 설명입니다.");
-
-        viewPager = findViewById(R.id.viewPager);
-        //ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageReslds);
-        //viewPager.setAdapter(adapter);
 
 
         if (savedInstanceState != null) {
@@ -246,9 +243,18 @@ public class DetailActivity extends AppCompatActivity {
                     // get Author username
                     author = product.getPost_Author();
                     System.out.println(author);
+
+                    imageUrls.add(product.getImage());
+                    System.out.println(imageUrls);
+
+
+
                     downloadImage();
 
+
+
                     isFavorite = product.isFavorite();
+
                     if (product.isFavorite() == true) {
                         favoriteButton.setImageResource(R.drawable.select_ic_heart);
                     } else {
@@ -307,17 +313,18 @@ public class DetailActivity extends AppCompatActivity {
     private static class ImagePagerAdapter extends PagerAdapter {
 
         private Context context;
-        private String[] imageUrls;
+        private List<String> imageUrls;
 
-        public ImagePagerAdapter(Context context, String[] imageUrls) {
+        public ImagePagerAdapter(Context context, List<String> imageUrls) {
             this.context = context;
             this.imageUrls = imageUrls;
         }
 
         @Override
         public int getCount() {
-            return imageUrls.length;
+            return imageUrls.size();
         }
+
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
@@ -335,7 +342,7 @@ public class DetailActivity extends AppCompatActivity {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             // 이미지 다운로드 및 표시
-            downloadAndDisplayImage(imageUrls[position], imageView);
+            downloadAndDisplayImage(imageUrls, position, imageView);
 
             container.addView(imageView);
             return imageView;
@@ -347,9 +354,9 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         // 이미지 다운로드 및 표시 메서드
-        private void downloadAndDisplayImage(String imageUrl, final ImageView imageView) {
+        private void downloadAndDisplayImage(List<String> imageUrls, int position, final ImageView imageView) {
             // 이미지 다운로드
-            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrl);
+            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrls.get(position));
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
