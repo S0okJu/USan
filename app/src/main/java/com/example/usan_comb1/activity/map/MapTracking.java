@@ -127,7 +127,10 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         // Ref to firebase first
         locationRef = FirebaseDatabase.getInstance().getReference("locations").child(chatId);
 
-        //getDest();
+        getDest();
+
+        // 위치 업데이트 시작
+        startLocationUpdates();
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -214,8 +217,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                     Marker destMarker = mMap.addMarker(new MarkerOptions().position(dest).title("Dest"));
                     markers.put("dest", destMarker);
 
-                    // 이곳에서 위치 업데이트 시작
-                    startLocationUpdates();
                 }
             }
 
@@ -328,12 +329,18 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // 위치 권한이 없는 경우 권한을 요청
-            requestLocationPermission();
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
+
 
 
 
@@ -342,9 +349,9 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
-        mMap.setMinZoomPreference(14.0f); // 최소 줌 레벨 설정
+        //mMap.setMinZoomPreference(14.0f); // 최소 줌 레벨 설정
 
-        getDest(); // dest 변수 초기화
+        //getDest(); // dest 변수 초기화
     }
 
 //

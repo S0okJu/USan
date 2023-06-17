@@ -1,6 +1,7 @@
 package com.example.usan_comb1.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,6 +21,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.activity.product.AuthorSellProductDetailActivity;
 import com.example.usan_comb1.activity.product.UpdateActivity;
 import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.utilities.Constants;
@@ -36,17 +38,9 @@ import retrofit2.Response;
 public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
 
     private Context context;
-    private List<RetroProduct> cardList;
+    private static List<RetroProduct> cardList;
     private ProductService mProductService;
     private String accessToken;
-
-    public CardAdapter(Context context, List<RetroProduct> cardList) {
-        this.context = context;
-        this.cardList = cardList;
-
-        SharedPreferences prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE);
-        accessToken = prefs.getString("access_token", "");
-    }
 
     public interface OnItemClickListener {
         void onItemClick(int productId);
@@ -58,11 +52,19 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         this.listener = listener;
     }
 
+    public CardAdapter(Context context, List<RetroProduct> cardList) {
+        this.context = context;
+        this.cardList = cardList;
+
+        SharedPreferences prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.author_sell_item, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, listener);
     }
 
     @Override
@@ -85,10 +87,31 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         ImageView imageView;
         TextView txtView;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView, OnItemClickListener listener) {
             super(itemView);
-            imageView = itemView.findViewById(R.id.cardimg);
-            txtView = itemView.findViewById(R.id.txtview);
+            imageView = itemView.findViewById(R.id.image);
+            txtView = itemView.findViewById(R.id.title);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        RetroProduct cardlist = cardList.get(position);
+                        int productId = cardlist.getProductId();
+
+                        if (CardAdapter.listener != null) {
+                            CardAdapter.listener.onItemClick(productId);
+                        }
+
+                        // 클릭된 아이템의 productId를 전달하고, AuthorSellProductDetailActivity로 전환
+                        Intent intent = new Intent(itemView.getContext(), AuthorSellProductDetailActivity.class);
+                        intent.putExtra("product_id", productId);
+                        itemView.getContext().startActivity(intent);
+                    }
+                }
+            });
+
         }
     }
 
