@@ -24,6 +24,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
@@ -42,6 +44,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import okhttp3.ResponseBody;
@@ -64,8 +67,7 @@ public class DetailActivity extends AppCompatActivity {
     private static final String KEY_IS_FAVORITE = "is_favorite";
     public String author;
     public Integer role;
-    private List<String> imageUrls = new ArrayList<>();
-
+    private static String filename;
 
     private RecyclerView recyclerView;
     private CardAdapter cardadapter;
@@ -99,9 +101,9 @@ public class DetailActivity extends AppCompatActivity {
             }
         }
 
-        viewPager = findViewById(R.id.viewPager);
-        ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageUrls);
-        viewPager.setAdapter(adapter);
+        SharedPreferences file_prefs = getSharedPreferences("file", Context.MODE_PRIVATE);
+        filename = file_prefs.getString("filename", "");
+        System.out.println(filename);
 
         tvAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -239,14 +241,13 @@ public class DetailActivity extends AppCompatActivity {
                     author = product.getPost_Author();
                     System.out.println(author);
 
-                    imageUrls.add(product.getImage());
-                    System.out.println(imageUrls);
-
+                    ViewPager viewPager = findViewById(R.id.viewPager);
+                    List<String> imageUrls = Collections.singletonList(filename); // filename을 List 형식으로 감싸기
+                    ImagePagerAdapter adapter = new ImagePagerAdapter(DetailActivity.this, imageUrls);
+                    viewPager.setAdapter(adapter);
 
 
                     downloadImage();
-
-
 
                     isFavorite = product.isFavorite();
 
@@ -318,9 +319,12 @@ public class DetailActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return imageUrls.size();
+            if (imageUrls != null) {
+                return imageUrls.size();
+            } else {
+                return 0; // 또는 적절한 기본값 설정
+            }
         }
-
 
         @Override
         public boolean isViewFromObject(View view, Object object) {
@@ -338,7 +342,9 @@ public class DetailActivity extends AppCompatActivity {
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             // 이미지 다운로드 및 표시
-            downloadAndDisplayImage(imageUrls, position, imageView);
+            String imageUrl = imageUrls.get(position); // 현재 위치에 해당하는 URL 가져오기
+            System.out.println(imageUrl);
+            downloadProductImage(accessToken, productId, imageUrl, imageView);
 
             container.addView(imageView);
             return imageView;
@@ -349,40 +355,28 @@ public class DetailActivity extends AppCompatActivity {
             container.removeView((View) object);
         }
 
-        // 이미지 다운로드 및 표시 메서드
-        private void downloadAndDisplayImage(List<String> imageUrls, int position, final ImageView imageView) {
-            // 이미지 다운로드
-            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrls.get(position));
+        // 이미지 다운로드
+        private void downloadProductImage(String accessToken, int productId, String imageUrl, final ImageView imageView) {
+            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrl);
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         ResponseBody responseBody = response.body();
                         if (responseBody != null) {
-                            try {
-                                // 이미지 데이터를 읽어옵니다.
-                                InputStream inputStream = responseBody.byteStream();
-                                Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                            InputStream inputStream = responseBody.byteStream();
+                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-                                // 이미지를 이미지 뷰에 설정합니다.
-                                imageView.setImageBitmap(bitmap);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                // 이미지 데이터 읽기 실패 시 기본 이미지를 설정합니다.
-                                imageView.setImageResource(R.drawable.img_error);
-                                Toast.makeText(context, "이미지 로딩 실패", Toast.LENGTH_SHORT).show();
-                                Log.e("Image loading error", "Failed to load image: " + e.getMessage());
-                            }
+                            // 이미지를 이미지 뷰에 설정합니다.
+                            imageView.setImageBitmap(bitmap);
                         } else {
                             // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                             imageView.setImageResource(R.drawable.img_error);
-                            Toast.makeText(context, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
                             Log.e("Download error", "Download failed: " + response.message());
                         }
                     } else {
                         // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
                         imageView.setImageResource(R.drawable.img_error);
-                        Toast.makeText(context, "서버 응답 실패", Toast.LENGTH_SHORT).show();
                         Log.e("Download error", "Download failed: " + response.message());
                     }
                 }
@@ -391,7 +385,6 @@ public class DetailActivity extends AppCompatActivity {
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
                     imageView.setImageResource(R.drawable.img_error);
-                    Toast.makeText(context, "다운로드 오류", Toast.LENGTH_SHORT).show();
                     Log.e("Download error", "Download failed: " + t.getMessage());
                 }
             });

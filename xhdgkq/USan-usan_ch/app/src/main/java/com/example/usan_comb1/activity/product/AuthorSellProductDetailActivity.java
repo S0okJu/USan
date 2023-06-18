@@ -312,11 +312,7 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
     }
 
     private void generateDataList(List<RetroProduct> productList) {
-        recyclerView = findViewById(R.id.recyclerView);
         cardadapter = new CardAdapter(this, productList);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(AuthorSellProductDetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(cardadapter);
     }
 
     // 프로필 이미지 다운로드

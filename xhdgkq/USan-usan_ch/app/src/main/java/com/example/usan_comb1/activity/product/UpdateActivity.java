@@ -102,9 +102,9 @@ public class UpdateActivity extends AppCompatActivity {
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
-        SharedPreferences file_prefs = getSharedPreferences("file", Context.MODE_PRIVATE);
-        filename = file_prefs.getString("filename", "");
-        System.out.println(filename);
+        // SharedPreferences file_prefs = getSharedPreferences("file", Context.MODE_PRIVATE);
+        // filename = file_prefs.getString("filename", "");
+        // System.out.println(filename);
 
         // Authorization
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
@@ -114,8 +114,6 @@ public class UpdateActivity extends AppCompatActivity {
         username = intent.getStringExtra("username");
 
         productId = getIntent().getIntExtra("productId", -1);
-
-        downloadImage(accessToken, productId, filename);
 
         productImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -297,11 +295,15 @@ public class UpdateActivity extends AppCompatActivity {
                         previousProduct.setContent(product.getContent());
                         previousProduct.setAddress(product.getAddress());
                         previousProduct.setPrice(product.getPrice());
+                        previousProduct.setImg(product.getImg());
 
                         // 이전 게시글의 내용을 화면에 표시
                         eTitle.setText(product.getTitle());
                         eContent.setText(product.getContent());
                         String previousAddress = product.getAddress().getName();
+
+                        System.out.println(product.getImg());
+                        downloadImage(accessToken, productId, product.getImg());
 
                         // 이전 주소가 spinner의 목록에 있는지 확인하고 인덱스를 찾습니다.
                         ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) eAddressSpinner.getAdapter();
@@ -468,14 +470,12 @@ public class UpdateActivity extends AppCompatActivity {
 
                         ProductImageResponse firstImageResponse = imageResponses.get(0);
                         String filename = firstImageResponse.getFileName();
-                        String path = firstImageResponse.getPath();
-                        System.out.println(path);
                         System.out.println(filename);
 
-                        SharedPreferences file_pref = getSharedPreferences("file", Context.MODE_PRIVATE);
-                        SharedPreferences.Editor editor = file_pref.edit();
-                        editor.putString("filename", filename);
-                        editor.apply();
+                        // SharedPreferences file_pref = getSharedPreferences("file", Context.MODE_PRIVATE);
+                        // SharedPreferences.Editor editor = file_pref.edit();
+                        // editor.putString("filename", filename);
+                        // editor.apply();
 
                         // Intent url_intent = new Intent(UpdateActivity.this, CardAdapter.class);
                         // url_intent.putExtra("imagePath", imagePath); // imagePath 값을 인텐트에 추가

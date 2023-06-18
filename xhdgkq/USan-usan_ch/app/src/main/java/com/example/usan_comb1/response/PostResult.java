@@ -2,6 +2,8 @@ package com.example.usan_comb1.response;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 // 특정 상품 표시 Response
 public class PostResult {
     @SerializedName("product_id")
@@ -19,7 +21,7 @@ public class PostResult {
     @SerializedName("status")
     private boolean status;
     @SerializedName("image_url")
-    private String image;
+    private List<String> image;
     @SerializedName("favorite")
     private boolean favorite;
     @SerializedName("created_date")
@@ -39,7 +41,7 @@ public class PostResult {
 
     public String getPost_Address() { return address; }
 
-    public String getImage() {return image;}
+    public List<String> getImage() {return image;}
 
     public boolean isStatus() { return status; }
 
@@ -61,7 +63,7 @@ public class PostResult {
 
     public void setAddress(String address) { this.address = address; }
 
-    public void setImage(String image) { this.image = image; }
+    public void setImage(List<String> image) { this.image = image; }
 
     public void setStatus(boolean status) { this.status = status; }
 
