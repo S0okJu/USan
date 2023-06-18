@@ -7,7 +7,7 @@ import java.util.Date;
 public class ChatData implements Serializable {
     private String senderId, receiverId, message, imageUrl;
     private Date timestamp;
-    public String conversationId, conversationName, conversionImage;
+    public String conversationId, conversationName, conversionImage, conversionChatId;
     public String chatId;
 
     public String getSenderId() {
@@ -77,5 +77,13 @@ public class ChatData implements Serializable {
 
     public void setChatId(String chatId) {
         this.chatId = chatId;
+    }
+
+    public String getConversionChatId() {
+        return conversionChatId;
+    }
+
+    public void setConversionChatId(String conversionChatId) {
+        this.conversionChatId = conversionChatId;
     }
 }

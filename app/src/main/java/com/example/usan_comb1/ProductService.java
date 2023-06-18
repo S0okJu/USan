@@ -160,8 +160,8 @@ public interface ProductService {
     @POST("/payment/withdraw/{chatId}")
     Call<Void> getBuyerPayment(@Header("Authorization") String accessToken, @Path("chatId") String chatId);
 
-    @GET("/product/check/{chatId}")
-    Call<CheckRoleResponse> getRole(@Header("Authorization") String accessToken, @Path("chatId") String chatId);
+    @GET("/product/check/{username}/{chatId}")
+    Call<CheckRoleResponse> getRole(@Header("Authorization") String accessToken, @Path("username") String username, @Path("chatId") String chatId);
     /*
     통신을 정의해주는 interface를 만들어 통신을 위한 함수를 만들어줍니다.
     getLoginResponse 함수로 LoginRequest.java에 정의해준 데이터들을 서버 Body에 보낸 후 LoginResponse로 데이터를 받겠다는 의미를 가집니다.

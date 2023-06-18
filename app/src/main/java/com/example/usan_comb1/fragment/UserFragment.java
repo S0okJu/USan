@@ -101,7 +101,6 @@ public class UserFragment extends Fragment {
                 // Intent 정보를 넘겨줌
                 Intent intent = getActivity().getIntent();
                 String username = intent.getStringExtra("username");
-
                 Intent salelistIntent = new Intent(getActivity(), SalelistActivity.class);
                 salelistIntent.putExtra("username", username);
                 System.out.println("Fragment Salelist : "+ username);

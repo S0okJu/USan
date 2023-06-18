@@ -30,8 +30,9 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
     private List<ChatData> conversations;
     private FirebaseFirestore database;
     private RecentConversationsAdapter recentConversationsAdapter;
-    private String chatId;
+
     public Integer role;
+    public String firstMsg;
     private FindFromFirebase findFromFirebase = new FindFromFirebase();
 
     public DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction");
@@ -81,11 +82,6 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
                     String senderId = documentChange.getDocument().getString("senderId");
                     String receiverId = documentChange.getDocument().getString("receiverId");
 
-                    // Set ChatId
-                    chatId = documentChange.getDocument().getString("chatId");
-                    role = findFromFirebase.checkSeller(chatId,preferenceManager.getString("userId"));
-                    System.out.println("userId : "+ preferenceManager.getString("userId"));
-
                     ChatData chatMessage = new ChatData();
                     chatMessage.setSenderId(senderId);
                     chatMessage.setReceiverId(receiverId);
@@ -101,6 +97,7 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
                     }
                     chatMessage.setMessage(documentChange.getDocument().getString("message"));
                     chatMessage.setTimestamp(documentChange.getDocument().getDate("timestamp"));
+                    firstMsg= documentChange.getDocument().getString("message");
                     conversations.add(chatMessage);
 
                 }else if(documentChange.getType() == DocumentChange.Type.MODIFIED){
@@ -132,8 +129,7 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
     public void onConversationClicked(Users users) {
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
         intent.putExtra("prevInfo","recent"); // 이전 Activity 정보를 알아보기 위해 추가
-        intent.putExtra("chatId",chatId);
-        intent.putExtra("role",role);
+        intent.putExtra("firstMsg",firstMsg);
         intent.putExtra("user",users);
         startActivity(intent);
     }

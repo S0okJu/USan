@@ -29,7 +29,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/imageInfo"
         android:layout_width="@dimen/_30sdp"
         android:layout_height="@dimen/_30sdp"

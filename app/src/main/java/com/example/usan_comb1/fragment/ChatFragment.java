@@ -33,7 +33,7 @@ public class ChatFragment extends Fragment implements ConversationListener {
     private List<ChatData> conversations;
     private FirebaseFirestore database;
     private RecentConversationsAdapter recentConversationsAdapter;
-    private String chatId;
+    private String firstMsg;
     public Integer role;
     public String accessToken;
     private FindFromFirebase findFromFirebase = new FindFromFirebase();
@@ -73,6 +73,7 @@ public class ChatFragment extends Fragment implements ConversationListener {
         database.collection("conversation")
                 .whereEqualTo("senderId", preferenceManager.getString("userId"))
                 .addSnapshotListener(eventListener);
+
         database.collection("conversation")
                 .whereEqualTo("receiverId", preferenceManager.getString("userId"))
                 .addSnapshotListener(eventListener);
@@ -83,16 +84,13 @@ public class ChatFragment extends Fragment implements ConversationListener {
         if(error != null){
             return;
         }
+
         if(value !=null){
+
             for(DocumentChange documentChange : value.getDocumentChanges()){
                 if(documentChange.getType() == DocumentChange.Type.ADDED){
                     String senderId = documentChange.getDocument().getString("senderId");
                     String receiverId = documentChange.getDocument().getString("receiverId");
-
-                    // Set ChatId
-                    chatId = documentChange.getDocument().getString("chatId");
-                    role = findFromFirebase.checkSeller(accessToken, chatId);
-                    System.out.println("userId : "+ preferenceManager.getString("userId"));
 
                     ChatData chatMessage = new ChatData();
                     chatMessage.setSenderId(senderId);
@@ -102,13 +100,16 @@ public class ChatFragment extends Fragment implements ConversationListener {
 //                        chatMessage.conversionImage = documentChange.getDocument().getString("receiverImage");
                         chatMessage.setConversationId(documentChange.getDocument().getString("receiverId"));
                         chatMessage.setConversationName(documentChange.getDocument().getString("receiverName"));
-                    }else{
+                    } else{
                         //                        chatMessage.conversionImage = documentChange.getDocument().getString("receiverImage");
                         chatMessage.setConversationId(documentChange.getDocument().getString("senderId"));
                         chatMessage.setConversationName(documentChange.getDocument().getString("senderName"));
+                        chatMessage.setConversionChatId(documentChange.getDocument().getString("chatId"));
                     }
                     chatMessage.setMessage(documentChange.getDocument().getString("message"));
                     chatMessage.setTimestamp(documentChange.getDocument().getDate("timestamp"));
+
+                    firstMsg = documentChange.getDocument().getString("message");
                     conversations.add(chatMessage);
 
                 }else if(documentChange.getType() == DocumentChange.Type.MODIFIED){
@@ -120,9 +121,11 @@ public class ChatFragment extends Fragment implements ConversationListener {
                             conversations.get(i).setTimestamp(documentChange.getDocument().getDate("timestamp"));
                             break;
                         }
+                        firstMsg = String.valueOf(documentChange.getDocument().getDate("message"));
                     }
                 }
             }
+
             Collections.sort(conversations,(obj1, obj2)->obj2.getTimestamp().compareTo(obj1.getTimestamp()));
             recentConversationsAdapter.notifyDataSetChanged();
             binding.conversationsRecyclerView.smoothScrollToPosition(0);
@@ -140,9 +143,9 @@ public class ChatFragment extends Fragment implements ConversationListener {
     public void onConversationClicked(Users users) {
         Intent intent = new Intent(requireContext(), ChatActivity.class);
         intent.putExtra("prevInfo","recent"); // 이전 Activity 정보를 알아보기 위해 추가
-        intent.putExtra("chatId",chatId);
-        intent.putExtra("role",role);
+        intent.putExtra("firstMsg",firstMsg);
         intent.putExtra("user",users);
         startActivity(intent);
     }
+
 }
