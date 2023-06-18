@@ -5,13 +5,20 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-
     <TextView
         android:id="@+id/messageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="-73dp"
+        android:layout_centerInParent="true"
         android:text="구매 완료되었습니다."
         android:textSize="16sp" />
+
+    <Button
+        android:id="@+id/goToListButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/messageTextView"
+        android:layout_centerHorizontal="true"
+        android:text="홈으로 이동" />
 
 </RelativeLayout>

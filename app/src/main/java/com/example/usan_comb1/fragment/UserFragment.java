@@ -21,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.activity.payment.PaymentFailActivity;
+import com.example.usan_comb1.activity.payment.PaymentSuccessActivity;
 import com.example.usan_comb1.activity.product.FavoriteActivity;
 import com.example.usan_comb1.activity.product.SalelistActivity;
 import com.example.usan_comb1.activity.profile.UserUpdateActivity;
@@ -37,7 +39,7 @@ import retrofit2.Response;
 
 public class UserFragment extends Fragment {
 
-    private Button btnviewprf, btnsalelist, btnwishlist, btnimageup;
+    private Button btnviewprf, btnsalelist, btnwishlist, btnimageup, btnbuysucess, btnbuyfail;
     private Button btn_logout;
     private ImageView imgprofile;
     private TextView tvname;
@@ -54,6 +56,8 @@ public class UserFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user, container, false);
 
+        btnbuysucess = view.findViewById(R.id.btnbuysuccess);
+        btnbuyfail = view.findViewById(R.id.btnbuyfail);
 
         btnviewprf = view.findViewById(R.id.btnviewprf);
         btnwishlist = view.findViewById(R.id.btnwishlist);
@@ -123,6 +127,26 @@ public class UserFragment extends Fragment {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 getActivity().finish();
+            }
+        });
+
+
+        btnbuysucess.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Intent 정보를 넘겨줌
+                Intent intent = new Intent(getActivity(), PaymentSuccessActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+        btnbuyfail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Intent 정보를 넘겨줌
+                Intent intent = new Intent(getActivity(), PaymentFailActivity.class);
+                startActivity(intent);
             }
         });
 

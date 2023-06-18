@@ -33,7 +33,7 @@
             android:value="AIzaSyDZcFq86EmIyYitzFCPhJq-1t06GTMqnC0" />
 
         <activity
-            android:name=".map.MapTracking"
+            android:name=".activity.map.MapTracking"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"

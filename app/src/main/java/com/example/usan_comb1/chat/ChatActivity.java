@@ -21,8 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.usan_comb1.R;
-//import com.example.usan_comb1.activity.map.MapTracking;
-import com.example.usan_comb1.map.MapTracking;
+import com.example.usan_comb1.activity.map.MapTracking;
+//import com.example.usan_comb1.map.MapTracking;
 import com.example.usan_comb1.adapter.ChatAdapter;
 import com.example.usan_comb1.databinding.ChatActivitySampleBinding;
 import com.example.usan_comb1.interfaces.ChatIdCallback;

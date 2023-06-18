@@ -13,10 +13,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -44,8 +47,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
@@ -53,13 +58,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.DirectionsApi;
+import com.google.maps.GeoApiContext;
+import com.google.maps.internal.PolylineEncoding;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.TravelMode;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.OkHttpClient;
@@ -78,6 +91,9 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     Double lat, lng;
     private String chatId;
     private String otherUser;
+
+    private Button dealButton;
+    private boolean isDealButtonVisible;
 
     private ProductService service;
     private LatLng dest;
@@ -115,10 +131,10 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
         preferenceManager = new PreferenceManager(getApplicationContext());
 
-        if(getIntent() != null){
+        if (getIntent() != null) {
             chatId = getIntent().getStringExtra("chatId");
             otherUser = getIntent().getStringExtra("otherUser");
-            role = getIntent().getIntExtra("role",-1);
+            role = getIntent().getIntExtra("role", -1);
         }
         curUsername = preferenceManager.getString("username");
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
@@ -130,7 +146,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         getDest();
 
         // 위치 업데이트 시작
-        startLocationUpdates();
+        //startLocationUpdates();
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
@@ -158,13 +174,15 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                         markers.get(curUsername).remove();
                     }
 
-                    Marker curUserMarker = mMap.addMarker(new MarkerOptions().position(current).title(curUsername));
+                    Marker curUserMarker = mMap.addMarker(new MarkerOptions().position(current).title(curUsername).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
                     markers.put(curUsername, curUserMarker);
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,lng),14.0f));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat, lng), 14.0f));
 
                     latLng.put("lat", lat);
                     latLng.put("lng", lng);
                     locationRef.child(curUsername).updateChildren(latLng);
+                    Log.d("curUser", "lat : " + lat);
+                    Log.d("curUser", "lng : " + lng);
 
                     Location destLocation = new Location("DestLocation");
                     destLocation.setLatitude(dest.latitude);
@@ -191,6 +209,9 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                             Marker otherUserMarker = mMap.addMarker(new MarkerOptions().position(otherLocation).title(otherUser).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
                             markers.put(otherUser, otherUserMarker);
 
+                            Log.d("otherUser", "lat : " + lat);
+                            Log.d("otherUser", "lng : " + lng);
+
                         }
                     }
 
@@ -201,6 +222,9 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 });
             }
         };
+
+        dealButton = findViewById(R.id.deal_button);
+        dealButton.setVisibility(View.GONE);
 
     }
 
@@ -214,9 +238,13 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                     double lat = result.getLat();
                     double lng = result.getLng();
                     dest = new LatLng(lat, lng);
-                    Marker destMarker = mMap.addMarker(new MarkerOptions().position(dest).title("Dest"));
+
+
+                    Marker destMarker = mMap.addMarker(new MarkerOptions().position(dest).title("거래 장소").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
                     markers.put("dest", destMarker);
 
+                    Log.d("Dest", "lat : " + lat);
+                    Log.d("Dest", "lng : " + lng);
                 }
             }
 
@@ -232,49 +260,57 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-    // 거리를 시각적으로 표현하기 위해 사용됨.
-    private String callDirectionsAPI(Location origin, Location destination) {
-        String url = "https://maps.googleapis.com/maps/api/directions/json?" +
-                "origin=" + origin.getLatitude() + "," + origin.getLongitude() +
-                "&destination=" + destination.getLatitude() + "," + destination.getLongitude() +
-                "&key=AIzaSyCoYvOJIo6-rpl-GJvxPa7SwtuCeQrXBw4";
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(url)
-                .build();
-
-        try (Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
+    // Directions API 요청을 보내고 응답을 처리하는 메소드
+    private void requestDirections(LatLng user, LatLng destination) {
+        // Directions API를 사용하여 경로 요청 생성
+        DirectionsResult result;
+        try {
+            result = DirectionsApi.newRequest(getGeoContext())
+                    .origin(new com.google.maps.model.LatLng(user.latitude, user.longitude))
+                    .destination(new com.google.maps.model.LatLng(destination.latitude, destination.longitude))
+                    .mode(TravelMode.WALKING) // 도보 모드로 설정
+                    .await(); // 동기적으로 응답 받기
+        } catch (Exception e) {
+            // 경로 요청에 실패했을 때 처리하는 부분
+            // 에러 처리 로직을 구현하면 됩니다.
+            return;
         }
 
-        return null;
+        // 응답을 처리하는 부분
+        if (result != null && result.routes != null && result.routes.length > 0) {
+            // 경로 정보가 있을 경우 처리
+            DirectionsRoute route = result.routes[0]; // 첫 번째 경로 사용
+
+            // 경로를 따라 지도에 폴리라인 그리기
+            List<LatLng> path = decodePolyline(route.overviewPolyline.getEncodedPath());
+            PolylineOptions polylineOptions = new PolylineOptions()
+                    .addAll(path)
+                    .width(10)
+                    .color(Color.BLUE);
+            mMap.addPolyline(polylineOptions);
+
+            // 출발지와 목적지가 보이도록 카메라 이동
+            LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+            boundsBuilder.include(user);
+            boundsBuilder.include(destination);
+            LatLngBounds bounds = boundsBuilder.build();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+        }
     }
 
+    // 인코딩된 폴리라인 데이터를 디코딩하여 LatLng 리스트로 변환하는 메소드
+    private List<LatLng> decodePolyline(String encodedPath) {
+        List<LatLng> path = new ArrayList<>();
+        PolylineEncoding.decode(encodedPath).forEach(latLng -> path.add(new LatLng(latLng.lat, latLng.lng)));
+        return path;
+    }
 
-    private String extractPolyline(String response) {
-        try {
-            JSONObject jsonObject = new JSONObject(response);
-            JSONArray routes = jsonObject.getJSONArray("routes");
-
-            if (routes.length() > 0) {  // Check if the array has elements
-                JSONObject route = routes.getJSONObject(0);
-                JSONObject overview_polyline = route.getJSONObject("overview_polyline");
-                String polyline = overview_polyline.getString("points");
-
-                return polyline;
-            } else {
-                System.err.println("No routes available in the response.");
-                return null;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
+    // Geocoding API와 Directions API에 필요한 GeoApiContext 생성
+    private GeoApiContext getGeoContext() {
+        GeoApiContext geoApiContext = new GeoApiContext.Builder()
+                .apiKey("AIzaSyCoYvOJIo6-rpl-GJvxPa7SwtuCeQrXBw4") // Directions API 및 Geocoding API를 사용하려면 API 키를 지정해야 합니다.
+                .build();
+        return geoApiContext;
     }
 
     @Override
@@ -342,8 +378,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -354,75 +388,82 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         //getDest(); // dest 변수 초기화
     }
 
-//
-//    private void showDealButton() {
-//        isDealButtonVisible = true;
-//        dealButton.setVisibility(View.VISIBLE);
-//    }
-//
-//    private void hideDealButton() {
-//        isDealButtonVisible = false;
-//        dealButton.setVisibility(View.GONE);
-//    }
-//
+
+    private void showDealButton() {
+        isDealButtonVisible = true;
+       dealButton.setVisibility(View.VISIBLE);
+    }
+
+    private void hideDealButton() {
+        isDealButtonVisible = false;
+       dealButton.setVisibility(View.GONE);
+    }
+
 
 
     @Override
     public void onBackPressed() {
-        /*
+
         if (isDealButtonVisible) {
             hideDealButton();
-        } else {
-                }
-         */
+        }
+
         setResult(Activity.RESULT_OK);
         finish();
     }
-    public void CalcDestDistance(Location user, Location dest){
-        boolean check = checkDistDifference(user,dest); //
-        if(check==true){
-            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-            String productId = extractProductIdFromChatId(chatId);
-            System.out.println("productId : "+productId);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("거래 상대가 근처에 있습니다.")
-                    .setMessage("결제창으로 넘어가시겠습니까?")
-                    .setPositiveButton("예", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // 이 시점에서 dialog를 dismiss 합니다.
-                            if(alertDialog != null && alertDialog.isShowing()){
-                                alertDialog.dismiss();
-                            }
-                            System.out.println("My Log.. role " + role);
-                            // 거리가 특정 범위 이내에 있으면 역할에 따른 Activity로 전송됩니다.
-                            if(role == BUYER){
-                                Intent intent = new Intent(getApplicationContext(), BuyerPaymentActivity.class);
-                                intent.putExtra("role",role);
-                                intent.putExtra("productId",productId);
-                                startActivity(intent);
-                                finish();
-                            }else if(role==SELLER){
-                                Intent intent = new Intent(getApplicationContext(), SellerPaymentActivity.class);
-                                intent.putExtra("role",role);
-                                intent.putExtra("productId",productId);
-                                startActivity(intent);
-                                finish();
-                            }
-                        }
-                    })
-                    .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            finish();
-                        }
-                    });
-            alertDialog = builder.create();
-            alertDialog.show();
+    public void CalcDestDistance(Location user, Location dest) {
+        boolean check = checkDistDifference(user, dest); //
+        if (check == true) {
+            showDealButton();
 
-        } else {
+            dealButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+                    String productId = extractProductIdFromChatId(chatId);
+                    System.out.println("productId : " + productId);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MapTracking.this);
+                    builder.setTitle("거래 상대가 근처에 있습니다.")
+                            .setMessage("결제창으로 넘어가시겠습니까?")
+                            .setPositiveButton("예", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // 이 시점에서 dialog를 dismiss 합니다.
+                                    if (alertDialog != null && alertDialog.isShowing()) {
+                                        alertDialog.dismiss();
+                                    }
+                                    System.out.println("My Log.. role " + role);
+                                    // 거리가 특정 범위 이내에 있으면 역할에 따른 Activity로 전송됩니다.
+                                    if (role == BUYER) {
+                                        Intent intent = new Intent(getApplicationContext(), BuyerPaymentActivity.class);
+                                        intent.putExtra("role", role);
+                                        intent.putExtra("productId", productId);
+                                        startActivity(intent);
+                                        finish();
+                                    } else if (role == SELLER) {
+                                        Intent intent = new Intent(getApplicationContext(), SellerPaymentActivity.class);
+                                        intent.putExtra("role", role);
+                                        intent.putExtra("productId", productId);
+                                        startActivity(intent);
+                                        finish();
+                                    }
+                                }
+                            })
+                            .setNegativeButton("아니오", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    finish();
+                                }
+                            });
+                    alertDialog = builder.create();
+                    alertDialog.show();
+
+                } });
+        } else
+        {
             finish();
         }
     }

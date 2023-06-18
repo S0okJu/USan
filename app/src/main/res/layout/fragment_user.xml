@@ -7,6 +7,34 @@
     tools:context=".fragment.UserFragment">
 
 
+    <Button
+        android:id="@+id/btnbuysuccess"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
+        android:text="구매완료"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.188"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnwishlist"
+        app:layout_constraintVertical_bias="0.445" />
+
+    <Button
+        android:id="@+id/btnbuyfail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
+        android:text="구매실패"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnwishlist"
+        app:layout_constraintVertical_bias="0.445" />
+
     <TextView
         android:id="@+id/name"
         android:layout_width="129dp"
@@ -136,7 +164,7 @@
         app:layout_constraintHorizontal_bias="0.682"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView3"
-        app:layout_constraintVertical_bias="0.192"
+        app:layout_constraintVertical_bias="0.154"
         app:srcCompat="@drawable/select_ic_heart"
         app:tint="@color/color3" />
 
