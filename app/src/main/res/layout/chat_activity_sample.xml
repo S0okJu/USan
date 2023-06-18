@@ -28,17 +28,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 
-<<<<<<< HEAD
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/imageInfo"
-        android:layout_width="@dimen/_30sdp"
-        android:layout_height="@dimen/_30sdp"
-        android:layout_marginTop="@dimen/_12sdp"
-        android:layout_marginEnd="@dimen/_16sdp"
-        android:layout_marginRight="@dimen/_16sdp"
-        android:padding="@dimen/_4sdp"
-        android:src="@drawable/ic_info"
-=======
     <Button
         android:id="@+id/buyok"
         android:layout_width="82dp"
@@ -48,7 +37,6 @@
         android:background="@color/color1"
         android:fontFamily="@font/noto_light"
         android:text="구매 확정"
->>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
