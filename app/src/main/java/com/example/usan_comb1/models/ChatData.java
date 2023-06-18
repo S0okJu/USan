@@ -10,6 +10,7 @@ public class ChatData implements Serializable {
     public String conversationId, conversationName, conversionImage, conversionChatId;
     public String chatId;
 
+
     public String getSenderId() {
         return senderId;
     }

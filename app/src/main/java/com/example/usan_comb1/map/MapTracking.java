@@ -109,6 +109,8 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
         accessToken = prefs.getString("access_token", "");
 
+        preferenceManager = new PreferenceManager(getApplicationContext());
+
         if(getIntent() != null){
             chatId = getIntent().getStringExtra("chatId");
             otherUser = getIntent().getStringExtra("otherUser");
@@ -161,8 +163,8 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         // Checking if the dataSnapshot has the children "lat" and "lng"
                         if (dataSnapshot.hasChild("lat") && dataSnapshot.hasChild("lng")) {
-                            Double lat = (Double) dataSnapshot.child("lat").getValue();
-                            Double lng = (Double) dataSnapshot.child("lng").getValue();
+                            Double lat = dataSnapshot.child("lat").getValue(Double.class);
+                            Double lng = dataSnapshot.child("lng").getValue(Double.class);
                             LatLng otherLocation = new LatLng(lat, lng);
 
                             // Clear the old marker for otherUser
@@ -181,6 +183,9 @@ public class MapTracking extends FragmentActivity implements OnMapReadyCallback 
                         Log.e("MapTracking", "Failed to read value.", error.toException());
                     }
                 });
+
+                loadLocationForThisUser(curUsername);
+                getOtherUserLocation(otherUser);
             }
         };
 

@@ -1,4 +1,4 @@
-package com.example.usan_comb1.activity.chat;
+package com.example.usan_comb1.chat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.usan_comb1.adapter.RecentConversationsAdapter;
+import com.example.usan_comb1.chat.ChatActivity;
 import com.example.usan_comb1.databinding.ActivityChatUsersBinding;
 import com.example.usan_comb1.listeners.ConversationListener;
 import com.example.usan_comb1.models.ChatData;
@@ -32,7 +33,11 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
     private RecentConversationsAdapter recentConversationsAdapter;
 
     public Integer role;
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/UsersActivity.java
     public String firstMsg;
+=======
+    public String title;
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/UsersActivity.java
     private FindFromFirebase findFromFirebase = new FindFromFirebase();
 
     public DatabaseReference transRef = FirebaseDatabase.getInstance().getReference("transaction");
@@ -46,7 +51,7 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
 
         init();
         // Preference
-        setListeners();
+        //setListeners();
         listenConversations();
     }
 
@@ -57,9 +62,12 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
         binding.conversationsRecyclerView.setAdapter(recentConversationsAdapter);
 
     }
+
+    /*
     private void setListeners(){
         binding.imageBack.setOnClickListener(v -> onBackPressed());
     }
+     */
 
 
     private void listenConversations(){
@@ -81,7 +89,13 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
                 if(documentChange.getType() == DocumentChange.Type.ADDED){
                     String senderId = documentChange.getDocument().getString("senderId");
                     String receiverId = documentChange.getDocument().getString("receiverId");
+                    title = documentChange.getDocument().getString("title");
 
+
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/UsersActivity.java
+=======
+
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/UsersActivity.java
                     ChatData chatMessage = new ChatData();
                     chatMessage.setSenderId(senderId);
                     chatMessage.setReceiverId(receiverId);
@@ -107,6 +121,7 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
                         if(conversations.get(i).getSenderId().equals(senderId) && conversations.get(i).getReceiverId().equals(receiverId)){
                             conversations.get(i).setMessage(documentChange.getDocument().getString("message"));
                             conversations.get(i).setTimestamp(documentChange.getDocument().getDate("timestamp"));
+
                             break;
                         }
                     }
@@ -128,8 +143,15 @@ public class UsersActivity extends AppCompatActivity implements ConversationList
     @Override
     public void onConversationClicked(Users users) {
         Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/UsersActivity.java
         intent.putExtra("prevInfo","recent"); // 이전 Activity 정보를 알아보기 위해 추가
         intent.putExtra("firstMsg",firstMsg);
+=======
+        intent.putExtra("chatId",chatId);
+        intent.putExtra("prevInfo","list");
+        intent.putExtra("role",role);
+        intent.putExtra("title",title);
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/UsersActivity.java
         intent.putExtra("user",users);
         startActivity(intent);
     }

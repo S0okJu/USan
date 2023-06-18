@@ -12,20 +12,16 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-
-        <TextView
-            android:id="@+id/textView4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/noto_bold"
-            android:gravity="center"
-            android:text="나의 판매 내역"
-            android:textSize="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.045"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/imageBack"
+            android:layout_width="@dimen/_30sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="12dp"
+            android:src="@drawable/ic_back"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.022" />
+            android:tint="@color/color3"/>
 
         <androidx.core.widget.NestedScrollView
             android:id="@+id/scroll_view"

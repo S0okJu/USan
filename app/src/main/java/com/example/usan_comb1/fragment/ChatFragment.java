@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.usan_comb1.activity.chat.ChatActivity;
+import com.example.usan_comb1.chat.ChatActivity;
 import com.example.usan_comb1.adapter.RecentConversationsAdapter;
 import com.example.usan_comb1.databinding.ActivityChatUsersBinding;
 import com.example.usan_comb1.listeners.ConversationListener;
@@ -21,6 +21,7 @@ import com.google.firebase.database.annotations.Nullable;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class ChatFragment extends Fragment implements ConversationListener {
     private String firstMsg;
     public Integer role;
     public String accessToken;
+    public String title;
     private FindFromFirebase findFromFirebase = new FindFromFirebase();
 
     @Nullable
@@ -51,7 +53,7 @@ public class ChatFragment extends Fragment implements ConversationListener {
         preferenceManager = new PreferenceManager(requireContext());
 
         init();
-        setListeners();
+        //setListeners();
         listenConversations();
     }
 
@@ -65,9 +67,11 @@ public class ChatFragment extends Fragment implements ConversationListener {
 
 
 
+    /*
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> requireActivity().onBackPressed());
     }
+     */
 
     private void listenConversations(){
         database.collection("conversation")

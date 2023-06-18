@@ -29,6 +29,14 @@ public class CustomMath {
     }
 
     public static boolean checkDistDifference(Location src, Location dest){
+
+        double distance = getDistanceBetween(src, dest);
+
+        boolean checkDistance = (distance < 5);
+        if(checkDistance==true) { return true;}
+        else { return false;}
+
+        /*
         Double calcLat = src.getLatitude() - dest.getLatitude();
         Double calcLong = src.getLongitude() - dest.getLongitude();
 
@@ -40,6 +48,7 @@ public class CustomMath {
         }else{
             return false;
         }
+         */
     }
 
 }

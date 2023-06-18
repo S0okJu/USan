@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.activity.product.DetailActivity;
 import com.example.usan_comb1.adapter.FavoriteAdapter;
 import com.example.usan_comb1.adapter.RecyclerViewEmptySupport;
 import com.example.usan_comb1.response.FavoriteProduct;
@@ -36,10 +38,10 @@ public class FavoriteActivity extends AppCompatActivity {
     private RecyclerViewEmptySupport recyclerView;
     private FavoriteAdapter adapter;
     private TextView empty;
-
-
     NestedScrollView nestedScrollView;
     ProgressBar progressBar;
+
+    ImageView imageBack;
 
     private List<FavoriteProduct> favoriteList;
     //ArrayList<FavoriteProduct> dataArrayList = new ArrayList<>();
@@ -60,6 +62,7 @@ public class FavoriteActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         progressBar = findViewById(R.id.progress_bar);
         empty = findViewById(R.id.empty_view);
+        imageBack = findViewById(R.id.imageBack);
 
         //adapter = new FavoriteAdapter(this, dataArrayList);
         //recyclerView.setAdapter(adapter);
@@ -81,6 +84,13 @@ public class FavoriteActivity extends AppCompatActivity {
                 Intent intent = new Intent(FavoriteActivity.this, DetailActivity.class);
                 intent.putExtra("product_id", data.getProductId()); // 넘어갈 데이터를 인텐트에 추가합니다.
                 startActivity(intent);
+            }
+        });
+
+        imageBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 

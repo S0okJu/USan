@@ -1,4 +1,4 @@
-package com.example.usan_comb1.activity.chat;
+package com.example.usan_comb1.chat;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.usan_comb1.utilities.Constants.BUYER;
@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -23,9 +24,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.activity.map.MapTracking;
+//import com.example.usan_comb1.map.MapTracking;
 import com.example.usan_comb1.adapter.ChatAdapter;
 import com.example.usan_comb1.databinding.ChatActivitySampleBinding;
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/ChatActivity.java
 import com.example.usan_comb1.interfaces.MyCallback;
+=======
+import com.example.usan_comb1.interfaces.ChatIdCallback;
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/ChatActivity.java
 import com.example.usan_comb1.models.ChatData;
 import com.example.usan_comb1.models.Users;
 import com.example.usan_comb1.utilities.FindFromFirebase;
@@ -62,6 +68,7 @@ public class ChatActivity extends AppCompatActivity {
     private PreferenceManager preferenceManager;
     public FirebaseFirestore database = getInstance();
     public DatabaseReference transRef;
+    private Button buyok;
     public FindFromFirebase findFromFirebase = new FindFromFirebase();
     ImageButton buttonFile;
     ImageButton buttonGps;
@@ -71,9 +78,15 @@ public class ChatActivity extends AppCompatActivity {
     private String conversationId;
     public String previousInfo;
     public String userId;
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/ChatActivity.java
     public String accessToken;
     public MyCallback callback;
     public boolean isDuplicate;
+=======
+    public String title;
+    private String accessToken;
+
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/ChatActivity.java
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,6 +95,7 @@ public class ChatActivity extends AppCompatActivity {
         // setup DB
         transRef = FirebaseDatabase.getInstance().getReference("transaction");
 
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/ChatActivity.java
         // get Access token
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
         accessToken = prefs.getString("access_token", "");
@@ -111,6 +125,13 @@ public class ChatActivity extends AppCompatActivity {
                     })
                     .addOnFailureListener(e -> Log.e("ChatId", "Failed to get chat id", e));
         }
+=======
+        setListeners();
+        init();
+        loadReceiverDetails();
+        listenMessages();
+        listenForTransactionConfirmation();
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/ChatActivity.java
 
         //button_file(이미지 전송) 클릭 이벤트
         buttonFile = findViewById(R.id.button_file);
@@ -135,6 +156,11 @@ public class ChatActivity extends AppCompatActivity {
         chatAdapter = new ChatAdapter(chatMessages, preferenceManager.getString("userId"));
         binding.chatRecyclerView.setAdapter(chatAdapter);
         userId = PreferenceManager.getString("userId");
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/ChatActivity.java
+=======
+        accessToken = preferenceManager.getString("access_token");
+
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/ChatActivity.java
     }
 
     private void sendMessage() {
@@ -152,6 +178,7 @@ public class ChatActivity extends AppCompatActivity {
         }else{
             HashMap<String, Object> conversation = new HashMap<>();
             conversation.put("chatId",chatId);
+            conversation.put("title",title);
             conversation.put("senderId",preferenceManager.getString("userId"));
             conversation.put("senderName",preferenceManager.getString("username"));
             conversation.put("receiverId",receiverUser.getId());
@@ -168,11 +195,13 @@ public class ChatActivity extends AppCompatActivity {
         database.collection("chats")
                 .whereEqualTo("chatId",chatId)
                 .whereEqualTo("senderId", preferenceManager.getString("userId"))
+                .whereEqualTo("receiverId",receiverUser.getId())
                 .addSnapshotListener(eventListener);
 
         database.collection("chats")
                 .whereEqualTo("chatId",chatId)
                 .whereEqualTo("receiverId", preferenceManager.getString("userId"))
+                .whereEqualTo("senderId",receiverUser.getId())
                 .addSnapshotListener(eventListener);
     }
 
@@ -202,12 +231,22 @@ public class ChatActivity extends AppCompatActivity {
         receiverUser = (Users) getIntent().getSerializableExtra("user");
         binding.textName.setText(receiverUser.getName());
 
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/ChatActivity.java
+=======
+        title = getIntent().getStringExtra("title");
+        System.out.println("title "+title);
+
+        role = getIntent().getIntExtra("role",-1);
+        chatId = getIntent().getStringExtra("chatId");
+
+
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/ChatActivity.java
     }
 
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
-        binding.imageInfo.setOnClickListener(v -> setTransaction()); // 거래 정보 확장 버튼
+        binding.buyok.setOnClickListener(v -> setTransaction()); // 거래 정보 확장 버튼
         binding.buttonGps.setOnClickListener(v -> getMap()); // 채팅
     }
 
@@ -256,7 +295,7 @@ public class ChatActivity extends AppCompatActivity {
                     // 이미지 업로드 실패
                     Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                 });
-
+        role = findFromFirebase.checkSeller(accessToken, chatId);
     }
 
     private void addOrUpdateConversation(HashMap<String, Object> conversation){
@@ -308,6 +347,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void checkForConversationRemotely(String senderId, String receiverId) {
         database.collection("conversation")
+                .whereEqualTo("chatId",chatId)
                 .whereEqualTo("senderId", senderId)
                 .whereEqualTo("receiverId", receiverId)
                 .get()
@@ -365,7 +405,11 @@ public class ChatActivity extends AppCompatActivity {
                         if (!checkStatus && role == BUYER) {
                             showConfirmationDialog();
 
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/ChatActivity.java
                         } else if (checkStatus&& cnt==0) {
+=======
+                        }else if(checkStatus && cnt==0){
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/ChatActivity.java
                             showTransactionCompleteDialog();
                             transRef.child(chatId).child("cnt").setValue(cnt+1);
                         }
@@ -411,6 +455,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
 
+<<<<<<< HEAD:app/src/main/java/com/example/usan_comb1/activity/chat/ChatActivity.java
     private final OnCompleteListener<QuerySnapshot> chatIdListener = task -> {
         if(task.isSuccessful() && task.getResult()!=null && task.getResult().getDocuments().size()>0) {
             for (QueryDocumentSnapshot document : task.getResult()) {
@@ -444,5 +489,7 @@ public class ChatActivity extends AppCompatActivity {
         return completionSource.getTask();
     }
 
+=======
+>>>>>>> fbcbd44aeb4eff7208fb8e9da1988aec06905925:app/src/main/java/com/example/usan_comb1/chat/ChatActivity.java
 
 }

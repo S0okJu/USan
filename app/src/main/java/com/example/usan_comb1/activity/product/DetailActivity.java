@@ -19,7 +19,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
@@ -27,12 +26,11 @@ import androidx.viewpager.widget.ViewPager;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
-import com.example.usan_comb1.activity.chat.ChatActivity;
+import com.example.usan_comb1.chat.ChatActivity;
 import com.example.usan_comb1.activity.profile.OtherProfileActivity;
 import com.example.usan_comb1.adapter.CardAdapter;
 import com.example.usan_comb1.models.Users;
 import com.example.usan_comb1.response.PostResult;
-import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.utilities.PreferenceManager;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -41,6 +39,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.ResponseBody;
@@ -57,7 +56,9 @@ public class DetailActivity extends AppCompatActivity {
     private static ProductService mProductService;
     public boolean isFavorite;
     private ViewPager viewPager;
-    private int[] imageReslds = {R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg, R.drawable.uploadimg};
+    private List<String> imageUrls = new ArrayList<>();
+    ImageView imageBack;
+
     private static Integer productId;
     private String username;
     private static String accessToken;
@@ -68,6 +69,7 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private CardAdapter cardadapter;
     private Button chat;
+    public String title;
     private PreferenceManager preferenceManager;
 
     String TAG = "FirebaseChat";
@@ -82,6 +84,7 @@ public class DetailActivity extends AppCompatActivity {
         tvAuthor = findViewById(R.id.nickname);
         profile = findViewById(R.id.profile);
         chat = findViewById(R.id.btnchat); // 채팅 버튼
+        imageBack = findViewById(R.id.imageBack);
 
         mProductService = RetrofitClient.getProductService();
 
@@ -101,6 +104,10 @@ public class DetailActivity extends AppCompatActivity {
                 checkData(productId);
             }
         }
+
+        viewPager = findViewById(R.id.viewPager);
+        ImagePagerAdapter adapter = new ImagePagerAdapter(this, imageUrls);
+        viewPager.setAdapter(adapter);
 
         tvAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -125,6 +132,13 @@ public class DetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 createOrJoinChat(String.valueOf(productId));
+            }
+        });
+
+        imageBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 
@@ -230,21 +244,28 @@ public class DetailActivity extends AppCompatActivity {
                     PostResult product = response.body();
 
                     tvTitle.setText(product.getPost_Title());
+                    title = product.getPost_Title();
                     tvDetail.setText(product.getPost_Content());
                     tvAuthor.setText(product.getPost_Author());
                     price.setText(product.getPost_Price()+"원");
-                    // tvAuthor 텍스트 설정 후에 호출
-                    loadUserPosts(product.getPost_Author());
 
                     ImageView favoriteButton = findViewById(R.id.imgbtn);
 
                     // get Author username
                     author = product.getPost_Author();
                     System.out.println(author);
+
+                    imageUrls.add(product.getImage());
+                    System.out.println(imageUrls);
+
+
+
                     downloadImage();
 
 
+
                     isFavorite = product.isFavorite();
+
                     if (product.isFavorite() == true) {
                         favoriteButton.setImageResource(R.drawable.select_ic_heart);
                     } else {
@@ -278,45 +299,24 @@ public class DetailActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    private void loadUserPosts(String username) {
-        int page_per = 10;
-        int page = 1;
-        Call<List<RetroProduct>> call = mProductService.getProductList(accessToken, username, page_per, page);
-        call.enqueue(new Callback<List<RetroProduct>>() {
-            @Override
-            public void onResponse(Call<List<RetroProduct>> call, Response<List<RetroProduct>> response) {
-                if (response.isSuccessful()) {
-                    generateDataList(response.body());
-                } else {
-                    Toast.makeText(DetailActivity.this, response.message(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<RetroProduct>> call, Throwable t) {
-                Toast.makeText(DetailActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
 
     private static class ImagePagerAdapter extends PagerAdapter {
 
         private Context context;
-        private String[] imageUrls;
+        private List<String> imageUrls;
 
-        public ImagePagerAdapter(Context context, String[] imageUrls) {
+        public ImagePagerAdapter(Context context, List<String> imageUrls) {
             this.context = context;
             this.imageUrls = imageUrls;
         }
 
         @Override
         public int getCount() {
-            return imageUrls.length;
+            return imageUrls.size();
         }
 
         @Override
-        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+        public boolean isViewFromObject(View view, Object object) {
             return view == object;
         }
 
@@ -324,12 +324,16 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         public Object instantiateItem(@NonNull ViewGroup container, int position) {
             ImageView imageView = new ImageView(context);
+            imageView.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+            ));
             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
             // 이미지 다운로드 및 표시
-            downloadAndDisplayImage(imageUrls[position], imageView);
+            downloadAndDisplayImage(imageUrls, position, imageView);
 
-            container.addView(imageView, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+            container.addView(imageView);
             return imageView;
         }
 
@@ -339,9 +343,9 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         // 이미지 다운로드 및 표시 메서드
-        private void downloadAndDisplayImage(String imageUrl, final ImageView imageView) {
+        private void downloadAndDisplayImage(List<String> imageUrls, int position, final ImageView imageView) {
             // 이미지 다운로드
-            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrl);
+            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrls.get(position));
             call.enqueue(new Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -412,6 +416,7 @@ public class DetailActivity extends AppCompatActivity {
                 Intent intent = new Intent(DetailActivity.this, ChatActivity.class);
                 intent.putExtra("chatId",chatId);
                 intent.putExtra("user", seller);
+                intent.putExtra("title", title);
                 intent.putExtra("role",role); // TODO 본인의 역할을 넘겨줍니다.
                 intent.putExtra("prevInfo","detail");
                 startActivity(intent);
@@ -421,15 +426,6 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-
-    private void generateDataList(List<RetroProduct> productList) {
-        recyclerView = findViewById(R.id.recyclerView);
-        cardadapter = new CardAdapter(this, productList);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(DetailActivity.this, LinearLayoutManager.HORIZONTAL, false);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(cardadapter);
     }
 
     // 프로필 이미지 다운로드

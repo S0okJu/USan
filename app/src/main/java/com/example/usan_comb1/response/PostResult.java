@@ -18,7 +18,8 @@ public class PostResult {
     private String address;
     @SerializedName("status")
     private boolean status;
-
+    @SerializedName("image_url")
+    private String image;
     @SerializedName("favorite")
     private boolean favorite;
     @SerializedName("created_date")
@@ -42,6 +43,8 @@ public class PostResult {
 
     public boolean isFavorite() { return favorite; }
 
+    public String getImage() {return image;}
+
     public String getCreated_date() { return created_date; }
 
     public String getModified_date() { return modified_date; }
@@ -57,6 +60,8 @@ public class PostResult {
     public void setPost_Content(String content) { this.content = content; }
 
     public void setAddress(String address) { this.address = address; }
+
+    public void setImage(String image) { this.image = image; }
 
     public void setStatus(boolean status) { this.status = status; }
 

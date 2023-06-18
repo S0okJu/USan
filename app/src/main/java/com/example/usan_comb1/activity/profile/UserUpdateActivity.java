@@ -61,6 +61,8 @@ public class UserUpdateActivity extends AppCompatActivity {
     private static final int REQUEST_READ_MEDIA_IMAGES = 1;
     private static String[] PERMISSIONS_STORAGE;
 
+    ImageView imageBack;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +86,7 @@ public class UserUpdateActivity extends AppCompatActivity {
         btn_ok = findViewById(R.id.btn_ok);
         btnselect = findViewById(R.id.btnselect);
         imgprofile = findViewById(R.id.imgprofile);
+        imageBack = findViewById(R.id.imageBack);
 
         et_updatename.setVisibility(View.INVISIBLE);
         btn_ch.setVisibility(View.VISIBLE);
@@ -96,6 +99,13 @@ public class UserUpdateActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // 파일 엑세스 권한 확인
                 verifyStoragePermissions(UserUpdateActivity.this);
+            }
+        });
+
+        imageBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
             }
         });
 

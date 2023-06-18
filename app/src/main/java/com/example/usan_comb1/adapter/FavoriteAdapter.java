@@ -3,6 +3,9 @@ package com.example.usan_comb1.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,10 +26,13 @@ import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.utilities.Constants;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -41,6 +47,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public boolean isFavorite;
     private ProductService mProductService;
     private Integer productId;
+    private String accessToken;
 
     // Interface for item click listener
     public interface OnItemClickListener {
@@ -59,7 +66,12 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         this.activity = activity;
         this.context = activity.getApplicationContext();
         this.favoriteList = favoriteList;
+
+        SharedPreferences prefs = activity.getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
     }
+
+
 
     @NonNull
     @Override
@@ -73,27 +85,15 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     public void onBindViewHolder(@NonNull FavoriteAdapter.ViewHolder holder, int position)
     {
         FavoriteProduct data = favoriteList.get(position);
-        DownImage downImage = new DownImage();
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
-
-        if (data.getImg() != null) {
-            Glide.with(activity)
-                    .load(data.getImg())
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .into(holder.coverImage);
-        } else {
-            // 이미지가 null인 경우, 기본 이미지 또는 에러 이미지를 설정해 줄 수 있습니다.
-            Glide.with(activity)
-                    .load(R.drawable.error)
-                    .into(holder.coverImage);
-        }
-
-
 
         holder.txtTitle.setText(data.getTitle());
         holder.txtAuthor.setText(data.getAuthor());
         //holder.txtPrice.setText(data.getPrice() + "원");
+
+        // 이미지 다운로드 메소드 호출
+        downloadImage(accessToken, data.getProductId(), data.getImg(), holder.coverImage);
 
 
         // 추가되어 있는 관심물품을 다시 클릭하여 삭제하는 작업
@@ -203,6 +203,44 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 showToast("서버 에러가 발생하였습니다.");
+            }
+        });
+    }
+
+    // 이미지 다운로드
+    private void downloadImage(String accessToken, int productId, String filename, ImageView coverImage) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    ResponseBody responseBody = response.body();
+                    if (responseBody != null) {
+                        InputStream inputStream = responseBody.byteStream();
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+                        // 이미지를 이미지 뷰에 설정합니다.
+                        coverImage.setImageBitmap(bitmap);
+                    } else {
+                        // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                        coverImage.setImageResource(R.drawable.img_error);
+                        Toast.makeText(context, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("Download error", "Download failed: " + response.message());
+                    }
+                } else {
+                    // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
+                    coverImage.setImageResource(R.drawable.img_error);
+                    Toast.makeText(context, "서버 응답 실패", Toast.LENGTH_SHORT).show();
+                    Log.e("Download error", "Download failed: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
+                coverImage.setImageResource(R.drawable.img_error);
+                Toast.makeText(context, "다운로드 오류", Toast.LENGTH_SHORT).show();
+                Log.e("Download error", "Download failed: " + t.getMessage());
             }
         });
     }

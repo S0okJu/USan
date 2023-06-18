@@ -41,6 +41,8 @@ public class OtherProfileActivity extends AppCompatActivity {
     private CardAdapter cardadapter;
     private String accessToken;
 
+    ImageView imageBack;
+
     private ProductService mProductService;
     private Integer productId;
 
@@ -58,14 +60,25 @@ public class OtherProfileActivity extends AppCompatActivity {
 
         othername = findViewById(R.id.othername);
         otherprofile = findViewById(R.id.otherprofile);
+        imageBack = findViewById(R.id.imageBack);
 
         Intent intent = getIntent();
         if (intent != null) {
             username = intent.getStringExtra("username");
         }
 
+        imageBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
+
         othername.setText(username);
         downloadImage();
+
+        loadUserPosts(username);
     }
 
     private void loadUserPosts(String username) {

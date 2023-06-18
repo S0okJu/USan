@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="구매 완료되었습니다."
+        android:text="결제 실패하였습니다."
         android:textSize="16sp" />
 
     <Button
