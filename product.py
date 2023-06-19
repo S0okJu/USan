@@ -125,7 +125,8 @@ def modify_product():
         raise error.Empty('JSON')
 
     obj = json.loads(json.dumps(body))
-    p = ProductModel.query.get(obj['product_id'])
+    product_id = obj['product_id']
+    p = ProductModel.query.get(product_id)
     if not p:
         raise error.DBNotFound('Product')
 
@@ -134,26 +135,30 @@ def modify_product():
     if p.author_id != current_user_id:
         return jsonify({'error': '게시글 작성자만 수정할 수 있습니다.'}), 403
 
-    # fix title, content, address, price
-    if p.title != None:
+    # Fix title, content, address, price
+    if 'title' in obj:
         p.title = obj['title']
-    if p.title != None:
+    if 'content' in obj:
         p.content = obj['content']
-    if p.address != None:
+    if 'address' in obj:
         p.address = obj['address']['name']
-    if p.latitude != None:
         p.latitude = float(obj['address']['latitude'])
-    if p.longitude != None:
         p.longitude = float(obj['address']['longitude'])
-    if p.price != None:
+    if 'price' in obj:
         p.price = obj['price']
 
     p.modified_date = datetime.datetime.now()
 
-    image_filename = obj['image']
-
+    # 이미지 파일 이름 반환
+    image_filenames = [img.file_name for img in p.product_imgs]
+    image_urls = [f"https://13.124.86.136:55328/images/{filename}" for filename in image_filenames]
     rdb.session.commit()
-    return jsonify({"status_code": 200, "message": "Modify product completely!"})
+
+    return jsonify({
+        "status_code": 200,
+        "message": "상품 수정이 완료되었습니다.",
+        "image_urls": image_urls
+    })
 
 
 @bp.route('/delete/<int:product_id>', methods=["GET"])
@@ -246,18 +251,18 @@ def get_dest(chat_id):
     return res
 
 
-@bp.route('/check/<string:chat_id>', methods=["GET"])
+@bp.route('/check/<string:username>/<string:chat_id>', methods=["GET"])
 @jwt_required()
-def get_role(chat_id):
-    user_id = get_jwt_identity()
+def get_role(username, chat_id):
     product_id = extract_numbers(chat_id)
-    print(user_id + ' ' + product_id)
 
-    username = UserModel.query.get(user_id)
     product = ProductModel.query.get(int(product_id))
+    print(product.author.username)
     if product.author.username == username:
+        print("role is 0")
         return jsonify({'role': 0}), 200
     else:
+        print("role is 1")
         return jsonify({'role': 1}), 200
 
 
