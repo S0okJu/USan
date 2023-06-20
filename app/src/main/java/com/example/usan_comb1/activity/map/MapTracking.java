@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -33,6 +34,7 @@ import com.example.usan_comb1.activity.payment.BuyerPaymentActivity;
 import com.example.usan_comb1.activity.payment.SellerPaymentActivity;
 import com.example.usan_comb1.models.Loc;
 import com.example.usan_comb1.utilities.PreferenceManager;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -95,6 +97,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     private Button dealButton;
     private boolean isDealButtonVisible;
 
+    private LatLng userLocation;
+
     private ProductService service;
     private LatLng dest;
     private DatabaseReference locationRef;
@@ -127,6 +131,9 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        // FusedLocationProviderClient 객체 초기화
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
         service = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
         preferenceManager = new PreferenceManager(getApplicationContext());
@@ -143,12 +150,16 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         // Ref to firebase first
         locationRef = FirebaseDatabase.getInstance().getReference("locations").child(chatId);
 
+        // 임의로 사용자 LatLng 값 설정
+        //userLocation = new LatLng(35.137759, 126.928947); // 사용자 위치 설정
+
         getDest();
 
         // 위치 업데이트 시작
-        //startLocationUpdates();
+        startLocationUpdates();
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        //fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(10000); // 10 seconds}
@@ -191,6 +202,9 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                     // 거리를 계산해주는 함수
                     // 현재 사용자 - 최종 목적지에 대한 거리차를 계산해줍니다. - @D7MeKz
                     CalcDestDistance(location, destLocation);
+
+                    // 사용자 현재 위치부터 목적지까지 도보 경로 보여주기
+                    requestDirections(current, dest);
 
                 }
 
@@ -239,12 +253,15 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                     double lng = result.getLng();
                     dest = new LatLng(lat, lng);
 
-
                     Marker destMarker = mMap.addMarker(new MarkerOptions().position(dest).title("거래 장소").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
+
+                    // 거리 정보를 마커에 표시
+                    //destMarker.setSnippet("거리: " + checkDistDifference(, dest) + "m");
                     markers.put("dest", destMarker);
 
                     Log.d("Dest", "lat : " + lat);
                     Log.d("Dest", "lng : " + lng);
+
                 }
             }
 
@@ -260,19 +277,25 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     }
 
 
+
     // Directions API 요청을 보내고 응답을 처리하는 메소드
     private void requestDirections(LatLng user, LatLng destination) {
         // Directions API를 사용하여 경로 요청 생성
+
+        Marker curUserMarker = mMap.addMarker(new MarkerOptions().position(user).title(curUsername).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        markers.put(curUsername, curUserMarker);
+
         DirectionsResult result;
         try {
             result = DirectionsApi.newRequest(getGeoContext())
                     .origin(new com.google.maps.model.LatLng(user.latitude, user.longitude))
                     .destination(new com.google.maps.model.LatLng(destination.latitude, destination.longitude))
-                    .mode(TravelMode.WALKING) // 도보 모드로 설정
+                    .mode(TravelMode.TRANSIT) // 도보 모드로 설정
                     .await(); // 동기적으로 응답 받기
         } catch (Exception e) {
             // 경로 요청에 실패했을 때 처리하는 부분
-            // 에러 처리 로직을 구현하면 됩니다.
+            Log.e("MapTracking", "경로 설정에 실패했습니다.", e);
+            Toast.makeText(this, "경로 설정에 실패했습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -285,8 +308,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
             List<LatLng> path = decodePolyline(route.overviewPolyline.getEncodedPath());
             PolylineOptions polylineOptions = new PolylineOptions()
                     .addAll(path)
-                    .width(10)
-                    .color(Color.BLUE);
+                    .width(30)
+                    .color(Color.RED);
             mMap.addPolyline(polylineOptions);
 
             // 출발지와 목적지가 보이도록 카메라 이동
@@ -348,9 +371,9 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
 
     private void checkSettingsAndStartLocationUpdates() {
-        LocationSettingsRequest request = new LocationSettingsRequest.Builder().
-                addLocationRequest(locationRequest).
-                build();
+        LocationSettingsRequest request = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest)
+                .build();
         SettingsClient client = LocationServices.getSettingsClient(this);
 
         Task<LocationSettingsResponse> locationSettingsResponseTask = client.checkLocationSettings(request);
@@ -360,21 +383,42 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 startLocationUpdates();
             }
         });
-
     }
 
     private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+        locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(10000); // 10 seconds
+        locationRequest.setFastestInterval(5000); // 5 seconds
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+
+        Task<LocationSettingsResponse> task = LocationServices.getSettingsClient(this)
+                .checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+            @Override
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                if (ActivityCompat.checkSelfPermission(MapTracking.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapTracking.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MapTracking.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+                    return;
+                }
+                fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+            }
+        });
+
+        task.addOnFailureListener(this, e -> {
+            if (e instanceof ResolvableApiException) {
+                try {
+                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                    resolvable.startResolutionForResult(MapTracking.this, REQUEST_LOCATION_PERMISSION);
+                } catch (IntentSender.SendIntentException sendEx) {
+                    // Ignore the error.
+                }
+            }
+        });
     }
 
 
@@ -382,6 +426,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
+
+        startLocationUpdates();
 
         //mMap.setMinZoomPreference(14.0f); // 최소 줌 레벨 설정
 
@@ -391,12 +437,12 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
 
     private void showDealButton() {
         isDealButtonVisible = true;
-       dealButton.setVisibility(View.VISIBLE);
+        dealButton.setVisibility(View.VISIBLE);
     }
 
     private void hideDealButton() {
         isDealButtonVisible = false;
-       dealButton.setVisibility(View.GONE);
+        dealButton.setVisibility(View.GONE);
     }
 
 

@@ -39,7 +39,7 @@ import retrofit2.Response;
 
 public class UserFragment extends Fragment {
 
-    private Button btnviewprf, btnsalelist, btnwishlist, btnimageup, btnbuysucess, btnbuyfail;
+    private Button btnviewprf, btnsalelist, btnwishlist, btnimageup;
     private Button btn_logout;
     private ImageView imgprofile;
     private TextView tvname;
@@ -56,8 +56,6 @@ public class UserFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_user, container, false);
 
-        btnbuysucess = view.findViewById(R.id.btnbuysuccess);
-        btnbuyfail = view.findViewById(R.id.btnbuyfail);
 
         btnviewprf = view.findViewById(R.id.btnviewprf);
         btnwishlist = view.findViewById(R.id.btnwishlist);
@@ -126,26 +124,6 @@ public class UserFragment extends Fragment {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 getActivity().finish();
-            }
-        });
-
-
-        btnbuysucess.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Intent 정보를 넘겨줌
-                Intent intent = new Intent(getActivity(), PaymentSuccessActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
-        btnbuyfail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Intent 정보를 넘겨줌
-                Intent intent = new Intent(getActivity(), PaymentFailActivity.class);
-                startActivity(intent);
             }
         });
 

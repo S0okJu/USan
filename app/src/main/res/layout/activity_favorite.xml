@@ -40,12 +40,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:nestedScrollingEnabled="false"
-                    tools:listitem="@layout/item" />
-
-                <ProgressBar
-                    android:id="@+id/progress_bar"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    tools:listitem="@layout/favorite_item" />
 
                 <TextView
                     android:id="@+id/empty_view"
@@ -54,6 +49,7 @@
                     android:layout_centerHorizontal="true"
                     android:layout_centerVertical="true"
                     android:text="데이터가 없습니다."
+                    android:textAlignment="center"
                     android:fontFamily="@font/noto_bold"
                     android:textSize="25sp" />
 

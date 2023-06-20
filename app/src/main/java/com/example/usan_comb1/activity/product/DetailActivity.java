@@ -363,19 +363,19 @@ public class DetailActivity extends AppCompatActivity {
                                 e.printStackTrace();
                                 // 이미지 데이터 읽기 실패 시 기본 이미지를 설정합니다.
                                 imageView.setImageResource(R.drawable.img_error);
-                                Toast.makeText(context, "이미지 로딩 실패", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(context, "이미지 로딩 실패", Toast.LENGTH_SHORT).show();
                                 Log.e("Image loading error", "Failed to load image: " + e.getMessage());
                             }
                         } else {
                             // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                             imageView.setImageResource(R.drawable.img_error);
-                            Toast.makeText(context, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(context, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
                             Log.e("Download error", "Download failed: " + response.message());
                         }
                     } else {
                         // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
                         imageView.setImageResource(R.drawable.img_error);
-                        Toast.makeText(context, "서버 응답 실패", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(context, "서버 응답 실패", Toast.LENGTH_SHORT).show();
                         Log.e("Download error", "Download failed: " + response.message());
                     }
                 }
@@ -384,7 +384,7 @@ public class DetailActivity extends AppCompatActivity {
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
                     imageView.setImageResource(R.drawable.img_error);
-                    Toast.makeText(context, "다운로드 오류", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, "다운로드 오류", Toast.LENGTH_SHORT).show();
                     Log.e("Download error", "Download failed: " + t.getMessage());
                 }
             });
@@ -446,13 +446,13 @@ public class DetailActivity extends AppCompatActivity {
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         profile.setImageResource(R.drawable.ic_default_profile);
-                        Toast.makeText(DetailActivity.this, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(DetailActivity.this, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
                         Log.e("Download error", "Download failed: " + response.message());
                     }
                 } else {
                     // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
                     profile.setImageResource(R.drawable.ic_default_profile);
-                    Toast.makeText(DetailActivity.this, "서버 응답 실패", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(DetailActivity.this, "서버 응답 실패", Toast.LENGTH_SHORT).show();
                     Log.e("Download error", "Download failed: " + response.message());
                 }
             }
@@ -461,7 +461,7 @@ public class DetailActivity extends AppCompatActivity {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
                 profile.setImageResource(R.drawable.ic_default_profile);
-                Toast.makeText(DetailActivity.this, "다운로드 오류", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(DetailActivity.this, "다운로드 오류", Toast.LENGTH_SHORT).show();
                 Log.e("Download error", "Download failed: " + t.getMessage());
             }
         });

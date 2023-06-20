@@ -39,7 +39,7 @@ public class FavoriteActivity extends AppCompatActivity {
     private FavoriteAdapter adapter;
     private TextView empty;
     NestedScrollView nestedScrollView;
-    ProgressBar progressBar;
+    //ProgressBar progressBar;
 
     ImageView imageBack;
 
@@ -60,7 +60,6 @@ public class FavoriteActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycler_view);
         nestedScrollView = findViewById(R.id.scroll_view);
         recyclerView = findViewById(R.id.recycler_view);
-        progressBar = findViewById(R.id.progress_bar);
         empty = findViewById(R.id.empty_view);
         imageBack = findViewById(R.id.imageBack);
 
@@ -112,7 +111,7 @@ public class FavoriteActivity extends AppCompatActivity {
                 } else {
                     Toast.makeText(FavoriteActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                 }
-                progressBar.setVisibility(View.GONE);
+                //progressBar.setVisibility(View.GONE);
             }
 
             @Override
