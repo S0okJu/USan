@@ -120,6 +120,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
             otherUser = getIntent().getStringExtra("otherUser");
             role = getIntent().getIntExtra("role",-1);
         }
+        role=SELLER;
         curUsername = preferenceManager.getString("username");
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
         accessToken = prefs.getString("access_token", "");

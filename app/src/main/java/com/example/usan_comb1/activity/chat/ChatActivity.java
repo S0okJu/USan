@@ -66,7 +66,7 @@ public class ChatActivity extends AppCompatActivity {
     ImageButton buttonFile;
     ImageButton buttonGps;
     private static final int REQUEST_CODE_IMAGE = 1001;
-    private Integer role;
+    private Integer role = 0;
     private String chatId;
     private String conversationId;
     public String previousInfo;
@@ -79,6 +79,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ChatActivitySampleBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         // setup DB
         transRef = FirebaseDatabase.getInstance().getReference("transaction");
 
@@ -339,7 +340,7 @@ public class ChatActivity extends AppCompatActivity {
         DatabaseReference myRef = transRef.child(chatId);
         Map<String, Object> transInfo = new HashMap<>();
 
-        if(role == SELLER){
+        if(role == 0){
             transInfo.put("chatId",chatId);
             transInfo.put("sellerId", preferenceManager.getString("userId"));
             transInfo.put("sellerName", preferenceManager.getString("username"));
@@ -357,7 +358,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void listenForTransactionConfirmation() {
-        transRef.child(chatId).addListenerForSingleValueEvent(new ValueEventListener() {
+        transRef.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()) {
@@ -365,7 +366,7 @@ public class ChatActivity extends AppCompatActivity {
                     Integer cnt = dataSnapshot.child("cnt").getValue(Integer.class);
                     if (checkStatus != null) {
                         System.out.println("transRole" + role);
-                        if (!checkStatus && role == BUYER) {
+                        if (!checkStatus && role == 1) {
                             showConfirmationDialog();
 
                         } else if (checkStatus&& cnt==0) {
