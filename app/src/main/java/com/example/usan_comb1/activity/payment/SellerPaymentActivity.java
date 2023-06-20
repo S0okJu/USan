@@ -53,11 +53,12 @@ public class SellerPaymentActivity extends AppCompatActivity {
                 Boolean buyerStatus = dataSnapshot.child("buyerStatus").getValue(Boolean.class);
                 System.out.println("sellerStatus : "+ sellerStatus);
                 if (dataSnapshot.exists()&&sellerStatus != null && buyerStatus != null && sellerStatus && buyerStatus  ) {
-
+                    boolean pFlag = dataSnapshot.child("pFlag").getValue(Boolean.class);
                     Toast.makeText(SellerPaymentActivity.this, "Payment Success", Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
                     Intent intent = new Intent(SellerPaymentActivity.this, PaymentSuccessActivity.class);
                     startActivity(intent);
+
                 }else{
                         progressBar.setVisibility(View.VISIBLE);
                 }

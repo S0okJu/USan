@@ -310,7 +310,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     }
     public void CalcDestDistance( Location user, Location dest){
         boolean check = checkDistDifference(user,dest);
-        role=1;
+        role=SELLER;
         if(check==true){
             fusedLocationProviderClient.removeLocationUpdates(locationCallback);
             String productId = extractProductIdFromChatId(chatId);

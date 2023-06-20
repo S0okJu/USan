@@ -96,11 +96,14 @@ public class BuyerPaymentActivity extends AppCompatActivity {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()) {
                                 boolean buyerStatus = dataSnapshot.child("buyerStatus").getValue(Boolean.class);
+
                                 if (buyerStatus) {
                                     paymentBtn.setVisibility(View.VISIBLE);
                                 }
 
                                 paymentBtn.setOnClickListener(view -> initiatePayment());
+                                transRef.child("chat_"+productId).child("buyerStatus").setValue(true);
+
                             }
                         }
 

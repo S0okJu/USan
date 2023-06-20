@@ -74,6 +74,8 @@ public class ChatActivity extends AppCompatActivity {
     public String accessToken;
     public MyCallback callback;
     public boolean isDuplicate;
+    public boolean paymentFlag = false;
+    public Integer paymentCnt = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -350,6 +352,7 @@ public class ChatActivity extends AppCompatActivity {
             transInfo.put("buyerStatus",false);
             transInfo.put("check",false);
             transInfo.put("cnt",0);
+            transInfo.put("pFlag",false);
         }
 
         myRef.setValue(transInfo)
@@ -364,18 +367,16 @@ public class ChatActivity extends AppCompatActivity {
                 if (dataSnapshot.exists()) {
                     Boolean checkStatus = dataSnapshot.child("check").getValue(Boolean.class);
                     Integer cnt = dataSnapshot.child("cnt").getValue(Integer.class);
-                    if (checkStatus != null) {
-                        System.out.println("transRole" + role);
-                        if (!checkStatus && role == 1) {
-                            showConfirmationDialog();
 
-                        }
-                        if (checkStatus&& cnt==0) {
-                            showTransactionCompleteDialog();
-                            transRef.child(chatId).child("cnt").setValue(cnt+1);
-                        }
+                    if (checkStatus ==true && paymentCnt <2) {
+                        showTransactionCompleteDialog();
+                        paymentCnt++;
+
+                    } else if (checkStatus == false && role == 1) {
+                        showConfirmationDialog();
                     }
                 }
+
             }
 
             @Override
