@@ -102,7 +102,7 @@ public class ChatActivity extends AppCompatActivity {
                     .addOnSuccessListener(chatId -> {
                         Log.e("ChatId", chatId);
 
-                        role = findFromFirebase.checkSeller(accessToken, preferenceManager.getString("username"), chatId);
+                        findFromFirebase.checkSeller(accessToken, preferenceManager.getString("username"), chatId);
                         setListeners();
                         loadReceiverDetails();
                         init();
@@ -110,6 +110,9 @@ public class ChatActivity extends AppCompatActivity {
                         listenForTransactionConfirmation();
                     })
                     .addOnFailureListener(e -> Log.e("ChatId", "Failed to get chat id", e));
+        }
+        if(role==null){
+            role = findFromFirebase.role;
         }
 
         //button_file(이미지 전송) 클릭 이벤트

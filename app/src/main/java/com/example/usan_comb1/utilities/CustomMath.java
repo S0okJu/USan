@@ -29,13 +29,10 @@ public class CustomMath {
     }
 
     public static boolean checkDistDifference(Location src, Location dest){
-        Double calcLat = src.getLatitude() - dest.getLatitude();
-        Double calcLong = src.getLongitude() - dest.getLongitude();
-
+        Double distance = getDistanceBetween(src, dest);
         // 거리 차이 확인
-        boolean checkLat = (-0.5 < calcLat) && (calcLat < 0.5);
-        boolean checkLong = (-0.5 < calcLong) && (calcLong < 0.5);
-        if(checkLat==true && checkLong==true){
+
+        if(distance < 0.5 || distance > -0.5){
             return true;
         }else{
             return false;

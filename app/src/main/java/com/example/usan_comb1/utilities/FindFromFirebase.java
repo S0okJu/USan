@@ -118,7 +118,7 @@ public class FindFromFirebase {
         return chatId;
     }
 
-    public Integer checkSeller(String accessToken, String username, String chatId) {
+    public void checkSeller(String accessToken, String username, String chatId) {
         mProductService = RetrofitClient.getProductService();
         role = null;
 
@@ -140,6 +140,5 @@ public class FindFromFirebase {
             }
         });
 
-        return role;
     }
 }
