@@ -369,7 +369,8 @@ public class ChatActivity extends AppCompatActivity {
                         if (!checkStatus && role == 1) {
                             showConfirmationDialog();
 
-                        } else if (checkStatus&& cnt==0) {
+                        }
+                        if (checkStatus&& cnt==0) {
                             showTransactionCompleteDialog();
                             transRef.child(chatId).child("cnt").setValue(cnt+1);
                         }
