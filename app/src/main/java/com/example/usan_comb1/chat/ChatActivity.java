@@ -1,35 +1,40 @@
-package com.example.usan_comb1.activity.chat;
+package com.example.usan_comb1.chat;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 import static com.example.usan_comb1.utilities.Constants.BUYER;
 import static com.example.usan_comb1.utilities.Constants.SELLER;
+import static com.google.firebase.firestore.FirebaseFirestore.getInstance;
 
 import android.app.AlertDialog;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.activity.map.MapTracking;
+//import com.example.usan_comb1.map.MapTracking;
 import com.example.usan_comb1.adapter.ChatAdapter;
 import com.example.usan_comb1.databinding.ChatActivitySampleBinding;
-import com.example.usan_comb1.interfaces.ChatIdCallback;
+
 import com.example.usan_comb1.models.ChatData;
 import com.example.usan_comb1.models.Users;
 import com.example.usan_comb1.utilities.FindFromFirebase;
 import com.example.usan_comb1.utilities.PreferenceManager;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -57,19 +62,22 @@ public class ChatActivity extends AppCompatActivity {
     private List<ChatData> chatMessages;
     private ChatAdapter chatAdapter;
     private PreferenceManager preferenceManager;
-    private FirebaseFirestore database;
+    public FirebaseFirestore database = getInstance();
     public DatabaseReference transRef;
+    private Button buyok;
     public FindFromFirebase findFromFirebase = new FindFromFirebase();
     ImageButton buttonFile;
     ImageButton buttonGps;
     private static final int REQUEST_CODE_IMAGE = 1001;
-    private int role;
+    private Integer role;
     private String chatId;
     private String conversationId;
     public String previousInfo;
     public String userId;
+
     public String title;
-    private String accessToken;
+    public String accessToken;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,11 +87,37 @@ public class ChatActivity extends AppCompatActivity {
         // setup DB
         transRef = FirebaseDatabase.getInstance().getReference("transaction");
 
-        setListeners();
-        init();
-        loadReceiverDetails();
-        listenMessages();
-        listenForTransactionConfirmation();
+
+        // get Access token
+        SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
+        accessToken = prefs.getString("access_token", "");
+
+        if (!getIntent().getStringExtra("prevInfo").equals("recent")) {
+            chatId = getIntent().getStringExtra("chatId");
+            role = getIntent().getIntExtra("role", -1);
+
+            setListeners();
+            loadReceiverDetails();
+            init();
+            listenMessages();
+            listenForTransactionConfirmation();
+
+        } else {
+            String firstMsg = getIntent().getStringExtra("firstMsg");
+            getChatId(firstMsg)
+                    .addOnSuccessListener(chatId -> {
+                        Log.e("ChatId", chatId);
+
+                        role = findFromFirebase.checkSeller(accessToken, preferenceManager.getString("username"), chatId);
+                        setListeners();
+                        loadReceiverDetails();
+                        init();
+                        listenMessages();
+                        listenForTransactionConfirmation();
+                    })
+                    .addOnFailureListener(e -> Log.e("ChatId", "Failed to get chat id", e));
+        }
+
 
         //button_file(이미지 전송) 클릭 이벤트
         buttonFile = findViewById(R.id.button_file);
@@ -101,12 +135,12 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
+
     private void init() {
         preferenceManager = new PreferenceManager(this);
         chatMessages = new ArrayList<>();
         chatAdapter = new ChatAdapter(chatMessages, preferenceManager.getString("userId"));
         binding.chatRecyclerView.setAdapter(chatAdapter);
-        database = FirebaseFirestore.getInstance();
         userId = PreferenceManager.getString("userId");
         accessToken = preferenceManager.getString("access_token");
 
@@ -179,14 +213,6 @@ public class ChatActivity extends AppCompatActivity {
     private void loadReceiverDetails() {
         receiverUser = (Users) getIntent().getSerializableExtra("user");
         binding.textName.setText(receiverUser.getName());
-
-        title = getIntent().getStringExtra("title");
-        System.out.println("title "+title);
-
-        role = getIntent().getIntExtra("role",-1);
-        chatId = getIntent().getStringExtra("chatId");
-
-
     }
 
     private void setListeners() {
@@ -241,30 +267,27 @@ public class ChatActivity extends AppCompatActivity {
                     // 이미지 업로드 실패
                     Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show();
                 });
-        role = findFromFirebase.checkSeller(accessToken, preferenceManager.getString("username"),chatId);
     }
 
     private void addOrUpdateConversation(HashMap<String, Object> conversation){
+
         // Check if conversation exists with the same chatId
         database.collection("conversation")
-                .whereEqualTo("chatId", chatId)
+                .whereEqualTo("chatId",chatId)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
-                            if (!querySnapshot.isEmpty()) {
-                                DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
-                                documentSnapshot.getReference().update(conversation);
-                            } else {
-                                database.collection("conversation")
-                                        .add(conversation)
-                                        .addOnSuccessListener(documentReference -> conversationId = documentReference.getId());
-                            }
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (!querySnapshot.isEmpty() ) {
+                            DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
+                            documentSnapshot.getReference().update(conversation);
                         } else {
-                            Log.d(TAG, "Error getting documents: ", task.getException());
+                            database.collection("conversation")
+                                    .add(conversation)
+                                    .addOnSuccessListener(documentReference -> conversationId = documentReference.getId());
                         }
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
                     }
                 });
     }
@@ -337,8 +360,8 @@ public class ChatActivity extends AppCompatActivity {
         }
 
         myRef.setValue(transInfo)
-                .addOnSuccessListener(aVoid -> Log.d("Firebase", "Data has been saved successfully."))
-                .addOnFailureListener(e -> Log.e("Firebase", "Failed to save data.", e));
+                .addOnSuccessListener(aVoid -> Log.d("Firebase", "Data has been saved successfully."+role))
+                .addOnFailureListener(e -> Log.e("Firebase", "Failed to save data."+role));
     }
 
     private void listenForTransactionConfirmation() {
@@ -349,10 +372,11 @@ public class ChatActivity extends AppCompatActivity {
                     Boolean checkStatus = dataSnapshot.child("check").getValue(Boolean.class);
                     Integer cnt = dataSnapshot.child("cnt").getValue(Integer.class);
                     if (checkStatus != null) {
+                        System.out.println("transRole" + role);
                         if (!checkStatus && role == BUYER) {
                             showConfirmationDialog();
 
-                        }else if(checkStatus && cnt==0){
+                        } else if (checkStatus&& cnt==0) {
                             showTransactionCompleteDialog();
                             transRef.child(chatId).child("cnt").setValue(cnt+1);
                         }
@@ -395,6 +419,28 @@ public class ChatActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+
+    private Task<String> getChatId(String firstMsg) {
+        TaskCompletionSource<String> completionSource = new TaskCompletionSource<>();
+        database.collection("conversation")
+                .whereEqualTo("message", firstMsg)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && task.getResult().getDocuments().size() > 0) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            chatId = document.getString("chatId");
+                            Log.d("ChatId", "Chat Id is: " + chatId);
+                            completionSource.setResult(chatId);
+                        }
+                    } else {
+                        Log.d("ChatId", "Error getting documents: ", task.getException());
+                        completionSource.setException(task.getException());
+                    }
+                });
+
+        return completionSource.getTask();
     }
 
 

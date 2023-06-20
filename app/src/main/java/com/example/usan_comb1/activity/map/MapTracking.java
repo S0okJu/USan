@@ -217,7 +217,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onFailure(Call<Loc> call, Throwable t) {
                 Log.d("Dest Location", "Failed to load dest location");
-                mMap.addMarker(new MarkerOptions().position(new LatLng(0.0,0.0)).title("Dest"));
+                mMap.addMarker(new MarkerOptions().position(new LatLng(0.0,0.0)).title("Dest").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)));
             }
         });
 

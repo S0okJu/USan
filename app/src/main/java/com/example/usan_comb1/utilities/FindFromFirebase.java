@@ -115,11 +115,11 @@ public class FindFromFirebase {
         return chatId;
     }
 
-    public Integer checkSeller(String accessToken, String chatId) {
+    public Integer checkSeller(String accessToken, String username,String chatId) {
         mProductService = RetrofitClient.getProductService();
         role = null;
 
-        Call<CheckRoleResponse> call = mProductService.getRole(accessToken, chatId);
+        Call<CheckRoleResponse> call = mProductService.getRole(accessToken, username, chatId);
         call.enqueue(new Callback<CheckRoleResponse>() {
             @Override
             public void onResponse(Call<CheckRoleResponse> call, Response<CheckRoleResponse> response) {
@@ -136,7 +136,6 @@ public class FindFromFirebase {
 
             }
         });
-
         return role;
     }
 

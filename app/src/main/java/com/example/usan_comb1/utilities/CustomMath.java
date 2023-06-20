@@ -33,8 +33,8 @@ public class CustomMath {
         Double calcLong = src.getLongitude() - dest.getLongitude();
 
         // 거리 차이 확인
-        boolean checkLat = (-0.5 < calcLat) && (calcLat < 0.5);
-        boolean checkLong = (-0.5 < calcLong) && (calcLong < 0.5);
+        boolean checkLat = (-0.05 < calcLat) && (calcLat < 0.05);
+        boolean checkLong = (-0.05 < calcLong) && (calcLong < 0.05);
         if(checkLat==true && checkLong==true){
             return true;
         }else{
