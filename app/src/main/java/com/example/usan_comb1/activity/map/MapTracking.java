@@ -309,7 +309,7 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
     }
     public void CalcDestDistance( Location user, Location dest){
         boolean check = checkDistDifference(user,dest);
-
+        role=1;
         if(check==true){
             fusedLocationProviderClient.removeLocationUpdates(locationCallback);
             String productId = extractProductIdFromChatId(chatId);
@@ -324,25 +324,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                     // 이 시점에서 dialog를 dismiss 합니다.
                     if (alertDialog != null && alertDialog.isShowing()) {
                         alertDialog.dismiss();
-                    }
-                    if(role==-1){
-                        Call<CheckRoleResponse> call = mProductService.getRole(accessToken, preferenceManager.getString("username"), chatId);
-                        call.enqueue(new Callback<CheckRoleResponse>() {
-                            @Override
-                            public void onResponse(Call<CheckRoleResponse> call, Response<CheckRoleResponse> response) {
-                                CheckRoleResponse result = response.body();
-                                if(result.getRole()==0){
-                                    role = SELLER;
-                                }else{
-                                    role = BUYER;
-                                }
-                            }
-
-                            @Override
-                            public void onFailure(Call<CheckRoleResponse> call, Throwable t) {
-
-                            }
-                        });
                     }
 
                     // 거리가 특정 범위 이내에 있으면 역할에 따른 Activity로 전송됩니다.

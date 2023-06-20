@@ -56,7 +56,6 @@ public class BuyerPaymentActivity extends AppCompatActivity {
         productPrice = findViewById(R.id.price);
         // productImage = findViewById(R.id.product_image);
         paymentBtn = findViewById(R.id.payment_btn);
-        progressBar = findViewById(R.id.progressBar);
 
         // setup
         init();
@@ -77,8 +76,6 @@ public class BuyerPaymentActivity extends AppCompatActivity {
     private void showProductInfo() {
         Call<PaymentProductResponse> call = service.getPaymentProduct(accessToken, Integer.valueOf(productId));
 
-        //
-        progressBar.setVisibility(View.VISIBLE);
 
         call.enqueue(new Callback<PaymentProductResponse>() {
             @Override
