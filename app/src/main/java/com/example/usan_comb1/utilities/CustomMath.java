@@ -32,7 +32,7 @@ public class CustomMath {
         Double distance = getDistanceBetween(src, dest);
         // 거리 차이 확인
 
-        if(distance < 0.5 || distance > -0.5){
+        if(distance < 0.00005){
             return true;
         }else{
             return false;

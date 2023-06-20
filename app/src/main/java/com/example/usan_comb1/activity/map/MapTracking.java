@@ -132,8 +132,8 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(10000); // 10 seconds}
-        locationRequest.setFastestInterval(5000); // 5 seconds
+        locationRequest.setInterval(5000); // 10 seconds}
+        locationRequest.setFastestInterval(3000); // 5 seconds
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationCallback = new LocationCallback() {
             @Override
@@ -162,6 +162,9 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                     latLng.put("lat", lat);
                     latLng.put("lng", lng);
                     locationRef.child(curUsername).updateChildren(latLng);
+
+                    Log.d("dist", String.valueOf(lat));
+                    Log.d("dist",String.valueOf(lng));
 
                     Location destLocation = new Location("DestLocation");
                     destLocation.setLatitude(dest.latitude);
@@ -197,8 +200,14 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                         Log.e("MapTracking", "Failed to read value.", error.toException());
                     }
                 });
+
             }
         };
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+        }
+
 
     }
 
@@ -356,7 +365,6 @@ public class MapTracking extends AppCompatActivity implements OnMapReadyCallback
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
-                    finish();
                 }
             });
             alertDialog = builder.create();

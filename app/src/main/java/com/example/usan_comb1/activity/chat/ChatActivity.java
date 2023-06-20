@@ -210,7 +210,7 @@ public class ChatActivity extends AppCompatActivity {
     private void setListeners() {
         binding.imageBack.setOnClickListener(v -> onBackPressed());
         binding.layoutSend.setOnClickListener(v -> sendMessage());
-        binding.imageInfo.setOnClickListener(v -> setTransaction()); // 거래 정보 확장 버튼
+        binding.buyok.setOnClickListener(v -> setTransaction()); // 거래 정보 확장 버튼
         binding.buttonGps.setOnClickListener(v -> getMap()); // 채팅
     }
 
