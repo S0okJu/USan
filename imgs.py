@@ -72,50 +72,47 @@ def upload(product_id):
         pass
 
     # TODO JWT Token
-    # check accept-encoding
+    # accept-encoding 확인
     accept_type = request.headers.get('Content-Type')
     acc_len = len('multipart/form-data')
     if len(accept_type) < acc_len or not accept_type[:acc_len] == 'multipart/form-data':
-        return jsonify({"message": "Invalid header."}), 400
+        return jsonify({"message": "잘못된 헤더입니다."}), 400
 
     product_data = ProductModel.query.filter_by(product_id=product_id).first()
     if not product_data:
         raise error.DBNotFound("Product")
 
     file_path_list = []
-    images = request.files.getlist('imgs')
-    if not images:
+    image = request.files.get('img')  # 'imgs'를 'img'로 변경하여 하나의 이미지만 받도록 합니다.
+    if not image:
         raise error.EmptyError("Image")
 
-    for image in images:
-        img_id = uuid.uuid4()
-        file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
-        file_name = f"{img_id}.jpg"
+    img_id = uuid.uuid4()
+    file_path = os.path.join(UPLOAD_FOLDER, str(product_id))
+    file_name = f"{img_id}.jpg"
 
-        res_path = os.path.join("imgs/download", str(product_id), file_name)
-        print(res_path)
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
+    res_path = os.path.join("imgs/download", str(product_id), file_name)
+    print(res_path)
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
 
-        # 파일 저장
-        file_path = os.path.join(file_path, file_name)
-        image.save(file_path)
+    # 파일 저장
+    file_path = os.path.join(file_path, file_name)
+    image.save(file_path)
 
-        # 반환할 정보들
-        res_info = {
-            "path": res_path,
-            "product_id": product_id,
-            "filename": file_name
-        }
-        file_path_list.append(res_info)
+    # 반환할 정보들
+    res_info = {
+        "path": res_path,
+        "product_id": product_id,
+        "filename": file_name
+    }
+    file_path_list.append(res_info)
 
-        # DB 저장
-        rdb.session.add(ProductImageModel(file_name=file_name, product=product_data))
+    # DB 저장
+    rdb.session.add(ProductImageModel(file_name=file_name, product=product_data))
 
     rdb.session.commit()
     return jsonify(file_path_list), 200
-
-
 # 오직 첫번째로 display한 사진을 가져온다.
 # product_id
 # type = 0(첫번째 사진만)
@@ -145,7 +142,7 @@ def display_image(product_id):
         raise error.DBConnectionError()
 
 
-@bp.route('/download/<int:product_id>/<path:filename>', methods=['GET'])
+@bp.route('/download/<int:product_id>/<string:filename>', methods=['GET'])
 def download_file(product_id, filename):
     try:
 
