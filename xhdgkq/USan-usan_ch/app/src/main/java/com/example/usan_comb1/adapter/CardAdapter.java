@@ -30,6 +30,11 @@ import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.utilities.Constants;
 import com.example.usan_comb1.utilities.PreferenceManager;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -90,7 +95,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
         // 이미지 다운로드 메소드 호출
-        downloadImage(accessToken, cardlist.getProductId(), cardlist.getImg(), holder.imageView);
+        downloadImage(accessToken, cardlist.getProductId(), 1, holder.imageView);
     }
 
     @Override
@@ -131,19 +136,37 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     }
 
     // 이미지 다운로드
-    private void downloadImage(String accessToken, int productId, String filename, ImageView imageView) {
-        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
+    private void downloadImage(String accessToken, int productId, int num, ImageView imageView) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, num);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
-                        InputStream inputStream = responseBody.byteStream();
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        try {
+                            String jsonString = responseBody.string();
+                            System.out.println(jsonString);
+                            JSONObject jsonObject = new JSONObject(jsonString);
+                            System.out.println(jsonObject);
+                            JSONArray imageUrls = jsonObject.getJSONArray("imgs");
 
-                        // 이미지를 이미지 뷰에 설정합니다.
-                        imageView.setImageBitmap(bitmap);
+                            if (imageUrls != null && imageUrls.length() > 0) {
+                                String imageUrl = Constants.BASE_URL + imageUrls.getString(0);// 첫 번째 이미지 URL 가져오기
+                                System.out.println(imageUrl);
+                                Glide.with(context)
+                                        .load(imageUrl)
+                                        .into(imageView);
+                            } else {
+                                // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                                imageView.setImageResource(R.drawable.img_error);
+                                Log.e("Download error", "Download failed: No image URLs available");
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         imageView.setImageResource(R.drawable.img_error);

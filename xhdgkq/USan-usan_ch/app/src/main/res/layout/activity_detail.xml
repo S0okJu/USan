@@ -24,16 +24,16 @@
         android:orientation="vertical"
         tools:context=".activity.product.DetailActivity">
 
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/viewPager"
+
+        <ImageView
+            android:id="@+id/productView"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
+            android:layout_height="260dp"
             android:layout_marginTop="60dp"
-            android:background="@android:color/darker_gray" >
-
-
-        </androidx.viewpager.widget.ViewPager>
-
+            android:src="@drawable/img_error"
+            android:scaleType="fitCenter"
+            android:background="@color/white"
+            />
 
         <ScrollView
             android:layout_width="match_parent"

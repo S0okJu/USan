@@ -86,7 +86,7 @@ public class OtherProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<RetroProduct>> call, Throwable t) {
-                Toast.makeText(OtherProfileActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("error", "failed: " + t.getMessage());
             }
         });
     }

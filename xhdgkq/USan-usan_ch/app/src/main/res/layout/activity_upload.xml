@@ -27,16 +27,6 @@
             android:orientation="vertical"
             android:padding="20dp">
 
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="170dp"
-                android:background="@drawable/yellow_border"
-                android:id="@+id/productImage"
-                android:src="@drawable/add_image"
-                android:scaleType="centerInside"
-                />
-
-
             <EditText
                 android:layout_width="match_parent"
                 android:layout_height="60dp"

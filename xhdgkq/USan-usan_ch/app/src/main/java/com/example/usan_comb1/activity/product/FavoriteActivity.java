@@ -99,7 +99,7 @@ public class FavoriteActivity extends AppCompatActivity {
                         Log.d(TAG, "Received null product list from server.");
                     }
                 } else {
-                    Toast.makeText(FavoriteActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                    Log.e("error", "failed: " + response.message());
                 }
                 progressBar.setVisibility(View.GONE);
             }

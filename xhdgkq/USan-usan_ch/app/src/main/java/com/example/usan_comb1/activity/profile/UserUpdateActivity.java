@@ -116,7 +116,7 @@ public class UserUpdateActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ProfileResponse> call, Throwable t) {
-                Toast.makeText(UserUpdateActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.e("error", "failed: " + t.getMessage());
             }
         });
 
@@ -149,6 +149,7 @@ public class UserUpdateActivity extends AppCompatActivity {
                                     editor.putString("username", updatedName); // 수정된 username을 저장
                                     editor.apply();
 
+                                    tvname.setText(username);
                                     tvname.setVisibility(View.VISIBLE);
                                     et_updatename.setVisibility(View.INVISIBLE);
                                     btn_ch.setVisibility(View.VISIBLE);
@@ -162,7 +163,7 @@ public class UserUpdateActivity extends AppCompatActivity {
                             @Override
                             public void onFailure(Call<Void> call, Throwable t) {
                                 // 네트워크 오류 처리
-                                Toast.makeText(UserUpdateActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
+                                Log.e("error", "failed: " + t.getMessage());
                             }
                         });
 
@@ -246,7 +247,6 @@ public class UserUpdateActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<UploadResponse> call, Throwable t) {
                 // 네트워크 오류 처리
-                Toast.makeText(UserUpdateActivity.this, "네트워크 오류", Toast.LENGTH_SHORT).show();
                 Log.e("Upload error", t.getMessage());
             }
 
@@ -265,7 +265,7 @@ public class UserUpdateActivity extends AppCompatActivity {
                         // 이미지 데이터를 읽어옵니다.
                         InputStream inputStream = responseBody.byteStream();
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
+                        System.out.println(bitmap);
                         // 이미지를 이미지 뷰에 설정합니다.
                         imgprofile.setImageBitmap(bitmap);
                     } else {
@@ -286,7 +286,6 @@ public class UserUpdateActivity extends AppCompatActivity {
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
                 imgprofile.setImageResource(R.drawable.ic_default_profile);
-                Toast.makeText(UserUpdateActivity.this, "다운로드 오류", Toast.LENGTH_SHORT).show();
                 Log.e("Download error", "Download failed: " + t.getMessage());
             }
         });

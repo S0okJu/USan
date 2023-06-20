@@ -22,12 +22,18 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.activity.product.UpdateActivity;
 import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.FavoriteProduct;
 import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.response.RetroProduct;
 import com.example.usan_comb1.utilities.Constants;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +99,7 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         //holder.txtPrice.setText(data.getPrice() + "원");
 
         // 이미지 다운로드 메소드 호출
-        downloadImage(accessToken, data.getProductId(), data.getImg(), holder.coverImage);
+        downloadImage(accessToken, data.getProductId(), 1, holder.coverImage);
 
 
         // 추가되어 있는 관심물품을 다시 클릭하여 삭제하는 작업
@@ -208,29 +214,45 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
     }
 
     // 이미지 다운로드
-    private void downloadImage(String accessToken, int productId, String filename, ImageView coverImage) {
-        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
+    private void downloadImage(String accessToken, int productId, int num, ImageView coverImage) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, num);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
-                        InputStream inputStream = responseBody.byteStream();
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        try {
+                            String jsonString = responseBody.string();
+                            System.out.println(jsonString);
+                            JSONObject jsonObject = new JSONObject(jsonString);
+                            System.out.println(jsonObject);
+                            JSONArray imageUrls = jsonObject.getJSONArray("imgs");
 
-                        // 이미지를 이미지 뷰에 설정합니다.
-                        coverImage.setImageBitmap(bitmap);
+                            if (imageUrls != null && imageUrls.length() > 0) {
+                                String imageUrl = Constants.BASE_URL + imageUrls.getString(0);// 첫 번째 이미지 URL 가져오기
+                                System.out.println(imageUrl);
+                                Glide.with(context)
+                                        .load(imageUrl)
+                                        .into(coverImage);
+                            } else {
+                                // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                                coverImage.setImageResource(R.drawable.img_error);
+                                Log.e("Download error", "Download failed: No image URLs available");
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         coverImage.setImageResource(R.drawable.img_error);
-                        Toast.makeText(context, "이미지가 없습니다.", Toast.LENGTH_SHORT).show();
                         Log.e("Download error", "Download failed: " + response.message());
                     }
                 } else {
                     // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
                     coverImage.setImageResource(R.drawable.img_error);
-                    Toast.makeText(context, "서버 응답 실패", Toast.LENGTH_SHORT).show();
                     Log.e("Download error", "Download failed: " + response.message());
                 }
             }
@@ -239,7 +261,6 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
                 coverImage.setImageResource(R.drawable.img_error);
-                Toast.makeText(context, "다운로드 오류", Toast.LENGTH_SHORT).show();
                 Log.e("Download error", "Download failed: " + t.getMessage());
             }
         });

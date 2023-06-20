@@ -19,7 +19,7 @@ public class UpdateResponse {
     @SerializedName("price")
     private String price;
 
-    @SerializedName("img")
+    @SerializedName("image_filenames")
     private String img;
 
     public int getProduct_id() { return product_id; }

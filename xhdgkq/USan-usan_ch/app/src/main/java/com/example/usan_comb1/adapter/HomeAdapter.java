@@ -21,10 +21,16 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.example.usan_comb1.ProductService;
 import com.example.usan_comb1.R;
 import com.example.usan_comb1.RetrofitClient;
+import com.example.usan_comb1.activity.product.UpdateActivity;
 import com.example.usan_comb1.request.DownImage;
 import com.example.usan_comb1.response.PostList;
 import com.example.usan_comb1.utilities.Constants;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
@@ -81,7 +87,7 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
         PostList data = dataArrayList.get(position);
 
         // 이미지 다운로드 메소드 호출
-        downloadImage(accessToken, data.getProduct_id(), data.getImg(), holder.coverImage);
+        downloadImage(accessToken, data.getProduct_id(), 1, holder.coverImage);
 
         holder.txtTitle.setText(data.getTitle());
         holder.txtAuthor.setText(data.getAuthor());
@@ -122,19 +128,37 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.ViewHolder>
     }
 
     // 이미지 다운로드
-    private void downloadImage(String accessToken, int productId, String filename, ImageView coverImage) {
-        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
+    private void downloadImage(String accessToken, int productId, int num, ImageView coverImage) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, num);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
-                        InputStream inputStream = responseBody.byteStream();
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        try {
+                            String jsonString = responseBody.string();
+                            System.out.println(jsonString);
+                            JSONObject jsonObject = new JSONObject(jsonString);
+                            System.out.println(jsonObject);
+                            JSONArray imageUrls = jsonObject.getJSONArray("imgs");
 
-                        // 이미지를 이미지 뷰에 설정합니다.
-                        coverImage.setImageBitmap(bitmap);
+                            if (imageUrls != null && imageUrls.length() > 0) {
+                                String imageUrl = Constants.BASE_URL + imageUrls.getString(0);// 첫 번째 이미지 URL 가져오기
+                                System.out.println(imageUrl);
+                                Glide.with(activity)
+                                        .load(imageUrl)
+                                        .into(coverImage);
+                            } else {
+                                // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                                coverImage.setImageResource(R.drawable.img_error);
+                                Log.e("Download error", "Download failed: No image URLs available");
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         coverImage.setImageResource(R.drawable.img_error);

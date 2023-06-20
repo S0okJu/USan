@@ -3,6 +3,7 @@ package com.example.usan_comb1.activity.product;
 import static com.example.usan_comb1.utilities.Constants.BUYER;
 import static com.example.usan_comb1.utilities.Constants.SELLER;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,6 +36,7 @@ import com.example.usan_comb1.adapter.CardAdapter;
 import com.example.usan_comb1.models.Users;
 import com.example.usan_comb1.response.PostResult;
 import com.example.usan_comb1.response.RetroProduct;
+import com.example.usan_comb1.utilities.Constants;
 import com.example.usan_comb1.utilities.PreferenceManager;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -42,6 +44,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,24 +64,22 @@ public class DetailActivity extends AppCompatActivity {
 
     private TextView tvTitle, tvDetail, tvAuthor;
     private TextView price;
-    private ImageView profile;
+    private ImageView profile, productView;
     private static ProductService mProductService;
     public boolean isFavorite;
-    private ViewPager viewPager;
     private static Integer productId;
     private String username;
     private static String accessToken;
     private static final String KEY_IS_FAVORITE = "is_favorite";
     public String author;
     public Integer role;
-    private static String filename;
 
-    private RecyclerView recyclerView;
     private CardAdapter cardadapter;
     private Button chat;
 
     String TAG = "FirebaseChat";
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,6 +90,7 @@ public class DetailActivity extends AppCompatActivity {
         tvAuthor = findViewById(R.id.nickname);
         profile = findViewById(R.id.profile);
         chat = findViewById(R.id.btnchat); // 채팅 버튼
+        productView = findViewById(R.id.productView);
 
         mProductService = RetrofitClient.getProductService();
 
@@ -101,9 +107,7 @@ public class DetailActivity extends AppCompatActivity {
             }
         }
 
-        SharedPreferences file_prefs = getSharedPreferences("file", Context.MODE_PRIVATE);
-        filename = file_prefs.getString("filename", "");
-        System.out.println(filename);
+        downloadProductImage(accessToken, productId, 1);
 
         tvAuthor.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -241,11 +245,6 @@ public class DetailActivity extends AppCompatActivity {
                     author = product.getPost_Author();
                     System.out.println(author);
 
-                    ViewPager viewPager = findViewById(R.id.viewPager);
-                    List<String> imageUrls = Collections.singletonList(filename); // filename을 List 형식으로 감싸기
-                    ImagePagerAdapter adapter = new ImagePagerAdapter(DetailActivity.this, imageUrls);
-                    viewPager.setAdapter(adapter);
-
 
                     downloadImage();
 
@@ -303,92 +302,6 @@ public class DetailActivity extends AppCompatActivity {
                 Toast.makeText(DetailActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-
-
-    private static class ImagePagerAdapter extends PagerAdapter {
-
-        private Context context;
-        private List<String> imageUrls;
-
-        public ImagePagerAdapter(Context context, List<String> imageUrls) {
-            this.context = context;
-            this.imageUrls = imageUrls;
-        }
-
-        @Override
-        public int getCount() {
-            if (imageUrls != null) {
-                return imageUrls.size();
-            } else {
-                return 0; // 또는 적절한 기본값 설정
-            }
-        }
-
-        @Override
-        public boolean isViewFromObject(View view, Object object) {
-            return view == object;
-        }
-
-        @NonNull
-        @Override
-        public Object instantiateItem(@NonNull ViewGroup container, int position) {
-            ImageView imageView = new ImageView(context);
-            imageView.setLayoutParams(new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.MATCH_PARENT
-            ));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-
-            // 이미지 다운로드 및 표시
-            String imageUrl = imageUrls.get(position); // 현재 위치에 해당하는 URL 가져오기
-            System.out.println(imageUrl);
-            downloadProductImage(accessToken, productId, imageUrl, imageView);
-
-            container.addView(imageView);
-            return imageView;
-        }
-
-        @Override
-        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-            container.removeView((View) object);
-        }
-
-        // 이미지 다운로드
-        private void downloadProductImage(String accessToken, int productId, String imageUrl, final ImageView imageView) {
-            Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, imageUrl);
-            call.enqueue(new Callback<ResponseBody>() {
-                @Override
-                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        ResponseBody responseBody = response.body();
-                        if (responseBody != null) {
-                            InputStream inputStream = responseBody.byteStream();
-                            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-
-                            // 이미지를 이미지 뷰에 설정합니다.
-                            imageView.setImageBitmap(bitmap);
-                        } else {
-                            // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
-                            imageView.setImageResource(R.drawable.img_error);
-                            Log.e("Download error", "Download failed: " + response.message());
-                        }
-                    } else {
-                        // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
-                        imageView.setImageResource(R.drawable.img_error);
-                        Log.e("Download error", "Download failed: " + response.message());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
-                    imageView.setImageResource(R.drawable.img_error);
-                    Log.e("Download error", "Download failed: " + t.getMessage());
-                }
-            });
-        }
     }
 
     // 채팅
@@ -471,5 +384,56 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
+    // 이미지 다운로드
+    private void downloadProductImage(String accessToken, int productId, int num) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, num);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    ResponseBody responseBody = response.body();
+                    if (responseBody != null) {
+                        try {
+                            String jsonString = responseBody.string();
+                            System.out.println(jsonString);
+                            JSONObject jsonObject = new JSONObject(jsonString);
+                            System.out.println(jsonObject);
+                            JSONArray imageUrls = jsonObject.getJSONArray("imgs");
 
+                            if (imageUrls != null && imageUrls.length() > 0) {
+                                String imageUrl = Constants.BASE_URL + imageUrls.getString(0);// 첫 번째 이미지 URL 가져오기
+                                System.out.println(imageUrl);
+                                Glide.with(DetailActivity.this)
+                                        .load(imageUrl)
+                                        .into(productView);
+                            } else {
+                                // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                                productView.setImageResource(R.drawable.img_error);
+                                Log.e("Download error", "Download failed: No image URLs available");
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                        productView.setImageResource(R.drawable.img_error);
+                        Log.e("Download error", "Download failed: " + response.message());
+                    }
+                } else {
+                    // 서버 응답이 실패인 경우 기본 이미지를 설정합니다.
+                    productView.setImageResource(R.drawable.img_error);
+                    Log.e("Download error", "Download failed: " + response.message());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                // 이미지 다운로드 중 오류가 발생한 경우 기본 이미지를 설정합니다.
+                productView.setImageResource(R.drawable.img_error);
+                Log.e("Download error", "Download failed: " + t.getMessage());
+            }
+        });
+    }
 }

@@ -2,6 +2,8 @@ package com.example.usan_comb1.request;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 // 상품 수정 Request
 public class UpdateRequest {
 
@@ -20,9 +22,16 @@ public class UpdateRequest {
     @SerializedName("price")
     private String price;
 
+    @SerializedName("image_filenames")
+    private String img;
+
     public int getProduct_id() { return product_id; }
 
     public void setProduct_id(int product_id) { this.product_id = product_id; }
+
+    public String getImg() { return img; }
+
+    public void setImg(String img) { this.img = img; }
 
     public String getTitle() { return title; }
 

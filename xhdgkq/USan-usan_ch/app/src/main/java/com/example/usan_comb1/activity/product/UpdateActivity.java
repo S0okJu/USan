@@ -47,6 +47,10 @@ import com.example.usan_comb1.response.ProductImageResponse;
 import com.example.usan_comb1.response.UpdateResponse;
 import com.example.usan_comb1.utilities.Constants;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -97,14 +101,10 @@ public class UpdateActivity extends AppCompatActivity {
         update_btn = findViewById(R.id.update_btn);
 
 
-
         mProgressView = (ProgressBar) findViewById(R.id.product_progress);
 
         mProductService = RetrofitClient.getRetrofitInstance().create(ProductService.class);
 
-        // SharedPreferences file_prefs = getSharedPreferences("file", Context.MODE_PRIVATE);
-        // filename = file_prefs.getString("filename", "");
-        // System.out.println(filename);
 
         // Authorization
         SharedPreferences prefs = getSharedPreferences("auth", Context.MODE_PRIVATE);
@@ -134,6 +134,8 @@ public class UpdateActivity extends AppCompatActivity {
                 getProduct(productId, accessToken);
             }
         }
+
+        downloadImage(accessToken, productId, 1);
 
         update_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -249,6 +251,7 @@ public class UpdateActivity extends AppCompatActivity {
         updateRequest.setContent(content);
         updateRequest.setPrice(price);
         updateRequest.setAddress(addressObj);
+        updateRequest.setImg(filename);
 
 
         Call<UpdateRequest> call = mProductService.updateProduct(accessToken, productId, updateRequest);
@@ -302,8 +305,8 @@ public class UpdateActivity extends AppCompatActivity {
                         eContent.setText(product.getContent());
                         String previousAddress = product.getAddress().getName();
 
-                        System.out.println(product.getImg());
-                        downloadImage(accessToken, productId, product.getImg());
+
+                        downloadImage(accessToken, productId, 1);
 
                         // 이전 주소가 spinner의 목록에 있는지 확인하고 인덱스를 찾습니다.
                         ArrayAdapter<CharSequence> adapter = (ArrayAdapter<CharSequence>) eAddressSpinner.getAdapter();
@@ -472,16 +475,7 @@ public class UpdateActivity extends AppCompatActivity {
                         String filename = firstImageResponse.getFileName();
                         System.out.println(filename);
 
-                        // SharedPreferences file_pref = getSharedPreferences("file", Context.MODE_PRIVATE);
-                        // SharedPreferences.Editor editor = file_pref.edit();
-                        // editor.putString("filename", filename);
-                        // editor.apply();
-
-                        // Intent url_intent = new Intent(UpdateActivity.this, CardAdapter.class);
-                        // url_intent.putExtra("imagePath", imagePath); // imagePath 값을 인텐트에 추가
-                        // startActivity(url_intent);
-
-                        downloadImage(accessToken, productId, filename);
+                        downloadImage(accessToken, productId, 1);
                     } else {
                         // 서버 응답에 이미지 정보가 없는 경우 처리
                         Toast.makeText(UpdateActivity.this, "서버 응답에 이미지 정보가 없습니다.", Toast.LENGTH_SHORT).show();
@@ -496,26 +490,43 @@ public class UpdateActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<ProductImageResponse>> call, Throwable t) {
                 // 네트워크 오류 처리
-                Toast.makeText(UpdateActivity.this, "네트워크 오류", Toast.LENGTH_SHORT).show();
                 Log.e("Upload error", t.getMessage());
             }
         });
     }
 
     // 이미지 다운로드
-    private void downloadImage(String accessToken, int productId, String filename) {
-        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, filename);
+    private void downloadImage(String accessToken, int productId, int num) {
+        Call<ResponseBody> call = mProductService.downloadImage(accessToken, productId, num);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     ResponseBody responseBody = response.body();
                     if (responseBody != null) {
-                        InputStream inputStream = responseBody.byteStream();
-                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        try {
+                            String jsonString = responseBody.string();
+                            System.out.println(jsonString);
+                            JSONObject jsonObject = new JSONObject(jsonString);
+                            System.out.println(jsonObject);
+                            JSONArray imageUrls = jsonObject.getJSONArray("imgs");
 
-                        // 이미지를 이미지 뷰에 설정합니다.
-                        productImg.setImageBitmap(bitmap);
+                            if (imageUrls != null && imageUrls.length() > 0) {
+                                String imageUrl = Constants.BASE_URL + imageUrls.getString(0);// 첫 번째 이미지 URL 가져오기
+                                System.out.println(imageUrl);
+                                Glide.with(UpdateActivity.this)
+                                        .load(imageUrl)
+                                        .into(productImg);
+                            } else {
+                                // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
+                                productImg.setImageResource(R.drawable.img_error);
+                                Log.e("Download error", "Download failed: No image URLs available");
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     } else {
                         // 이미지 데이터가 없는 경우 기본 이미지를 설정합니다.
                         productImg.setImageResource(R.drawable.img_error);
@@ -536,5 +547,6 @@ public class UpdateActivity extends AppCompatActivity {
             }
         });
     }
+
 
 }

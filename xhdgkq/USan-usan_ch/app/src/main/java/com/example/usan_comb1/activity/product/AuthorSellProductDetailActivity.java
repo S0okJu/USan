@@ -1,5 +1,6 @@
 package com.example.usan_comb1.activity.product;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -59,6 +60,7 @@ public class AuthorSellProductDetailActivity extends AppCompatActivity {
     private static final String KEY_IS_FAVORITE = "is_favorite";
 
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
