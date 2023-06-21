@@ -113,6 +113,8 @@ def upload(product_id):
 
     rdb.session.commit()
     return jsonify(file_path_list), 200
+
+
 # 오직 첫번째로 display한 사진을 가져온다.
 # product_id
 # type = 0(첫번째 사진만)
@@ -150,7 +152,6 @@ def download_file(product_id, filename):
         file_path = os.path.join(UPLOAD_FOLDER, str(product_id), filename)
         mimetype = 'image/jpeg'
 
-        print(file_path)
         # with open(file_path, 'rb') as f:
         #     contents = f.read()
         return send_file(file_path, mimetype=mimetype)
