@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.profile.UserUpdateActivity">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageBack"
+        android:layout_width="@dimen/_30sdp"
+        android:layout_height="@dimen/_30sdp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="12dp"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:tint="@color/color3"/>
+
+
+    <Button
+        android:id="@+id/btnselect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="161dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="161dp"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
+        android:text="사진 선택"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imgprofile"
+        app:layout_constraintVertical_bias="0.039" />
+
+    <ImageView
+        android:id="@+id/imgprofile"
+        android:layout_width="181dp"
+        android:layout_height="159dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.244"
+        app:srcCompat="@drawable/ic_profile" />
+
+    <EditText
+        android:id="@+id/et_nameupdate"
+        android:layout_width="183dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/oval"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="textPersonName"
+        android:text="Name"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnselect"
+        app:layout_constraintVertical_bias="0.11" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="183dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/oval"
+        android:gravity="center"
+        android:text="닉네임"
+        android:textSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnselect"
+        app:layout_constraintVertical_bias="0.11" />
+
+    <Button
+        android:id="@+id/btn_ch"
+        android:layout_width="92dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="161dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="161dp"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
+        android:text="수정"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_nameupdate"
+        app:layout_constraintVertical_bias="0.035" />
+
+    <Button
+        android:id="@+id/btn_ok"
+        android:layout_width="92dp"
+        android:layout_height="49dp"
+        android:layout_marginStart="161dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="161dp"
+        android:background="@color/color1"
+        android:fontFamily="@font/noto"
+        android:text="확인"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_nameupdate"
+        app:layout_constraintVertical_bias="0.035" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
